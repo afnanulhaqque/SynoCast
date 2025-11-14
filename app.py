@@ -11,23 +11,22 @@ app = Flask(
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", active_page="home")
 
 
 @app.route("/news")
 def news():
-    return render_template("news.html")
+    return render_template("news.html", active_page="news")
 
 
 @app.route("/weather")
 def weather():
-    return render_template("weatherApp.html")
+    return render_template("weather_app.html", active_page="weather")
 
 
 @app.route("/about")
 def about():
-    return render_template("About.html")
-
+    return render_template("about.html", active_page="about")
 
 if __name__ == "__main__":
     app.run(debug=True)

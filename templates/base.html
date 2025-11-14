@@ -13,6 +13,7 @@
         {% endblock title %}
         - SynoCast
     </title>
+    <link rel="icon" href="/assests/logo/logo-small.png" type="image/x-icon">
 </head>
 
 <body>
@@ -27,13 +28,14 @@
             <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
-                        <a class="nav-link active nav_text" aria-current="page" href="/">Home</a>
+                        <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav_text" href="/news">News</a>
+                        <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text" href="/news">News</a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link nav_text" href="/about">About</a>
+                        <a class="nav-link {% if active_page == 'about' %}active{% endif %} nav_text" href="/about">About</a>
                     </li>
                 </ul>
             </div>
@@ -63,7 +65,7 @@
                         </a>
                     </div>
                     <div class="footer_item">
-                        <p class="card-text" >Website developed by Afnan Ul Haq for personal and non-commercial purposes,
+                        <p class="card-text">Website developed by Afnan Ul Haq for personal and non-commercial purposes,
                             follow me on social media</p>
                     </div>
                 </div>

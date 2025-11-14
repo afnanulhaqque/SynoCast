@@ -23,6 +23,11 @@ main {
 .navbar {
     background-color: #FEFAF9 !important;
 }
+.nav-link:hover,
+.nav-link.active {
+    font-weight: 600 !important;
+    color: rgba(105, 55, 245, 1) !important;
+}
 
 .header_card {
     border: none;
