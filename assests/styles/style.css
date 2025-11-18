@@ -1,49 +1,49 @@
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 main {
-    flex: 1;
+  flex: 1;
 }
 
 .synocast_logo {
-    height: 73.3px;
-    width: 181px;
-    top: 25px;
-    left: 77px;
+  height: 73.3px;
+  width: 181px;
+  top: 25px;
+  left: 77px;
 }
 
 .nav_text {
-    font-weight: 600;
-    line-height: 100%;
+  font-weight: 600;
+  line-height: 100%;
 }
 
 .navbar {
-    background-color: #FEFAF9 !important;
+  background-color: #fefaf9 !important;
 }
 .nav-link:hover,
 .nav-link.active {
-    font-weight: 600 !important;
-    color: rgba(105, 55, 245, 1) !important;
+  font-weight: 600 !important;
+  color: rgba(105, 55, 245, 1) !important;
 }
 
 .header_card {
-    border: none;
-    border-radius: 0%;
-    background: #E7E4E3;
+  border: none;
+  border-radius: 0%;
+  background: #e7e4e3;
 }
 
 .footer_icon {
-    width: 24px;
-    height: 24px;
-    margin: 0 10px;
+  width: 24px;
+  height: 24px;
+  margin: 0 10px;
 }
 
 .footer_icon_div {
 }
 
-.footer_item{
-    margin: 1.5rem;
+.footer_item {
+  margin: 1.5rem;
 }
