@@ -2,6 +2,8 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal; 
 }
 
 main {
@@ -46,4 +48,28 @@ main {
 
 .footer_item {
   margin: 1.5rem;
+}
+
+.banner_image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.banner_image_text {
+  display: grid;
+  width: 431px;
+  height: 138px;
+  gap: 40px !important;
+  top: 32% !important;
+  left: 27.5% !important;
+}
+
+.banner_image_text_news{
+  left: 72.5% !important;
+}
+
+.banner_image_text span {
+
 }
