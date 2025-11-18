@@ -10,14 +10,14 @@ app = Flask(
     static_url_path="/assests",
 )
 
-def get_local_time_string(ip="127.0.0.1"):
+def get_local_time_string():
+    # 1. Get user IP address first
+    ip = request.remote_addr
     if ip.startswith("127.") or ip == "localhost":
         city = "Islamabad"
         region = "Punjab"
         utc_offset = "+0500"
     else:
-        # 1. Get IP address
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         # 2. Fetch IP info
         data = requests.get(f"https://ipapi.co/{ip}/json/").json()
         city = data.get("city", "")
