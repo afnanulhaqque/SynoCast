@@ -12,7 +12,7 @@ app = Flask(
 
 def get_local_time_string():
     # 1. Get user IP address first
-    ip = request.remote_addr
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
     if ip.startswith("127.") or ip == "localhost":
         city = "Islamabad"
         region = "Punjab"
@@ -53,12 +53,7 @@ def news():
 
 @app.route("/weather")
 def weather():
-    return render_template("weather_app.html", active_page="weather", date_time_info=get_local_time_string())
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html", active_page="about", date_time_info=get_local_time_string())
+    return render_template("weather.html", active_page="weather", date_time_info=get_local_time_string())
 
 if __name__ == "__main__":
     app.run(debug=True)
