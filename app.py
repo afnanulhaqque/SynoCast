@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+import requests
+from flask import Flask, render_template , request
+from datetime import datetime, timedelta, timezone
 
 
 app = Flask(
@@ -8,25 +10,55 @@ app = Flask(
     static_url_path="/assests",
 )
 
+def get_local_time_string(ip="127.0.0.1"):
+    if ip.startswith("127.") or ip == "localhost":
+        city = "Islamabad"
+        region = "Punjab"
+        utc_offset = "+0500"
+    else:
+        # 1. Get IP address
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        # 2. Fetch IP info
+        data = requests.get(f"https://ipapi.co/{ip}/json/").json()
+        city = data.get("city", "")
+        region = data.get("region", "")
+        utc_offset = data.get("utc_offset", "0000")
+
+    # 3. Convert offset string (“-0300”) to hours/minutes
+    offset_hours = int(utc_offset[:3])     # "-03" -> -3
+    offset_minutes = int(utc_offset[3:])   # "00" -> 0
+
+    tz = timezone(timedelta(hours=offset_hours, minutes=offset_minutes))
+
+    # 4. Local time = now in that timezone
+    now = datetime.now(tz)
+
+    # 5. Format like your example
+    formatted = now.strftime("%A, %B %d, %Y, %H:%M")
+
+    # 6. Convert offset to GMT format: "-0300" → "GMT-03:00"
+    gmt_offset = f"GMT{utc_offset[:3]}:{utc_offset[3:]}"
+
+    return f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
 
 @app.route("/")
 def home():
-    return render_template("home.html", active_page="home")
+    return render_template("home.html", active_page="home", date_time_info=get_local_time_string())
 
 
 @app.route("/news")
 def news():
-    return render_template("news.html", active_page="news")
+    return render_template("news.html", active_page="news", date_time_info=get_local_time_string())
 
 
 @app.route("/weather")
 def weather():
-    return render_template("weather_app.html", active_page="weather")
+    return render_template("weather_app.html", active_page="weather", date_time_info=get_local_time_string())
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", active_page="about")
+    return render_template("about.html", active_page="about", date_time_info=get_local_time_string())
 
 if __name__ == "__main__":
     app.run(debug=True)
