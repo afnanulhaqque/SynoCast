@@ -2,24 +2,24 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: 'Poppins', sans-serif;
-  font-style: normal; 
+  font-family: "Poppins", sans-serif;
+  font-style: normal;
 }
 
 main {
   flex: 1;
 }
 
-.date_time_info{
-  background-color: rgba(181, 181, 181, 1) !important; ;
+.date_time_info {
+  background-color: rgba(181, 181, 181, 1) !important;
 }
 
-.date_time_info span{
-left: 128px;
-position: relative;
-font-weight: 400;
-line-height: 100%;
-font-size: 14px;
+.date_time_info span {
+  left: 128px;
+  position: relative;
+  font-weight: 400;
+  line-height: 100%;
+  font-size: 14px;
 }
 
 .synocast_logo {
@@ -63,7 +63,7 @@ font-size: 14px;
   margin: 1.5rem;
 }
 
-.footer_item span{
+.footer_item span {
   color: rgba(105, 55, 245, 1);
   font-weight: bold;
 }
@@ -84,12 +84,11 @@ font-size: 14px;
   left: 27.5% !important;
 }
 
-.banner_image_text_news{
+.banner_image_text_news {
   left: 72.5% !important;
 }
 
 .banner_image_text span {
-
 }
 
 .news_sub_banner .col-8 .card,
@@ -100,7 +99,7 @@ font-size: 14px;
 }
 
 .news_sub_banner .col-8 .card .card-body {
-  padding: 0; 
+  padding: 0;
 }
 
 .news_sub_banner .col-8,
@@ -108,11 +107,11 @@ font-size: 14px;
   padding: 5%;
 }
 
-.news_sub_banner .col-4 .card a {
+.card .card-link  {
   font-size: 14px;
   font-weight: 400;
   text-decoration: none;
-  color: rgba(105, 55, 245, 1) !important
+  color: rgba(105, 55, 245, 1) !important;
 }
 
 .news_sub_banner .col-8 .card .card-body .card-title,
@@ -123,4 +122,24 @@ font-size: 14px;
 
 .news_sub_banner .col-8 .card .card-body .card-text {
   font-size: large;
+}
+
+.sub_heading {
+  font-weight: 500;
+  font-style: Regular;
+  font-size: 20px;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
+
+.breaking_news_section .card,
+.featured_news_section .card  {
+  border: none;
+}
+.grey_color {
+  color:rgba(94, 94, 94, 1) !important;
+}
+
+.fs-7 {
+  font-size: 12px !important;
 }
