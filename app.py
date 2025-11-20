@@ -2,7 +2,6 @@ import requests
 from flask import Flask, render_template , request
 from datetime import datetime, timedelta, timezone
 
-
 app = Flask(
     __name__,
     template_folder="templates",

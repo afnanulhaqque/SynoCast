@@ -43,7 +43,6 @@ assests/               # Static images, icons, and custom CSS
 - Replace placeholder card copy, dates, and URLs in `templates/home.html`, `templates/news.html`, and `templates/weather.html`.
 - Update images or branding assets in `assests/`.
 - Expand `weather.html` with real forecast data (e.g., by consuming a weather API) and wire it into `app.py`.
-- Add a `requirements.txt` once dependency versions are finalized.
 
 ## License
 This project currently has no explicit license. Add one before distributing or deploying publicly.
