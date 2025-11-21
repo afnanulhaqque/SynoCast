@@ -161,3 +161,22 @@ main {
   color: white;
   border: 2px solid rgba(105, 55, 245, 1);
 }
+
+.btn_get_started{
+border-radius: 100px;
+  gap: 10px;
+  opacity: 1;
+  border-width: 2px;
+  padding: 8px 70px;
+  border: 2px solid rgba(105, 55, 245, 1);
+  background-color: rgba(105, 55, 245, 1);
+  color: white;
+  margin-top: 1.5rem;
+}
+
+.btn_get_started:hover {
+   background: transparent;
+    border: 2px solid rgba(105, 55, 245, 1);
+    color: rgba(105, 55, 245, 1);
+}
+  
