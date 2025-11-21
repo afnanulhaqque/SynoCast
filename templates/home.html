@@ -14,32 +14,29 @@ body %}
   </div>
 </div>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5 home_banner_2">
   <div class="row">
-    <div class="col-6">
-      <div class="mb-5 w-50">
+    <div class="col-6 d-flex flex-column align-items-center">
+      <div class="mb-5 w-50 ">
         <span class="sub_heading">Stay prepared for upcoming weather with <span class="fw-semibold">daily weather
             news.</span></span>
         <a href="/news" type="button" class="btn btn-outline-secondary btn_explore">Explore</a>
       </div>
-      <img src="/assests/weatherTrip-banner 1.svg" class="img-fluid" alt="Home Image 1" />
+      <img src="/assests/weatherTrip-banner 1.svg" class="img-fluid " alt="Home Image 1" />
     </div>
-    <div class="col-6">
-      <div class="mb-5 w-50">
-      
-      <div class="mb-5 w-60 text-end">
-        <span class="sub_heading fw-bold">Don´t guess the Weather.</span>
-        <span class="sub_heading">Clime for year-round weather forecasts for your location and across the
-          world</span></span>
+    <div class="col-6 d-flex flex-column align-items-center">
+      {% include 'sub_banner_card.html' %}
+      <div class="mb-5 w-50 text-end">
+        <p class="sub_heading_2 fw-bold mb-4">Don´t guess the Weather.</p>
+        <span class="fs-6">Clime for year-round weather forecasts for your location and across the
+          world.</span></span>
         <a href="/weather" type="button" class="btn btn-outline-secondary btn_get_started">Get started</a>
       </div>
     </div>
-
   </div>
 </div>
-</div>
 
-<div class="position-relative mt-3">
+<div class="position-relative mt-3 home_banner_3">
   <img src="/assests/banner-news.png" class="img-fluid banner_image" alt="Banner" />
   <div
     class="position-absolute bottom-0 start-50 translate-middle-x text-white banner-subtitle banner_image_text banner_image_text_news">
@@ -48,6 +45,14 @@ body %}
       Your guide to weather: Accurate forecasts, storm warnings, tips for
       preparing and more.
     </p>
+  </div>
+  <div class="icons position-absolute bottom-0 translate-middle-x text-white banner-subtitle">
+    <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/">
+      <img src="/assests\icons\linkedin-white.png" alt="LinkedIn" class="icon">
+    </a>
+    <a class="icon-link" href="https://www.instagram.com/afn6n_x/">
+      <img src="assests\icons\instagram-white.png" alt="Instagram" class="icon">
+    </a>
   </div>
 </div>
 
