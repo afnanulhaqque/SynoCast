@@ -186,3 +186,29 @@ main {
 .home_banner_2 img {
   align-self: flex-end;
 }
+
+.home_banner_2 .card {
+  border-radius: 10px;
+}
+
+.home_banner_2 .card {
+  width: 18rem;
+  top: -310px;
+}
+
+.home_banner_2 .card-title {
+  width: 90px;
+  height: 23px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  margin-bottom: 2%;
+  color: rgba(105, 55, 245, 1);
+  position: relative;
+  left: 6rem;
+}
+
+.home_banner_2 .card-img-top-1 {
+  width: 17.961814880371094px;
+  height: 17.961814880371094px;
+}
