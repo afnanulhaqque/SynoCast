@@ -20,8 +20,9 @@
 <body>
     <main>
         <div class="date_time_info pb-1 pt-1">
-            <span id="dynamic_time_display" data-city="{{ date_time_info.city }}" data-region="{{ date_time_info.region }}"
-                data-offset="{{ date_time_info.utc_offset }}" data-gmt="{{ date_time_info.gmt_label }}">
+            <span id="dynamic_time_display" data-city="{{ date_time_info.city }}"
+                data-region="{{ date_time_info.region }}" data-offset="{{ date_time_info.utc_offset }}"
+                data-gmt="{{ date_time_info.gmt_label }}">
                 {{ date_time_info.display_string }}
             </span>
         </div>
@@ -35,7 +36,8 @@
             <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
-                        <a href="/chatbot" target="">
+                        <!-- Chatbot: open a modal instead of navigating away -->
+                        <a href="#" class="open-chat-modal" data-bs-toggle="modal" data-bs-target="#chatbot_modal">
                             <img src="/assests/chat-icon.png" alt="Chatbot Image"
                                 class="chatbot_icon {% if active_page == 'chatbot' %}active{% endif %}">
                         </a>
@@ -52,9 +54,11 @@
                         <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text"
                             href="/weather">Weather</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/subscribe" type="button"
-                            class=" {% if active_page == 'subscribe' %}active{% endif %} btn btn-outline-secondary btn_subscribe">Subscribe</a>
+                    <li class="nav-item d-flex align-items-center ms-lg-3">
+                        <button type="button" id="navbarSubscribeBtn" class="btn btn-outline-secondary btn_subscribe"
+                            data-bs-toggle="modal" data-bs-target="#subscribe_modal">
+                            Subscribe
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -87,6 +91,74 @@
             </div>
 
         </div>
+    </main>
+
+    <!-- Subscribe modal -->
+    <div class="modal fade" id="subscribe_modal" tabindex="-1" aria-labelledby="subscribe_modalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subscribe_modalLabel">Subscribe to SynoCast</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="step step-email">
+                        <div class="mb-3">
+                            <label for="subscriber-email" class="col-form-label">Email address</label>
+                            <input type="email" class="form-control" id="subscriber-email" placeholder="you@example.com"
+                                required>
+                        </div>
+                    </div>
+                    <div class="step step-otp d-none">
+                        <p class="text-muted" id="otp-instructions"></p>
+                        <div class="mb-3">
+                            <label for="subscriber-otp" class="col-form-label">One-Time Password</label>
+                            <input type="text" class="form-control" id="subscriber-otp" placeholder="6-digit code"
+                                maxlength="6" pattern="\d{6}" required>
+                        </div>
+                    </div>
+                    <div class="step step-success d-none">
+                        <div class="alert alert-success mb-0">
+                            Subscription confirmed! You're now part of the SynoCast list.
+                        </div>
+                    </div>
+                    <div class="alert alert-danger d-none mt-3" id="subscribe-error" role="alert"></div>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button type="button" class="btn modal_primary_btn" id="subscribe-action-btn">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot modal -->
+    <div class="modal fade" id="chatbot_modal" tabindex="-1" aria-labelledby="chatbot_modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chatbot_modalLabel">Chat with SynoCast</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="chatbot_wrapper">
+                        <div class="chatbot_messages" id="chatbot_messages" aria-live="polite"></div>
+                        <form id="chatbot_form" class="chatbot_form d-flex mt-3" role="search">
+                            <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..." aria-label="Chat message" autocomplete="off">
+                            <button class="btn modal_primary_btn ms-2 mt-0" id="chatbot_send" type="submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="{{ url_for('static', filename='js/subscribe_modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot_modal.js') }}"></script>
 </body>
 
 

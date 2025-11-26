@@ -31,6 +31,7 @@ main {
 }
 
 .nav_text,
+.btn_subscribe,
 .btn_subscribe {
   font-weight: 600;
   line-height: 100%;
@@ -157,7 +158,8 @@ main {
 
 .btn_explore,
 .btn_get_started,
-.btn_subscribe {
+.btn_subscribe,
+.modal_primary_btn {
   border-radius: 100px;
   gap: 10px;
   opacity: 1;
@@ -175,9 +177,18 @@ main {
   border: 2px solid rgba(105, 55, 245, 1);
 }
 
-.btn_get_started {
+.btn_get_started,
+.modal_primary_btn {
   background-color: rgba(105, 55, 245, 1);
   color: white;
+}
+
+.modal_primary_btn {
+  padding: 8px 36px;
+  font-weight: 600;
+  min-width: 140px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .btn_get_started:hover {
@@ -240,3 +251,79 @@ main {
   margin-left: 8px;
   margin: 0px;
 }
+
+.modal_primary_btn:hover,
+.modal_primary_btn:focus {
+  background-color: transparent;
+  color: rgba(105, 55, 245, 1);
+  border: 2px solid rgba(105, 55, 245, 1);
+}
+
+/* Chatbot modal styles */
+.chatbot_wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.chatbot_messages {
+  max-height: 350px;
+  overflow-y: auto;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.chatbot_messages .message {
+  margin-bottom: 0.75rem;
+}
+.chatbot_messages .message.bot .bubble {
+  background: rgba(105, 55, 245, 0.1);
+  color: rgba(34, 34, 34, 1);
+  align-self: flex-start;
+}
+.chatbot_messages .message.user .bubble {
+  background: rgba(105, 55, 245, 1);
+  color: white;
+  align-self: flex-end;
+}
+.chatbot_messages .bubble {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 16px;
+  max-width: 80%;
+}
+.chatbot_form { gap: 0.5rem; }
+
+/* Ensure the chat input and Send button share the same height and vertical alignment */
+.chatbot_form {
+  align-items: center; /* vertically centers contents */
+}
+.chatbot_form .form-control {
+  height: 44px; /* match the button height */
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: 100px;
+}
+.chatbot_form .modal_primary_btn {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px; /* keep pill look but keep height consistent */
+}
+
+/* Small-screen adjustments (stacked if needed) */
+@media (max-width: 480px) {
+  .chatbot_form {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .chatbot_form .form-control,
+  .chatbot_form .modal_primary_btn {
+    height: auto; /* allow native sizing on small screens */
+    width: 100%;
+  }
+}
+
+/* Ensure modal uses same font */
+.modal, .modal * { font-family: inherit; }
