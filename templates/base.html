@@ -14,12 +14,16 @@
         - SynoCast
     </title>
     <link rel="icon" href="/assests/logo/logo-small.svg" type="image/x-icon">
+    <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
 </head>
 
 <body>
     <main>
         <div class="date_time_info pb-1 pt-1">
-            <span class=""> {{ date_time_info }}</span>
+            <span id="dynamic_time_display" data-city="{{ date_time_info.city }}" data-region="{{ date_time_info.region }}"
+                data-offset="{{ date_time_info.utc_offset }}" data-gmt="{{ date_time_info.gmt_label }}">
+                {{ date_time_info.display_string }}
+            </span>
         </div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container">
@@ -84,5 +88,6 @@
 
         </div>
 </body>
+
 
 </html>

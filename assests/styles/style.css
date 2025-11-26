@@ -40,6 +40,7 @@ main {
   background-color: #fefaf9 !important;
   padding: 0;
 }
+
 .nav-link:hover,
 .nav-link.active {
   font-weight: 600 !important;
@@ -63,8 +64,7 @@ main {
   left: 10%;
 }
 
-.footer_icon_div {
-}
+.footer_icon_div {}
 
 .footer_item span {
   color: rgba(105, 55, 245, 1);
@@ -91,8 +91,7 @@ main {
   left: 72.5% !important;
 }
 
-.banner_image_text span {
-}
+.banner_image_text span {}
 
 .news_sub_banner .col-8 .card,
 .news_sub_banner .col-4 .card {
@@ -147,6 +146,7 @@ main {
 .featured_news_section .card {
   border: none;
 }
+
 .grey_color {
   color: rgba(94, 94, 94, 1) !important;
 }
@@ -190,6 +190,15 @@ main {
   align-self: flex-end;
 }
 
+.home_banner_2_row {
+  height: 600px;
+}
+
+.home_banner_2_text_end {
+  top: -221px;
+  position: relative;
+}
+
 .home_banner_2 .card {
   border-radius: 10px;
 
@@ -223,7 +232,7 @@ main {
 }
 
 .btn_subscribe {
-  width: 100px; 
+  width: 100px;
   height: 30px;
   padding: 6px 10px;
   font-weight: 500;

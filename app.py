@@ -38,7 +38,15 @@ def get_local_time_string():
     # 6. Convert offset to GMT format: "-0300" → "GMT-03:00"
     gmt_offset = f"GMT{utc_offset[:3]}:{utc_offset[3:]}"
 
-    return f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
+    full_string =  f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
+
+    return {
+        "display_string": full_string,
+        "city": city,
+        "region": region,
+        "utc_offset": utc_offset, # e.g. "+0500"
+        "gmt_label": gmt_offset   # e.g. "GMT+05:00"
+    }
 
 @app.route("/")
 def home():
