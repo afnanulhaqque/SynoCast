@@ -19,8 +19,8 @@
 <body>
     <main>
         <div class="date_time_info pb-1 pt-1">
-                <span class="" > {{ date_time_info }}</span>
-            </div>
+            <span class=""> {{ date_time_info }}</span>
+        </div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container">
                 <a class="navbar-brand" href="#">
@@ -31,23 +31,26 @@
             <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
-                        <a href="/" target="">
-                            <img src="/assests/chat-icon.png" alt="Chatbot Image" class="chatbot_icon">
-                          </a>
+                        <a href="/chatbot" target="">
+                            <img src="/assests/chat-icon.png" alt="Chatbot Image"
+                                class="chatbot_icon {% if active_page == 'chatbot' %}active{% endif %}">
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page" href="/">Home</a>
+                        <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page"
+                            href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text" href="/news">News</a>
+                        <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text"
+                            href="/news">News</a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather">Weather</a>
+                        <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text"
+                            href="/weather">Weather</a>
                     </li>
-
                     <li class="nav-item">
-                        <a href="/news" type="button" class="btn btn-outline-secondary  btn_subscribe">Subscribe</a>
+                        <a href="/subscribe" type="button"
+                            class=" {% if active_page == 'subscribe' %}active{% endif %} btn btn-outline-secondary btn_subscribe">Subscribe</a>
                     </li>
                 </ul>
             </div>

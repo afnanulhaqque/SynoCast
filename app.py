@@ -49,10 +49,17 @@ def home():
 def news():
     return render_template("news.html", active_page="news", date_time_info=get_local_time_string())
 
-
 @app.route("/weather")
 def weather():
     return render_template("weather.html", active_page="weather", date_time_info=get_local_time_string())
+
+@app.route("/subscribe")
+def subscribe():
+    return render_template("subscribe.html", active_page="subscribe", date_time_info=get_local_time_string())
+
+@app.route("/chatbot")
+def chatbot():
+    return render_template("chatbot.html", active_page="chatbot", date_time_info=get_local_time_string())
 
 if __name__ == "__main__":
     app.run(debug=True)
