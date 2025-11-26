@@ -31,6 +31,11 @@
             <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
+                        <a href="/" target="">
+                            <img src="/assests/chat-icon.png" alt="Chatbot Image" class="chatbot_icon">
+                          </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
@@ -39,6 +44,10 @@
 
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather">Weather</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/news" type="button" class="btn btn-outline-secondary  btn_subscribe">Subscribe</a>
                     </li>
                 </ul>
             </div>

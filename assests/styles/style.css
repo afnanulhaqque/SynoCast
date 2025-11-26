@@ -30,7 +30,8 @@ main {
   left: 77px;
 }
 
-.nav_text {
+.nav_text,
+.btn_subscribe {
   font-weight: 600;
   line-height: 100%;
 }
@@ -155,7 +156,8 @@ main {
 }
 
 .btn_explore,
-.btn_get_started {
+.btn_get_started,
+.btn_subscribe {
   border-radius: 100px;
   gap: 10px;
   opacity: 1;
@@ -166,7 +168,8 @@ main {
   margin-top: 1.5rem;
 }
 
-.btn_explore:hover {
+.btn_explore:hover,
+.btn_subscribe:hover {
   background-color: rgba(105, 55, 245, 1);
   color: white;
   border: 2px solid rgba(105, 55, 245, 1);
@@ -214,3 +217,17 @@ main {
   height: 17.961814880371094px;
 }
 
+.chatbot_icon {
+  width: 30px;
+  height: 30px;
+}
+
+.btn_subscribe {
+  width: 100px; 
+  height: 30px;
+  padding: 6px 10px;
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: 8px;
+  margin: 0px;
+}
