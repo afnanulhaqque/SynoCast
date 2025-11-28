@@ -7,6 +7,10 @@ body {
   background-color: rgb(254, 250, 249);
 }
 
+.card{
+  background-color: rgb(254, 250, 249);
+}
+
 main {
   flex: 1;
 }
@@ -592,4 +596,30 @@ main {
 .display-1 {
   font-weight: 400;
   letter-spacing: -2px;
+}
+
+/* Custom overrides for the weather card */
+.bg-primary {
+  background-color: #8e7bf9 !important; /* Lighter purple for active state */
+}
+
+.text-primary {
+  color: #6937f5 !important; /* Darker purple for text */
+}
+
+.bg-light {
+  background-color: #f6f5ff !important; /* Very light purple tint for inactive items */
+}
+
+.weather-card {
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.forecast-item {
+  transition: all 0.2s ease;
+}
+
+.forecast-item:hover {
+  transform: translateY(-2px);
 }
