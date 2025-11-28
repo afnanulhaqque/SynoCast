@@ -31,7 +31,6 @@ main {
 }
 
 .nav_text,
-.btn_subscribe,
 .btn_subscribe {
   font-weight: 600;
   line-height: 100%;
@@ -65,8 +64,6 @@ main {
   left: 10%;
 }
 
-.footer_icon_div {}
-
 .footer_item span {
   color: rgba(105, 55, 245, 1);
   font-weight: bold;
@@ -91,8 +88,6 @@ main {
 .banner_image_text_news {
   left: 72.5% !important;
 }
-
-.banner_image_text span {}
 
 .news_sub_banner .col-8 .card,
 .news_sub_banner .col-4 .card {
@@ -212,10 +207,6 @@ main {
 
 .home_banner_2 .card {
   border-radius: 10px;
-
-}
-
-.home_banner_2 .card {
   width: 22rem;
   top: -310px;
 }
@@ -259,71 +250,245 @@ main {
   border: 2px solid rgba(105, 55, 245, 1);
 }
 
-/* Chatbot modal styles */
+/* Ensure modal uses same font */
+.modal,
+.modal * {
+  font-family: inherit;
+}
+
+/* Floating Chatbot Button Styles */
+.floating-chat-btn-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1050; /* Above most elements */
+}
+
+.floating-chat-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(105, 55, 245, 1);
+  border: none;
+  box-shadow: 0 4px 12px rgba(105, 55, 245, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 0;
+}
+
+.floating-chat-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(105, 55, 245, 0.6);
+  background-color: rgba(105, 55, 245, 1); /* Keep same color */
+}
+
+.floating-chat-icon {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1); /* Make icon white */
+}
+
+/* Chatbot Widget Styles */
+#chatbot_modal {
+  pointer-events: none; /* Allow clicking outside */
+}
+
+.chatbot-modal-dialog {
+  pointer-events: auto; /* Re-enable clicking inside */
+  position: fixed;
+  bottom: 90px; /* Directly above the floating button (30px bottom + 60px height) */
+  right: 30px; /* Align with button */
+  margin: 0;
+  width: 380px; /* Fixed width for widget feel */
+  max-width: 90vw;
+}
+
+/* Ensure floating button stays visible */
+#chatbot_modal.show ~ .floating-chat-btn-container {
+  display: block;
+}
+
+.chatbot-modal-dialog .modal-content {
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  height: 550px; /* Fixed height */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chatbot-modal-dialog .modal-header {
+  background-color: rgba(105, 55, 245, 1);
+  color: white;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.chatbot-modal-dialog .modal-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.chatbot-modal-dialog .btn-close {
+  filter: brightness(0) invert(1); /* White close button */
+  opacity: 0.8;
+}
+
+.chatbot-modal-dialog .btn-close:hover {
+  opacity: 1;
+}
+
+.chatbot-modal-dialog .modal-body {
+  flex: 1;
+  overflow: hidden; /* Let internal wrapper handle scroll */
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+/* Chatbot Internal Styles */
 .chatbot_wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  height: 100%;
 }
+
 .chatbot_messages {
-  max-height: 350px;
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border: none;
+  border-radius: 0;
+  max-height: none; /* Let flex handle height */
   overflow-y: auto;
-  padding: 1rem;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 .chatbot_messages .message {
   margin-bottom: 0.75rem;
 }
+
 .chatbot_messages .message.bot .bubble {
-  background: rgba(105, 55, 245, 0.1);
-  color: rgba(34, 34, 34, 1);
-  align-self: flex-start;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: #333;
+  border-bottom-left-radius: 4px;
 }
+
 .chatbot_messages .message.user .bubble {
   background: rgba(105, 55, 245, 1);
+  box-shadow: 0 2px 5px rgba(105, 55, 245, 0.3);
   color: white;
   align-self: flex-end;
+  border-bottom-right-radius: 4px;
 }
+
 .chatbot_messages .bubble {
   display: inline-block;
   padding: 8px 12px;
   border-radius: 16px;
   max-width: 80%;
 }
-.chatbot_form { gap: 0.5rem; }
 
-/* Ensure the chat input and Send button share the same height and vertical alignment */
 .chatbot_form {
-  align-items: center; /* vertically centers contents */
+  padding: 1rem 1.5rem 1.5rem;
+  background-color: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 0 !important;
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
 }
+
 .chatbot_form .form-control {
-  height: 44px; /* match the button height */
-  box-sizing: border-box;
-  padding: 8px 12px;
+  background-color: #f0f2f5;
+  border: 1px solid transparent;
+  padding-left: 20px;
+  height: 44px;
   border-radius: 100px;
 }
+
+.chatbot_form .form-control:focus {
+  background-color: white;
+  border-color: rgba(105, 55, 245, 0.3);
+  box-shadow: 0 0 0 4px rgba(105, 55, 245, 0.1);
+}
+
 .chatbot_form .modal_primary_btn {
   height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px; /* keep pill look but keep height consistent */
+  padding: 8px 20px;
 }
 
-/* Small-screen adjustments (stacked if needed) */
+/* Hide the standard modal fade transition transform to avoid positioning issues */
+#chatbot_modal.fade .modal-dialog {
+  transform: translate(0, 20px);
+  transition: transform 0.3s ease-out;
+}
+
+#chatbot_modal.show .modal-dialog {
+  transform: none;
+}
+
+/* Small-screen adjustments */
 @media (max-width: 480px) {
   .chatbot_form {
     flex-direction: column;
-    gap: 0.5rem;
   }
   .chatbot_form .form-control,
   .chatbot_form .modal_primary_btn {
-    height: auto; /* allow native sizing on small screens */
+    height: auto;
     width: 100%;
+  }
+  .chatbot-modal-dialog {
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    border-radius: 0;
+  }
+  .chatbot-modal-dialog .modal-content {
+    border-radius: 20px 20px 0 0;
+    height: 80vh;
   }
 }
 
-/* Ensure modal uses same font */
-.modal, .modal * { font-family: inherit; }
+/* Weather Page Specific Styles */
+.weather-hero-card .card-img-overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.active-forecast {
+  background-color: #fff;
+  box-shadow: 0 4px 15px rgba(105, 55, 245, 0.15);
+}
+
+.forecast-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.text-primary {
+  color: #6937f5 !important;
+}
+
+.btn-light {
+  background-color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+
+.btn-light:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
+}
+
+.purple-icon {
+  filter: invert(24%) sepia(61%) saturate(4566%) hue-rotate(253deg)
+    brightness(96%) contrast(96%);
+}

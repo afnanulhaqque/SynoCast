@@ -1,45 +1,181 @@
 {% extends "base.html" %}
-{% block title %} Weather {% endblock title %}
+{% block title %} Weather Forecast {% endblock title %}
 {% block body %}
 
-<!-- Add Data -->
+<div class="container mt-5 mb-5">
+  <!-- Header & Search -->
+  <div class="row align-items-center mb-4">
+    <div class="col-md-6">
+      <h2 class="fw-bold mb-1">Weather Forecast</h2>
+      <p class="text-muted mb-0">Saturday 27, September 2024</p>
+    </div>
+    <div class="col-md-6 text-end">
+      <div class="d-inline-block position-relative" style="width: 300px;">
+        <input type="text" class="form-control rounded-pill bg-light border-0 py-2 ps-5" placeholder="New York">
+        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+      </div>
+    </div>
+  </div>
 
-<div class="card-group">
-  <div>
-    <h1>Breaking News</h1>
+  <!-- Hero Section -->
+  <div class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card"
+    style="min-height: 320px;">
+    <img src="/assests/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover" alt="Weather Background"
+      style="filter: brightness(0.6);">
+    <div class="card-img-overlay p-5 d-flex flex-column justify-content-between">
+      <div class="row h-100">
+        <!-- Left Side: Location & Temp -->
+        <div class="col-md-6 d-flex flex-column justify-content-between">
+          <div>
+            <h1 class="display-5 fw-bold mb-0">New York</h1>
+            <p class="fs-5 fw-light">United States</p>
+          </div>
+          <div>
+            <span class="display-1 fw-bold temp-display" data-celsius="28">28°</span>
+          </div>
+        </div>
+
+        <!-- Right Side: Icon & Details -->
+        <div class="col-md-6 d-flex flex-column justify-content-between text-end">
+          <div>
+            <i class="fas fa-moon fa-4x mb-2"></i>
+            <h3 class="fw-normal">Clear sky</h3>
+          </div>
+          <div class="d-flex flex-column align-items-end gap-2 fs-6 fw-light">
+            <div class="d-flex align-items-center gap-3">
+              <span><i class="fas fa-arrow-up"></i> <span class="temp-display" data-celsius="32">32°</span></span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span><i class="fas fa-arrow-down"></i> <span class="temp-display" data-celsius="21">21°</span></span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span><i class="fas fa-wind"></i> 17km/h</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <span><i class="fas fa-tint"></i> 87%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content.
-        This content is a little bit longer.</p>
+
+  <!-- Forecast Section -->
+  <div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex gap-4 align-items-baseline">
+        <h4 class="fw-bold mb-0 text-dark">Today</h4>
+        <h4 class="fw-bold mb-0 text-muted" style="opacity: 0.5;">Week</h4>
+      </div>
+      <div class="d-flex gap-2">
+        <button id="btn-celsius"
+          class="btn rounded-circle p-0 d-flex align-items-center justify-content-center text-white"
+          style="width: 40px; height: 40px; background-color: #6937F5;">
+          <span class="fw-bold">°C</span>
+        </button>
+        <button id="btn-fahrenheit"
+          class="btn rounded-circle p-0 d-flex align-items-center justify-content-center bg-light text-dark"
+          style="width: 40px; height: 40px;">
+          <span class="fw-bold">°F</span>
+        </button>
+      </div>
     </div>
-    <div class="card-footer">
-      <small class="text-body-secondary">11/19/2025</small>
+
+    <div class="d-flex gap-3 overflow-auto pb-3 forecast-scroll" style="scrollbar-width: none;">
+      {% for i in range(6) %}
+      <div class="card border-0 rounded-4 p-3 flex-shrink-0 {{ 'active-forecast' if i == 0 else '' }}"
+        style="width: 160px; {{ 'border: 2px solid #6937F5;' if i == 0 else 'border: 1px solid #eee;' }}">
+        <div class="card-body p-0 d-flex flex-column justify-content-between h-100">
+          <div>
+            <p class="small fw-bold mb-1">Saturday 27th</p>
+            <p class="small text-muted mb-2">9:00:00</p>
+            <p class="small text-muted mb-0">Raining</p>
+          </div>
+          <div class="d-flex justify-content-between align-items-end mt-3">
+            <div>
+              <div class="d-flex align-items-center gap-1 small fw-bold text-primary">
+                <i class="fas fa-thermometer-half"></i> <span class="temp-display" data-celsius="32">32°</span>
+              </div>
+              <div class="d-flex align-items-center gap-1 small text-primary">
+                <i class="fas fa-tint"></i> 67°
+              </div>
+            </div>
+            <img src="/assests/cloud-rain-sub-banner.png" alt="icon" width="35">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
   </div>
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-    </div>
-    <div class="card-footer">
-      <small class="text-body-secondary">11/19/2025</small>
+
+  <!-- Highlights Section -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">Today's highlight</h4>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 rounded-4 p-4 h-100" style="background-color: #E7E4E3;">
+          <div class="d-flex flex-column justify-content-between h-100">
+            <p class="fw-bold small text-muted mb-4">Saturday 27th 2024</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-arrow-up text-primary"></i> <span class="fs-3 fw-bold temp-display"
+                  data-celsius="21">21°</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-arrow-down text-primary"></i> <span class="fs-3 fw-bold temp-display"
+                  data-celsius="34">34°</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 rounded-4 p-4 h-100" style="background-color: #E7E4E3;">
+          <div class="d-flex flex-column justify-content-between h-100">
+            <p class="fw-bold small text-muted mb-4">Temp. variation</p>
+            <div>
+              <span class="fs-3 fw-bold temp-display" data-celsius="11">11°</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="card">
-    <img src="..." class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content.
-        This card has even longer content than the first to show that equal height action.</p>
+
+  <!-- Breaking News Section -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-4">Breaking news</h4>
+    <div class="row g-4">
+      {% for img in ['breaking-news-1.png', 'breaking-news-2.png', 'breaking-news-3.png'] %}
+      <div class="col-md-4">
+        <div class="card border-0 h-100">
+          <img src="/assests/{{ img }}" class="card-img-top rounded-3 mb-3" alt="News"
+            style="height: 200px; object-fit: cover;">
+          <div class="card-body p-0">
+            <div class="d-flex justify-content-between small mb-2">
+              <span class="text-muted">20/09/2024</span>
+              <span class="fw-bold">BBC News</span>
+            </div>
+            <h6 class="fw-bold mb-2">Lorem ipsum dolor sit amet consectetur.</h6>
+            <p class="card-text small text-muted text-truncate">Amet tortor tempor feugiat elementum. Faucibus faucibus
+              tempor habitasse amet auctor.</p>
+            <div class="d-flex justify-content-between small mt-3 align-items-center">
+              <span class="text-muted">Jimmie Johnson</span>
+              <a href="#" class="text-primary text-decoration-none fw-bold">Access article</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
-    <div class="card-footer">
-      <small class="text-body-secondary">11/19/2025</small>
+    <div class="text-center mt-5">
+      <button class="btn w-100 py-3 rounded-pill fw-bold" style="background-color: #E7E4E3; color: #555;">All
+        news</button>
     </div>
   </div>
+
 </div>
+
+<script src="/assests/js/weather.js"></script>
 
 {% endblock body %}

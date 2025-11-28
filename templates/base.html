@@ -36,13 +36,6 @@
             <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
-                        <!-- Chatbot: open a modal instead of navigating away -->
-                        <a href="#" class="open-chat-modal" data-bs-toggle="modal" data-bs-target="#chatbot_modal">
-                            <img src="/assests/chat-icon.png" alt="Chatbot Image"
-                                class="chatbot_icon {% if active_page == 'chatbot' %}active{% endif %}">
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page"
                             href="/">Home</a>
                     </li>
@@ -61,7 +54,6 @@
                         </button>
                     </li>
                 </ul>
-            </div>
             </div>
         </nav>
 
@@ -133,8 +125,9 @@
     </div>
 
     <!-- Chatbot modal -->
-    <div class="modal fade" id="chatbot_modal" tabindex="-1" aria-labelledby="chatbot_modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal fade" id="chatbot_modal" tabindex="-1" aria-labelledby="chatbot_modalLabel" aria-hidden="true"
+        data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-scrollable chatbot-modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chatbot_modalLabel">Chat with SynoCast</h5>
@@ -144,13 +137,22 @@
                     <div class="chatbot_wrapper">
                         <div class="chatbot_messages" id="chatbot_messages" aria-live="polite"></div>
                         <form id="chatbot_form" class="chatbot_form d-flex mt-3" role="search">
-                            <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..." aria-label="Chat message" autocomplete="off">
-                            <button class="btn modal_primary_btn ms-2 mt-0" id="chatbot_send" type="submit">Send</button>
+                            <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..."
+                                aria-label="Chat message" autocomplete="off">
+                            <button class="btn modal_primary_btn ms-2 mt-0" id="chatbot_send"
+                                type="submit">Send</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Floating Chatbot Button -->
+    <div class="floating-chat-btn-container">
+        <button class="btn floating-chat-btn" data-bs-toggle="modal" data-bs-target="#chatbot_modal">
+            <img src="/assests/chat-icon.png" alt="Chat" class="floating-chat-icon">
+        </button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -160,6 +162,5 @@
     <script src="{{ url_for('static', filename='js/subscribe_modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chatbot_modal.js') }}"></script>
 </body>
-
 
 </html>
