@@ -298,7 +298,7 @@ main {
 .chatbot-modal-dialog {
   pointer-events: auto; /* Re-enable clicking inside */
   position: fixed;
-  bottom: 90px; /* Directly above the floating button (30px bottom + 60px height) */
+  bottom: 100px; /* Positioned above the 60px button + 30px margin + 10px gap */
   right: 30px; /* Align with button */
   margin: 0;
   width: 380px; /* Fixed width for widget feel */

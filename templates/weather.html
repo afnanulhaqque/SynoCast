@@ -64,8 +64,8 @@
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="d-flex gap-4 align-items-baseline">
-        <h4 class="fw-bold mb-0 text-dark">Today</h4>
-        <h4 class="fw-bold mb-0 text-muted" style="opacity: 0.5;">Week</h4>
+        <h4 id="tab-today" class="fw-bold mb-0 text-dark" style="cursor: pointer;">Today</h4>
+        <h4 id="tab-week" class="fw-bold mb-0 text-muted" style="opacity: 0.5; cursor: pointer;">Week</h4>
       </div>
       <div class="d-flex gap-2">
         <button id="btn-celsius"
@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <div class="d-flex gap-3 overflow-auto pb-3 forecast-scroll" style="scrollbar-width: none;">
+    <div id="forecast-today" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll" style="scrollbar-width: none;">
       {% for i in range(6) %}
       <div class="card border-0 rounded-4 p-3 flex-shrink-0 {{ 'active-forecast' if i == 0 else '' }}"
         style="width: 160px; {{ 'border: 2px solid #6937F5;' if i == 0 else 'border: 1px solid #eee;' }}">
@@ -98,6 +98,32 @@
               </div>
               <div class="d-flex align-items-center gap-1 small text-primary">
                 <i class="fas fa-tint"></i> 67°
+              </div>
+            </div>
+            <img src="/assests/cloud-rain-sub-banner.png" alt="icon" width="35">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="forecast-week" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll d-none"
+      style="scrollbar-width: none;">
+      {% for i in range(7) %}
+      <div class="card border-0 rounded-4 p-3 flex-shrink-0" style="width: 160px; border: 1px solid #eee;">
+        <div class="card-body p-0 d-flex flex-column justify-content-between h-100">
+          <div>
+            <p class="small fw-bold mb-1">Mon, 29th</p>
+            <p class="small text-muted mb-2">12:00</p>
+            <p class="small text-muted mb-0">Sunny</p>
+          </div>
+          <div class="d-flex justify-content-between align-items-end mt-3">
+            <div>
+              <div class="d-flex align-items-center gap-1 small fw-bold text-primary">
+                <i class="fas fa-thermometer-half"></i> <span class="temp-display" data-celsius="25">25°</span>
+              </div>
+              <div class="d-flex align-items-center gap-1 small text-primary">
+                <i class="fas fa-tint"></i> 45%
               </div>
             </div>
             <img src="/assests/cloud-rain-sub-banner.png" alt="icon" width="35">
@@ -169,8 +195,10 @@
       {% endfor %}
     </div>
     <div class="text-center mt-5">
-      <button class="btn w-100 py-3 rounded-pill fw-bold" style="background-color: #E7E4E3; color: #555;">All
-        news</button>
+      <a href="/news.html" class="btn w-100 py-3 rounded-pill fw-bold" style="background-color: #E7E4E3; color: #555;">
+        All news
+      </a>
+
     </div>
   </div>
 
