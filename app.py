@@ -135,6 +135,16 @@ def otp():
         if not submitted_email:
             return jsonify({"success": False, "message": "Please enter your email address."}), 400
 
+        # Check if email is already subscribed
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (submitted_email,))
+        exists = cursor.fetchone()
+        conn.close()
+
+        if exists:
+            return jsonify({"success": False, "message": "Email is already subscribed"}), 400
+
         session["pending_email"] = submitted_email
         return jsonify({"success": True, "step": "otp", "email": submitted_email})
 

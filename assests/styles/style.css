@@ -297,10 +297,10 @@ main {
 
 .chatbot-modal-dialog {
   pointer-events: auto; /* Re-enable clicking inside */
-  position: fixed;
-  bottom: 100px; /* Positioned above the 60px button + 30px margin + 10px gap */
-  right: 30px; /* Align with button */
-  margin: 0;
+  position: fixed !important;
+  bottom: 110px !important; /* Positioned at the same level as the button */
+  right: 30px !important; /* Align with button */
+  margin: 0 !important;
   width: 380px; /* Fixed width for widget feel */
   max-width: 90vw;
 }
@@ -491,4 +491,105 @@ main {
 .purple-icon {
   filter: invert(24%) sepia(61%) saturate(4566%) hue-rotate(253deg)
     brightness(96%) contrast(96%);
+}
+
+/* Mobile Menu Styles */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background-color: #fefaf9;
+    padding: 1rem 0;
+    max-height: 80vh; /* Handle short devices */
+    overflow-y: auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .navbar-nav {
+    align-items: center;
+  }
+
+  .navbar-nav .nav-item {
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .navbar-nav .nav-link {
+    display: inline-block;
+    width: 100%;
+  }
+
+  /* Center the subscribe button container */
+  .navbar-nav .nav-item.d-flex {
+    justify-content: center !important;
+    width: 100%;
+  }
+
+  .btn_subscribe {
+    margin: 0 !important; /* Override existing margins */
+  }
+}
+
+/* New Home Page Weather Card Design */
+.weather-card {
+  width: 100%;
+  max-width: 380px; /* Match the narrow card look */
+  border-radius: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.weather-illustration {
+  height: 300px; /* Taller image area */
+  border-radius: 20px;
+  background-color: #1a1b4b; /* Fallback dark blue */
+}
+
+.weather-illustration img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.forecast-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 55px;
+  padding: 12px 5px !important;
+  transition: all 0.2s ease;
+}
+
+.forecast-item.active {
+  background-color: #8e7bf9; /* Lighter purple to match image */
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(142, 123, 249, 0.4);
+}
+
+.forecast-item.active i,
+.forecast-item.active p {
+  color: white !important;
+}
+
+.bg-light-purple {
+  background-color: #f6f5ff;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-primary {
+  color: #6937f5 !important;
+}
+
+/* Specific font adjustments to match image */
+.display-4 {
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+
+.display-1 {
+  font-weight: 400;
+  letter-spacing: -2px;
 }
