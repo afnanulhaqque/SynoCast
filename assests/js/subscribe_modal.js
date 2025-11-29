@@ -10,15 +10,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var errorAlert = subscribeModalEl?.querySelector('#subscribe-error');
     
     var emailInput = document.getElementById('subscriber-email');
-    var phoneInput = document.getElementById('subscriber-phone');
     var otpInput = document.getElementById('subscriber-otp');
     var otpInstructions = document.getElementById('otp-instructions');
     
-    var methodEmail = document.getElementById('method-email');
-    var methodWhatsapp = document.getElementById('method-whatsapp');
-    var emailGroup = subscribeModalEl?.querySelector('.input-group-email');
-    var whatsappGroup = subscribeModalEl?.querySelector('.input-group-whatsapp');
-
     var currentContact = null;
 
     if (!subscribeButton || !subscribeModalEl || !subscribeActionBtn || typeof bootstrap === 'undefined') {
@@ -26,20 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var subscribeModal = new bootstrap.Modal(subscribeModalEl);
-
-    function toggleMethod() {
-        if (methodEmail.checked) {
-            emailGroup.classList.remove('d-none');
-            whatsappGroup.classList.add('d-none');
-            emailInput.required = true;
-            phoneInput.required = false;
-        } else {
-            emailGroup.classList.add('d-none');
-            whatsappGroup.classList.remove('d-none');
-            emailInput.required = false;
-            phoneInput.required = true;
-        }
-    }
 
     function resetModal() {
         contactStep?.classList.remove('d-none');
@@ -53,18 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
         subscribeActionBtn.disabled = false;
         
         emailInput.value = '';
-        phoneInput.value = '';
         otpInput.value = '';
         currentContact = null;
-        
-        if (methodEmail) {
-            methodEmail.checked = true;
-            toggleMethod();
-        }
     }
-
-    methodEmail?.addEventListener('change', toggleMethod);
-    methodWhatsapp?.addEventListener('change', toggleMethod);
 
     subscribeModalEl.addEventListener('hidden.bs.modal', resetModal);
 
@@ -76,21 +47,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     subscribeActionBtn.dataset.defaultLabel = 'Subscribe';
 
-    var countryCodeSelect = document.getElementById('country-code');
-
     async function handleContactSubmit() {
-        const isEmail = methodEmail.checked;
-        const input = isEmail ? emailInput : phoneInput;
+        const input = emailInput;
         
-        if (!isEmail) {
-            const phoneRegex = /^[0-9]{7,15}$/;
-            if (!phoneRegex.test(input.value)) {
-                errorAlert.textContent = "Enter valid number";
-                errorAlert.classList.remove('d-none');
-                return;
-            }
-        }
-
         if (!input.checkValidity()) {
             input.reportValidity();
             return;
@@ -103,13 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const params = new URLSearchParams();
         params.append('action', 'request');
-        params.append('type', isEmail ? 'email' : 'whatsapp');
-        
-        let valueToSend = input.value;
-        if (!isEmail && countryCodeSelect) {
-            valueToSend = countryCodeSelect.value + input.value;
-        }
-        params.append(isEmail ? 'email' : 'phone', valueToSend);
+        params.append('type', 'email');
+        params.append('email', input.value);
 
         try {
             const response = await fetch('/otp', {
@@ -125,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(data.message || 'Unable to send OTP. Please try again.');
             }
 
-            currentContact = isEmail ? data.email : data.phone;
+            currentContact = data.email;
             otpInstructions.textContent = `Enter the 6-digit OTP sent to ${currentContact}.`;
             contactStep.classList.add('d-none');
             otpStep.classList.remove('d-none');

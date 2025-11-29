@@ -127,11 +127,6 @@ def weather():
     return render_template("weather.html", active_page="weather", date_time_info=get_local_time_string())
 
 
-@app.route("/map_calendar")
-def map_calendar():
-    return render_template("map_calendar.html", active_page="map_calendar", date_time_info=get_local_time_string())
-
-
 @app.route("/subscribe")
 def subscribe():
     return render_template("subscribe.html", active_page="subscribe", date_time_info=get_local_time_string())
@@ -163,7 +158,7 @@ def chat_api():
     message = data.get('message', '')
     if not message:
         return jsonify({'reply': "Please send a message."}), 400
-    # Very small demo reply — change this to hook up an AI or other chat backend
+    # Mock reply
     reply = f"SynoCast: You said '{message}'"
     return jsonify({'reply': reply})
 
@@ -211,10 +206,6 @@ def otp():
                 contact_info = request.form.get("email")
                 if not contact_info:
                     return jsonify({"success": False, "message": "Please enter your email address."}), 400
-            elif sub_type == "whatsapp":
-                contact_info = request.form.get("phone")
-                if not contact_info:
-                    return jsonify({"success": False, "message": "Please enter your WhatsApp number."}), 400
             else:
                 return jsonify({"success": False, "message": "Invalid subscription type."}), 400
 
@@ -222,10 +213,7 @@ def otp():
             try:
                 conn = sqlite3.connect(DATABASE)
                 cursor = conn.cursor()
-                if sub_type == "email":
-                    cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
-                else:
-                    cursor.execute("SELECT 1 FROM subscriptions WHERE phone = ?", (contact_info,))
+                cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
                 exists = cursor.fetchone()
                 conn.close()
             except sqlite3.OperationalError as e:
@@ -234,18 +222,14 @@ def otp():
                     init_db()
                     conn = sqlite3.connect(DATABASE)
                     cursor = conn.cursor()
-                    if sub_type == "email":
-                        cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
-                    else:
-                        cursor.execute("SELECT 1 FROM subscriptions WHERE phone = ?", (contact_info,))
+                    cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
                     exists = cursor.fetchone()
                     conn.close()
                 else:
                     raise e
 
             if exists:
-                msg = "Email is already subscribed" if sub_type == "email" else "Phone number is already subscribed"
-                return jsonify({"success": False, "message": msg}), 400
+                return jsonify({"success": False, "message": "Email is already subscribed"}), 400
 
             # Generate OTP
             otp_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
@@ -253,42 +237,37 @@ def otp():
             session["pending_contact"] = contact_info
             session["pending_type"] = sub_type
 
-            # Send OTP (Email or Mock WhatsApp)
-            if sub_type == "email":
-                try:
-                    # Using onboarding@resend.dev as the sender to ensure delivery without domain verification.
-                    # The user's email is set as Reply-To.
-                    r = resend.Emails.send({
-                        "from": "SynoCast <onboarding@resend.dev>", 
-                        "to": contact_info,
-                        "reply_to": "afnanulhaq4@gmail.com",
-                        "subject": "Your SynoCast Subscription OTP",
-                        "html": f"""
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                            <h2 style="color: #333;">Welcome to SynoCast!</h2>
-                            <p>Thank you for subscribing to SynoCast. Please use the following One-Time Password (OTP) to complete your subscription:</p>
-                            <p style="font-size: 24px; font-weight: bold; text-align: center; color: #007bff;">{otp_code}</p>
-                            <p>This OTP is valid for a short period. Do not share it with anyone.</p>
-                            <p>If you did not request this, please ignore this email.</p>
-                            <p>Best regards,<br>The SynoCast Team</p>
-                        </div>
-                        """
-                    })
-                    app.logger.info(f"OTP email sent to {contact_info}. Resend ID: {r['id']}")
-                    return jsonify({"success": True, "step": "otp", "email": contact_info})
-                except Exception as e:
-                    error_msg = str(e)
-                    # Handle Resend testing restriction
-                    if "testing emails" in error_msg:
-                        print(f"\\n[DEV MODE] Resend Restriction: OTP for {contact_info} is {otp_code}\\n")
-                        return jsonify({"success": True, "step": "otp", "email": contact_info, "message": "Test mode: OTP logged to console."})
-                    
-                    app.logger.error(f"Failed to send OTP email: {e}")
-                    return jsonify({"success": False, "message": "Failed to send OTP. Please try again later."}), 500
-            else:
-                # Mock WhatsApp OTP sending (since we don't have a WhatsApp API set up)
-                print(f"\\n[DEV MODE] WhatsApp OTP for {contact_info} is {otp_code}\\n")
-                return jsonify({"success": True, "step": "otp", "phone": contact_info, "message": "Test mode: OTP logged to console (WhatsApp)."})
+            # Send OTP (Email)
+            try:
+                # Using onboarding@resend.dev as the sender to ensure delivery without domain verification.
+                # The user's email is set as Reply-To.
+                r = resend.Emails.send({
+                    "from": "SynoCast <onboarding@resend.dev>", 
+                    "to": contact_info,
+                    "reply_to": "afnanulhaq4@gmail.com",
+                    "subject": "Your SynoCast Subscription OTP",
+                    "html": f"""
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #333;">Welcome to SynoCast!</h2>
+                        <p>Thank you for subscribing to SynoCast. Please use the following One-Time Password (OTP) to complete your subscription:</p>
+                        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #007bff;">{otp_code}</p>
+                        <p>This OTP is valid for a short period. Do not share it with anyone.</p>
+                        <p>If you did not request this, please ignore this email.</p>
+                        <p>Best regards,<br>The SynoCast Team</p>
+                    </div>
+                    """
+                })
+                app.logger.info(f"OTP email sent to {contact_info}. Resend ID: {r['id']}")
+                return jsonify({"success": True, "step": "otp", "email": contact_info})
+            except Exception as e:
+                error_msg = str(e)
+                # Handle Resend testing restriction
+                if "testing emails" in error_msg:
+                    print(f"\\n[DEV MODE] Resend Restriction: OTP for {contact_info} is {otp_code}\\n")
+                    return jsonify({"success": True, "step": "otp", "email": contact_info, "message": "Test mode: OTP logged to console."})
+                
+                app.logger.error(f"Failed to send OTP email: {e}")
+                return jsonify({"success": False, "message": "Failed to send OTP. Please try again later."}), 500
 
         elif action == "verify":
             submitted_otp = request.form.get("otp")
@@ -305,16 +284,10 @@ def otp():
                 session.pop("pending_type", None)
                 
                 conn = sqlite3.connect(DATABASE)
-                if sub_type == "email":
-                    conn.execute(
-                        "INSERT INTO subscriptions (email, subscription_type, created_at) VALUES (?, ?, ?)",
-                        (contact_info, sub_type, datetime.utcnow().isoformat()),
-                    )
-                else:
-                    conn.execute(
-                        "INSERT INTO subscriptions (phone, subscription_type, created_at) VALUES (?, ?, ?)",
-                        (contact_info, sub_type, datetime.utcnow().isoformat()),
-                    )
+                conn.execute(
+                    "INSERT INTO subscriptions (email, subscription_type, created_at) VALUES (?, ?, ?)",
+                    (contact_info, sub_type, datetime.utcnow().isoformat()),
+                )
                 conn.commit()
                 conn.close()
                 return jsonify({"success": True, "step": "success"})
