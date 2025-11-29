@@ -14,7 +14,10 @@ app = Flask(
 )
 app.secret_key = "synocast-dev-secret"
 EXPECTED_OTP = "123456"
-DATABASE = os.path.join(app.root_path, "subscriptions.db")
+if os.environ.get("VERCEL"):
+    DATABASE = "/tmp/subscriptions.db"
+else:
+    DATABASE = os.path.join(app.root_path, "subscriptions.db")
 
 # Resend API Key
 resend.api_key = "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V"
