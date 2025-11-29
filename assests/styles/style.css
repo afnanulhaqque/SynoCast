@@ -673,3 +673,113 @@ main {
   transform: translateY(-3px);
   color: rgba(105, 55, 245, 1) !important;
 }
+
+/* Map Styles */
+#map {
+  height: 450px; /* Reduced height */
+  width: 100%;
+  border-radius: 0 0 12px 12px;
+  z-index: 1;
+}
+
+.map-controls {
+  position: absolute;
+  top: 10px;
+  left: 55px; /* Adjusted position */
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-box {
+  width: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.search-box .form-control {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.search-box .form-control:focus {
+  box-shadow: none;
+}
+
+.locate-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: #6937f5;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.locate-btn:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+.weather-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  padding: 15px; /* Reduced padding */
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 180px; /* Reduced width */
+  transition: all 0.3s ease;
+}
+
+.weather-overlay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.weather-info h4 {
+  font-size: 1rem; /* Reduced font size */
+  font-weight: 700;
+  color: #333;
+  text-decoration: none !important; /* Ensure no underline */
+}
+
+.temp-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.temp-container .display-4 {
+  font-size: 2.5rem; /* Reduced font size */
+  line-height: 1;
+  color: #6937f5; /* Primary Theme Color */
+  text-decoration: none !important;
+}
+
+.temp-container .unit {
+  font-size: 1.2rem; /* Reduced font size */
+  font-weight: 600;
+  color: #6937f5;
+  margin-top: 5px;
+  text-decoration: none !important;
+}
+
+.weather-details {
+  display: flex;
+  gap: 12px; /* Reduced gap */
+  color: #666;
+  font-size: 0.8rem; /* Reduced font size */
+}
+
+.detail-item i {
+  color: #6937f5;
+  margin-right: 5px;
+}
