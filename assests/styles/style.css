@@ -410,6 +410,7 @@ main {
   padding-left: 20px;
   height: 44px;
   border-radius: 100px;
+  flex-grow: 1; /* Make input take available space */
 }
 
 .chatbot_form .form-control:focus {
@@ -423,7 +424,9 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 20px;
+  padding: 8px 15px; /* Reduced padding */
+  min-width: auto; /* Reset min-width from global style */
+  width: auto; /* Auto width based on content */
 }
 
 /* Hide the standard modal fade transition transform to avoid positioning issues */
@@ -670,7 +673,6 @@ main {
 }
 
 .footer-text-link:hover {
-  transform: translateY(-3px);
   color: rgba(105, 55, 245, 1) !important;
 }
 
@@ -782,4 +784,32 @@ main {
 .detail-item i {
   color: #6937f5;
   margin-right: 5px;
+}
+
+/* Custom Toggle Buttons for Subscription Modal */
+.btn-custom-toggle {
+  border: 2px solid #6937f5;
+  color: #6937f5;
+  background-color: white;
+  border-radius: 50px;
+  padding: 8px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-check:checked + .btn-custom-toggle {
+  background-color: #6937f5;
+  color: white;
+  box-shadow: 0 4px 12px rgba(105, 55, 245, 0.3);
+}
+
+.btn-custom-toggle:hover {
+  background-color: rgba(105, 55, 245, 0.1);
+  color: #6937f5;
+}
+
+.btn-check:checked + .btn-custom-toggle:hover {
+  background-color: #5b2ed1; /* Slightly darker purple */
+  color: white;
 }
