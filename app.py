@@ -99,6 +99,11 @@ def weather():
     return render_template("weather.html", active_page="weather", date_time_info=get_local_time_string())
 
 
+@app.route("/map_calendar")
+def map_calendar():
+    return render_template("map_calendar.html", active_page="map_calendar", date_time_info=get_local_time_string())
+
+
 @app.route("/subscribe")
 def subscribe():
     return render_template("subscribe.html", active_page="subscribe", date_time_info=get_local_time_string())
