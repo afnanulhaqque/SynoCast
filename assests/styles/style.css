@@ -640,3 +640,36 @@ main {
 .forecast-card-hover:hover .text-primary {
   color: white !important;
 }
+
+/* News Banner Icons */
+.news-banner-icons {
+  left: 10%;
+  bottom: 70px;
+  display: flex;
+  gap: 20px;
+  z-index: 10;
+  padding-bottom: 20px;
+}
+
+.news-banner-icons .icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.9;
+}
+
+.news-banner-icons .icon:hover {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+/* Footer Text Link Hover Effect */
+.footer-text-link {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.footer-text-link:hover {
+  transform: translateY(-3px);
+  color: rgba(105, 55, 245, 1) !important;
+}

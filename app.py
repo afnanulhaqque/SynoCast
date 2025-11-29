@@ -104,6 +104,16 @@ def subscribe():
     return render_template("subscribe.html", active_page="subscribe", date_time_info=get_local_time_string())
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html", active_page="about", date_time_info=get_local_time_string())
+
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html", active_page="terms", date_time_info=get_local_time_string())
+
+
 @app.route("/chatbot")
 def chatbot():
     # We don't have a dedicated chatbot page template; render the home template and

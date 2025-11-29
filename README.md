@@ -9,9 +9,7 @@ SynoCast is a lightweight Flask prototype for a weather storytelling hub. It ser
 - Weather page scaffold ready for detailed forecast cards.
 - Reusable Bootstrap 5 layout with Font Awesome icons and a custom theme located in `assests/styles/style.css`.
 - Geo-aware header that displays `request`-based local time using the [ipapi.co](https://ipapi.co) lookup service with graceful fallback for localhost.
-
 - In-page chatbot modal with a demo `/chat` endpoint for local testing — implemented in `templates/base.html`, `assests/js/chatbot_modal.js`, and CSS in `assests/styles/style.css`.
-- Subscription system with Email OTP verification using a SQLite database (`subscriptions.db`).
 
 ## Tech Stack
 
@@ -19,15 +17,13 @@ SynoCast is a lightweight Flask prototype for a weather storytelling hub. It ser
 - Flask (compatible with Flask 3.x — the app initializes the database at import time to avoid relying on deprecated lifecycle decorators)
 - Bootstrap 5 / Font Awesome
 - ipapi.co (public REST API)
-- SQLite (for storing subscriptions)
 
 ## Project Structure
 
 ```
-app.py                 # Flask app with routes, timezone helper, and OTP logic
+app.py                 # Flask app with three routes and timezone helper
 templates/             # Jinja templates (base + page-specific)
 assests/               # Static images, icons, and custom CSS
-subscriptions.db       # SQLite database for subscriptions (auto-created)
 ```
 
 ## Getting Started
@@ -39,7 +35,7 @@ subscriptions.db       # SQLite database for subscriptions (auto-created)
    ```
 2. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   pip install flask requests
    ```
 3. **Run the development server**
    ```bash
@@ -50,7 +46,7 @@ subscriptions.db       # SQLite database for subscriptions (auto-created)
 
 ## Customization Tips
 
-- Replace placeholder card copy, dates, and URLs in `templates/home.html`, `templates/news.html`, `templates/weather.html`, and `templates/subscribe.html`.
+- Replace placeholder card copy, dates, and URLs in `templates/home.html`, `templates/news.html`, and `templates/weather.html`.
 - Update images or branding assets in `assests/`.
 - Expand `weather.html` with real forecast data (e.g., by consuming a weather API) and wire it into `app.py`.
 
@@ -74,7 +70,6 @@ subscriptions.db       # SQLite database for subscriptions (auto-created)
 ## Changelog
 
 - 2025-11-26: Added in-page chatbot modal (UI + JS) with a demo `/chat` endpoint; updated DB initialization to be import-time for Flask 3 compatibility, added modal CSS for message bubbles and consistent input/button heights.
-- 2025-11-29: Added Subscription feature with OTP verification and SQLite integration.
 
 ## License
 
