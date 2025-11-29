@@ -7,7 +7,7 @@ body {
   background-color: rgb(254, 250, 249);
 }
 
-.card{
+.card {
   background-color: rgb(254, 250, 249);
 }
 
@@ -622,4 +622,21 @@ main {
 
 .forecast-item:hover {
   transform: translateY(-2px);
+}
+
+/* Forecast Card Hover Effect */
+.forecast-card-hover {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.forecast-card-hover:hover {
+  background-color: #8e7bf9 !important;
+  color: white !important;
+}
+
+.forecast-card-hover:hover p,
+.forecast-card-hover:hover i,
+.forecast-card-hover:hover .text-primary {
+  color: white !important;
 }
