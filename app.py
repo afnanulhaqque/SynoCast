@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import requests
+import random
+import resend
 from flask import Flask, render_template, request, session, jsonify
 from datetime import datetime, timedelta, timezone
 
@@ -14,6 +16,8 @@ app.secret_key = "synocast-dev-secret"
 EXPECTED_OTP = "123456"
 DATABASE = os.path.join(app.root_path, "subscriptions.db")
 
+# Resend API Key
+resend.api_key = "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V"
 
 def init_db():
     """Create the subscriptions table if it does not already exist."""
@@ -54,14 +58,23 @@ def get_local_time_string():
         utc_offset = "+0500"
     else:
         # 2. Fetch IP info
-        data = requests.get(f"https://ipapi.co/{ip}/json/").json()
-        city = data.get("city", "")
-        region = data.get("region", "")
-        utc_offset = data.get("utc_offset", "0000")
+        try:
+            data = requests.get(f"https://ipapi.co/{ip}/json/", timeout=5).json()
+            city = data.get("city", "")
+            region = data.get("region", "")
+            utc_offset = data.get("utc_offset", "0000")
+        except:
+            city = "Unknown"
+            region = ""
+            utc_offset = "+0000"
 
     # 3. Convert offset string (“-0300”) to hours/minutes
-    offset_hours = int(utc_offset[:3])     # "-03" -> -3
-    offset_minutes = int(utc_offset[3:])   # "00" -> 0
+    try:
+        offset_hours = int(utc_offset[:3])     # "-03" -> -3
+        offset_minutes = int(utc_offset[3:])   # "00" -> 0
+    except:
+        offset_hours = 0
+        offset_minutes = 0
 
     tz = timezone(timedelta(hours=offset_hours, minutes=offset_minutes))
 
@@ -140,48 +153,134 @@ def chat_api():
     return jsonify({'reply': reply})
 
 
+@app.route("/test_email")
+def test_email():
+    """
+    Test endpoint to verify email sending capabilities.
+    Sends a test email to the provided address (or defaults to the verified one).
+    Usage: /test_email?email=user@example.com
+    """
+    try:
+        # Get email from query param or default to verified email
+        test_recipient = request.args.get('email', 'afnanulhaq4@gmail.com')
+        
+        r = resend.Emails.send({
+            "from": "SynoCast <onboarding@resend.dev>",
+            "to": test_recipient,
+            "reply_to": "afnanulhaq4@gmail.com",
+            "subject": "SynoCast Email Test",
+            "html": f"""
+            <div style="font-family: sans-serif; padding: 20px;">
+                <h2>Email System Check</h2>
+                <p>This is a test email to verify that the SynoCast email system is working correctly.</p>
+                <p>Sent to: {test_recipient}</p>
+                <p>Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+            </div>
+            """
+        })
+        return jsonify({"success": True, "message": f"Test email sent to {test_recipient}", "id": r['id']})
+    except Exception as e:
+        app.logger.error(f"Test email failed: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @app.route("/otp", methods=["POST"])
 def otp():
-    action = request.form.get("action")
-    email = session.get("pending_email")
+    try:
+        action = request.form.get("action")
+        
+        if action == "request":
+            submitted_email = request.form.get("email")
+            if not submitted_email:
+                return jsonify({"success": False, "message": "Please enter your email address."}), 400
 
-    if action == "request":
-        submitted_email = request.form.get("email")
-        if not submitted_email:
-            return jsonify({"success": False, "message": "Please enter your email address."}), 400
+            # Check if email is already subscribed
+            try:
+                conn = sqlite3.connect(DATABASE)
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (submitted_email,))
+                exists = cursor.fetchone()
+                conn.close()
+            except sqlite3.OperationalError as e:
+                # If table is missing, try to create it (recovery)
+                if "no such table" in str(e):
+                    init_db()
+                    conn = sqlite3.connect(DATABASE)
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (submitted_email,))
+                    exists = cursor.fetchone()
+                    conn.close()
+                else:
+                    raise e
 
-        # Check if email is already subscribed
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (submitted_email,))
-        exists = cursor.fetchone()
-        conn.close()
+            if exists:
+                return jsonify({"success": False, "message": "Email is already subscribed"}), 400
 
-        if exists:
-            return jsonify({"success": False, "message": "Email is already subscribed"}), 400
+            # Generate OTP
+            otp_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+            session["expected_otp"] = otp_code
+            session["pending_email"] = submitted_email
 
-        session["pending_email"] = submitted_email
-        return jsonify({"success": True, "step": "otp", "email": submitted_email})
+            # Send Email
+            try:
+                # Using onboarding@resend.dev as the sender to ensure delivery without domain verification.
+                # The user's email is set as Reply-To.
+                r = resend.Emails.send({
+                    "from": "SynoCast <onboarding@resend.dev>", 
+                    "to": submitted_email,
+                    "reply_to": "afnanulhaq4@gmail.com",
+                    "subject": "Your SynoCast Subscription OTP",
+                    "html": f"""
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #333;">Welcome to SynoCast!</h2>
+                        <p>Thank you for subscribing to SynoCast. Please use the following One-Time Password (OTP) to complete your subscription:</p>
+                        <p style="font-size: 24px; font-weight: bold; text-align: center; color: #007bff;">{otp_code}</p>
+                        <p>This OTP is valid for a short period. Do not share it with anyone.</p>
+                        <p>If you did not request this, please ignore this email.</p>
+                        <p>Best regards,<br>The SynoCast Team</p>
+                    </div>
+                    """
+                })
+                app.logger.info(f"OTP email sent to {submitted_email}. Resend ID: {r['id']}")
+                return jsonify({"success": True, "step": "otp", "email": submitted_email})
+            except Exception as e:
+                error_msg = str(e)
+                # Handle Resend testing restriction
+                if "testing emails" in error_msg and "afnanulhaq4@gmail.com" in error_msg:
+                    print(f"\n[DEV MODE] Resend Restriction: OTP for {submitted_email} is {otp_code}\n")
+                    # Return success so the user can enter the OTP from the console
+                    return jsonify({"success": True, "step": "otp", "email": submitted_email, "message": "Test mode: OTP logged to console."})
+                
+                app.logger.error(f"Failed to send OTP email: {e}")
+                return jsonify({"success": False, "message": "Failed to send OTP. Please try again later."}), 500
 
-    if action == "verify":
-        submitted_otp = request.form.get("otp", "").strip()
-        if not email:
-            return jsonify({"success": False, "message": "Session expired. Please start again."}), 400
+        elif action == "verify":
+            submitted_otp = request.form.get("otp")
+            email = session.get("pending_email")
+            expected_otp = session.get("expected_otp")
+            
+            if not email or not expected_otp:
+                return jsonify({"success": False, "message": "Session expired. Please start again."}), 400
 
-        if submitted_otp == EXPECTED_OTP:
-            session.pop("pending_email", None)
-            conn = sqlite3.connect(DATABASE)
-            conn.execute(
-                "INSERT INTO subscriptions (email, created_at) VALUES (?, ?)",
-                (email, datetime.utcnow().isoformat()),
-            )
-            conn.commit()
-            conn.close()
-            return jsonify({"success": True, "step": "success"})
+            if submitted_otp == expected_otp:
+                session.pop("pending_email", None)
+                session.pop("expected_otp", None)
+                
+                conn = sqlite3.connect(DATABASE)
+                conn.execute(
+                    "INSERT INTO subscriptions (email, created_at) VALUES (?, ?)",
+                    (email, datetime.utcnow().isoformat()),
+                )
+                conn.commit()
+                conn.close()
+                return jsonify({"success": True, "step": "success"})
 
-        return jsonify({"success": False, "message": "Incorrect OTP. Please try again."}), 400
+            return jsonify({"success": False, "message": "Incorrect OTP. Please try again."}), 400
 
-    return jsonify({"success": False, "message": "Invalid action."}), 400
+        return jsonify({"success": False, "message": "Invalid action."}), 400
+    except Exception as e:
+        app.logger.error(f"An error occurred: {e}")
+        return jsonify({"success": False, "message": "An internal server error occurred."}), 500
 
 
 if __name__ == "__main__":
