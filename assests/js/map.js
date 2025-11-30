@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.geolocation.getCurrentPosition(position => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            map.setView([lat, lon], 8);
+            map.setView([lat, lon], 16);
             marker.setLatLng([lat, lon]); // Update marker position
             updateWeather(lat, lon);
         }, () => {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data && data.length > 0) {
                 const lat = parseFloat(data[0].lat);
                 const lon = parseFloat(data[0].lon);
-                map.setView([lat, lon], 10); // Zoom in on result
+                map.setView([lat, lon], 16); // Zoom in on result
                 marker.setLatLng([lat, lon]);
                 updateWeather(lat, lon);
             } else {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             navigator.geolocation.getCurrentPosition(position => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                map.setView([lat, lon], 8);
+                map.setView([lat, lon], 16);
                 marker.setLatLng([lat, lon]);
                 updateWeather(lat, lon);
             }, () => {
