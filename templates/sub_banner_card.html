@@ -1,8 +1,37 @@
-<div class="p-3">
+<div class="p-3" id="home-weather-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <i class="fa-solid fa-bars fs-5 text-primary"></i>
-        <h5 class="card-title mb-0 text-primary fw-bold">Charleston</h5>
-        <i class="fa-solid fa-circle-plus fs-5 text-primary"></i>
+        <!-- <i class="fa-solid fa-bars fs-5 text-primary"></i> -->
+        <h5 class="card-title mb-0 text-primary fw-bold" id="home-city-name">Loading...</h5>
+
+        <!-- Dropdown for Favorites -->
+        <div class="dropdown">
+            <i class="fa-solid fa-circle-plus fs-5 text-primary" type="button" id="favoritesDropdown"
+                data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"></i>
+            <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="favoritesDropdown"
+                style="min-width: 250px;">
+                <li>
+                    <h6 class="dropdown-header">Favorite Cities</h6>
+                </li>
+                <li>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <ul id="favorites-list" class="list-unstyled mb-0">
+                            <li><span class="dropdown-item text-muted">No favorites added</span></li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <div class="input-group">
+                        <input type="text" id="new-city-input" class="form-control form-control-sm"
+                            placeholder="Add city...">
+                        <button class="btn btn-primary btn-sm" type="button" id="add-city-btn"><i
+                                class="fa-solid fa-plus"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="position-relative mb-3">
@@ -12,61 +41,33 @@
 
     <div class="d-flex justify-content-between align-items-end mb-3">
         <div>
-            <p class="fw-bold mb-0">Today</p>
-            <p class="text-muted small mb-0">24 Jun, Friday</p>
+            <p class="fw-bold mb-0" id="home-day">Today</p>
+            <p class="text-muted small mb-0" id="home-date">--</p>
         </div>
         <div class="text-end">
-            <h2 class="display-4 fw-bold mb-0">20:00</h2>
+            <h2 class="display-4 fw-bold mb-0" id="home-time">--:--</h2>
         </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-2">
             <img src="/assests/images/Vector-sub-banner.png" style="width: 20px;" alt="Clean">
-            <span class="small">Clean</span>
+            <span class="small" id="home-condition">Clean</span>
         </div>
         <div class="d-flex align-items-center gap-2">
             <img src="/assests/images/wind-sub-banner.png" style="width: 20px;" alt="Wind">
-            <span class="small">10.6 km/h</span>
+            <span class="small" id="home-wind">-- km/h</span>
         </div>
         <div class="d-flex align-items-center gap-2">
             <img src="/assests/images/cloud-rain-sub-banner.png" style="width: 20px;" alt="Rain">
-            <span class="small">34%</span>
+            <span class="small" id="home-humidity">--%</span>
         </div>
-        <div class="display-6 fw-bold">24°</div>
+        <div class="display-6 fw-bold" id="home-temp">--°</div>
     </div>
 
     <!-- Hourly Forecast -->
-    <div class="d-flex justify-content-between text-center">
-        <div class="bg-primary text-white rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover"
-            style="min-width: 55px;">
-            <p class="small mb-1" style="font-size: 10px;">Now</p>
-            <i class="fa-solid fa-moon mb-1"></i>
-            <p class="small mb-0 fw-bold">24°</p>
-        </div>
-        <div class="bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover"
-            style="min-width: 55px;">
-            <p class="small mb-1" style="font-size: 10px;">00:00</p>
-            <i class="fa-solid fa-cloud-rain mb-1"></i>
-            <p class="small mb-0 fw-bold">19°</p>
-        </div>
-        <div class="bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover"
-            style="min-width: 55px;">
-            <p class="small mb-1" style="font-size: 10px;">05:00</p>
-            <i class="fa-solid fa-cloud-showers-heavy mb-1"></i>
-            <p class="small mb-0 fw-bold">15°</p>
-        </div>
-        <div class="bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover"
-            style="min-width: 55px;">
-            <p class="small mb-1" style="font-size: 10px;">10:00</p>
-            <i class="fa-solid fa-sun mb-1"></i>
-            <p class="small mb-0 fw-bold">25°</p>
-        </div>
-        <div class="bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover"
-            style="min-width: 55px;">
-            <p class="small mb-1" style="font-size: 10px;">10:00</p>
-            <i class="fa-solid fa-sun mb-1"></i>
-            <p class="small mb-0 fw-bold">25°</p>
-        </div>
+    <div class="d-flex justify-content-between text-center" id="home-hourly-forecast">
+        <!-- Forecast items will be populated by JS -->
+        <div class="text-muted small w-100 py-4">Loading forecast...</div>
     </div>
 </div>
