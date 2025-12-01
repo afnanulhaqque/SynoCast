@@ -785,30 +785,105 @@ main {
   color: #6937f5;
   margin-right: 5px;
 }
-. n a v b a r - t o g g l e r   { 
- 
-     b o r d e r - c o l o r :   r g b a ( 1 0 5 ,   5 5 ,   2 4 5 ,   0 . 5 ) ; 
- 
-     p a d d i n g :   0 . 5 r e m ; 
- 
- } 
- 
- 
- 
- . n a v b a r - t o g g l e r : f o c u s   { 
- 
-     b o x - s h a d o w :   0   0   0   0 . 2 r e m   r g b a ( 1 0 5 ,   5 5 ,   2 4 5 ,   0 . 2 5 ) ; 
- 
-     b o r d e r - c o l o r :   r g b a ( 1 0 5 ,   5 5 ,   2 4 5 ,   1 ) ; 
- 
- } 
- 
- 
- 
- . n a v b a r - t o g g l e r - i c o n   { 
- 
-     b a c k g r o u n d - i m a g e :   u r l ( " d a t a : i m a g e / s v g + x m l , % 3 c s v g   x m l n s = ' h t t p : / / w w w . w 3 . o r g / 2 0 0 0 / s v g '   v i e w B o x = ' 0   0   3 0   3 0 ' % 3 e % 3 c p a t h   s t r o k e = ' r g b a % 2 8 1 0 5 ,   5 5 ,   2 4 5 ,   1 % 2 9 '   s t r o k e - l i n e c a p = ' r o u n d '   s t r o k e - m i t e r l i m i t = ' 1 0 '   s t r o k e - w i d t h = ' 2 '   d = ' M 4   7 h 2 2 M 4   1 5 h 2 2 M 4   2 3 h 2 2 ' / % 3 e % 3 c / s v g % 3 e " ) ; 
- 
- } 
- 
- 
+
+/* Weather Page Specific Mobile Styles */
+@media (max-width: 768px) {
+  .weather-page .weather-hero-card {
+    min-height: auto !important;
+    height: auto !important;
+    border-radius: 20px !important;
+    overflow: visible !important; /* Allow content to overflow if needed */
+  }
+
+  .weather-page .weather-hero-card .card-img-overlay {
+    position: relative !important;
+    padding: 1.5rem 1rem !important; /* Reduced padding */
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Reduced gap */
+    height: auto !important; /* Ensure overlay expands */
+  }
+
+  .weather-page .display-1 {
+    font-size: 4rem; /* Reduced font size */
+    line-height: 1;
+    margin-top: 0.5rem; /* Reduced margin */
+  }
+
+  .weather-page .weather-hero-card img {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: 0;
+    border-radius: 20px !important;
+  }
+
+  /* Reset the row height and layout */
+  .weather-page .weather-hero-card .row {
+    flex-direction: column;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  /* Top Section: Location & Temp */
+  .weather-page .weather-hero-card .col-md-6:first-child {
+    width: 100%;
+    text-align: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin-bottom: 0.5rem; /* Reduced margin */
+  }
+
+  .weather-page .weather-hero-card .col-md-6:first-child > div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Bottom Section: Details */
+  .weather-page .weather-hero-card .col-md-6:last-child {
+    width: 100%;
+    text-align: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  .weather-page .weather-hero-card .d-flex.flex-column.align-items-end {
+    align-items: center !important;
+    width: 100%;
+    gap: 1rem !important; /* Reduced gap */
+  }
+
+  /* Weather Condition Icon & Text */
+  .weather-page .weather-hero-card .col-md-6:last-child > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Reduced margin */
+  }
+
+  /* Grid for small details */
+  .weather-page .weather-hero-card .d-flex.flex-column.gap-2 {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem !important; /* Reduced gap */
+    width: 100%;
+  }
+
+  .weather-page .weather-hero-card .d-flex.align-items-center.gap-3 {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.4rem 0.8rem; /* Reduced padding */
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    font-size: 0.9rem; /* Slightly smaller text */
+  }
+}

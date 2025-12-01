@@ -194,6 +194,45 @@ def test_email():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+
+@app.route("/api/geocode/search")
+def geocode_search():
+    """Proxy endpoint for Nominatim forward geocoding (search)."""
+    query = request.args.get('q', '')
+    if not query:
+        return jsonify({"error": "Query parameter 'q' is required"}), 400
+    
+    try:
+        url = f"https://nominatim.openstreetmap.org/search?format=json&q={query}"
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except Exception as e:
+        app.logger.error(f"Geocode search error: {e}")
+        return jsonify({"error": "Failed to fetch location data"}), 500
+
+
+@app.route("/api/geocode/reverse")
+def geocode_reverse():
+    """Proxy endpoint for Nominatim reverse geocoding."""
+    lat = request.args.get('lat', '')
+    lon = request.args.get('lon', '')
+    
+    if not lat or not lon:
+        return jsonify({"error": "Parameters 'lat' and 'lon' are required"}), 400
+    
+    try:
+        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except Exception as e:
+        app.logger.error(f"Reverse geocode error: {e}")
+        return jsonify({"error": "Failed to fetch location data"}), 500
+
+
 @app.route("/otp", methods=["POST"])
 def otp():
     try:
