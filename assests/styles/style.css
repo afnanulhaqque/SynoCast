@@ -75,7 +75,8 @@ main {
 
 .banner_image {
   width: 100%;
-  height: auto;
+  min-height: 500px;
+  max-height: 600px;
   object-fit: cover;
   display: block;
 }
@@ -153,6 +154,51 @@ main {
 
 .fs-7 {
   font-size: 12px !important;
+}
+
+/* Keep author name and article link on same line - Force horizontal layout */
+.breaking_news_section .card-body .row,
+.featured_news_section .card-body .row,
+.news_sub_banner .card-body .row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+
+.breaking_news_section .card-body .row > *,
+.featured_news_section .card-body .row > *,
+.news_sub_banner .card-body .row > * {
+  flex: 0 0 auto !important;
+  width: 50% !important;
+  max-width: 50% !important;
+}
+
+/* Ensure text doesn't wrap */
+.breaking_news_section .card-body .row span,
+.featured_news_section .card-body .row span,
+.news_sub_banner .card-body .row span,
+.breaking_news_section .card-body .row a,
+.featured_news_section .card-body .row a,
+.news_sub_banner .card-body .row a {
+  font-size: 12px !important;
+  line-height: 1.2;
+}
+
+/* Override Bootstrap responsive behavior for these specific rows */
+@media (max-width: 576px) {
+  .breaking_news_section .card-body .row,
+  .featured_news_section .card-body .row,
+  .news_sub_banner .card-body .row {
+    flex-direction: row !important;
+  }
+
+  .breaking_news_section .card-body .row > *,
+  .featured_news_section .card-body .row > *,
+  .news_sub_banner .card-body .row > * {
+    width: 50% !important;
+    flex: 0 0 50% !important;
+  }
 }
 
 .btn_explore,
@@ -885,5 +931,189 @@ main {
     border-radius: 50px;
     backdrop-filter: blur(5px);
     font-size: 0.9rem; /* Slightly smaller text */
+  }
+}
+
+/* News Page Mobile Styles */
+@media (max-width: 768px) {
+  /* Banner image height for mobile */
+  .banner_image {
+    min-height: 300px !important;
+    max-height: 400px !important;
+  }
+
+  /* Banner text positioning for mobile */
+  .banner_image_text {
+    width: 90% !important;
+    height: auto !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    gap: 20px !important;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .banner_image_text_news {
+    left: 50% !important;
+  }
+
+  .banner_image_text h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .banner_image_text p {
+    font-size: 0.9rem !important;
+  }
+
+  /* News sub-banner section - stack columns */
+  .news_sub_banner .row {
+    flex-direction: column;
+  }
+
+  .news_sub_banner .col-8,
+  .news_sub_banner .col-4 {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 3% !important;
+  }
+
+  .news_sub_banner .col-4 .card {
+    margin-bottom: 1rem;
+  }
+
+  .news_sub_banner .col-4 .card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Breaking news section - stack cards */
+  .breaking_news_section .row {
+    flex-direction: column;
+  }
+
+  .breaking_news_section .col-4 {
+    width: 100% !important;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .breaking_news_section .col-4:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Featured news section - stack cards */
+  .featured_news_section .row {
+    flex-direction: column;
+  }
+
+  .featured_news_section .col-6 {
+    width: 100% !important;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .featured_news_section .col-6:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Adjust card spacing */
+  .breaking_news_section,
+  .featured_news_section {
+    margin-top: 2rem !important;
+  }
+
+  /* Sub heading size */
+  .sub_heading {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Tablet specific adjustments */
+@media (min-width: 769px) and (max-width: 991px) {
+  /* Banner image height for tablet */
+  .banner_image {
+    min-height: 400px !important;
+    max-height: 500px !important;
+  }
+
+  /* Banner text positioning for tablet */
+  .banner_image_text {
+    width: 60% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .banner_image_text_news {
+    left: 50% !important;
+  }
+
+  /* News sub-banner - adjust for tablet */
+  .news_sub_banner .col-8 {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .news_sub_banner .col-4 {
+    width: 100% !important;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .news_sub_banner .col-4 .card {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 250px;
+  }
+
+  /* Breaking news - 2 columns on tablet */
+  .breaking_news_section .row {
+    flex-wrap: wrap;
+  }
+
+  .breaking_news_section .col-4 {
+    width: 50% !important;
+    max-width: 50%;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Featured news stays 2 columns on tablet */
+  .featured_news_section .col-6 {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  /* Banner image height for small mobile */
+  .banner_image {
+    min-height: 250px !important;
+    max-height: 350px !important;
+  }
+
+  .banner_image_text h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .banner_image_text h1 .fs-6 {
+    font-size: 0.7rem !important;
+  }
+
+  .banner_image_text p {
+    font-size: 0.8rem !important;
+  }
+
+  .news_sub_banner .col-8,
+  .news_sub_banner .col-4 {
+    padding: 2% !important;
+  }
+
+  /* Reduce card padding on very small screens */
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .sub_heading {
+    font-size: 1.1rem !important;
   }
 }
