@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const query = searchInput.value;
         if (!query) return;
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+        const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
 
         try {
             const res = await fetch(url);
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function updateWeather(lat, lon) {
         const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`;
-        const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+        const geocodeUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
 
         // Show loading state
         document.getElementById('weather-city').textContent = "Loading...";
@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const weatherData = await weatherRes.json();
 
             // Fetch City Name (Reverse Geocoding)
-            // Note: Nominatim requires a User-Agent, browsers send one automatically.
             const geoRes = await fetch(geocodeUrl);
             const geoData = await geoRes.json();
 
