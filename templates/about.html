@@ -1,26 +1,86 @@
 {% extends "base.html" %}
-
-{% block title %}About SynoCast{% endblock %}
+{% block title %} About Us {% endblock title %}
 
 {% block body %}
-<div class="container my-5">
-    <div class="card p-4 border-0">
-        <h1 class="mb-4 fw-bold text-primary">About SynoCast</h1>
-        <p class="text-muted">SynoCast is your premier destination for hyper-local weather forecasting and breaking news
-            updates. Founded with the mission to empower individuals with accurate, real-time information, SynoCast
-            leverages advanced meteorological data and a dedicated news team to keep you informed and prepared.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 rounded-4 overflow-hidden" style="box-shadow: none;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h1 class="display-4 fw-bold text-primary mb-3">About SynoCast</h1>
+                        <p class="lead text-muted">Empowering your day with accurate, real-time weather insights.</p>
+                    </div>
 
-        <h3 class="mt-4 fw-bold text-primary">Our Mission</h3>
-        <p class="text-muted">To provide accessible, accurate, and timely weather and news information that enhances the
-            daily lives of our users.</p>
+                    <div class="row g-5 align-items-center mb-5">
+                        <div class="col-md-6">
+                            <h2 class="h3 fw-bold mb-3">Our Mission</h2>
+                            <p class="text-muted">
+                                At SynoCast, our mission is to provide accessible, accurate, and actionable weather
+                                information to everyone, everywhere. We believe that knowing the weather shouldn't just
+                                be about checking the temperature—it should be about planning your life with confidence.
+                            </p>
+                            <p class="text-muted">
+                                Whether you're planning a weekend getaway, a morning run, or just your daily commute,
+                                SynoCast is here to ensure you're never caught off guard by the elements.
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <img src="/assests/logo/logo.png" alt="SynoCast Mission" class="img-fluid"
+                                style="max-height: 200px;">
+                        </div>
+                    </div>
 
-        <h3 class="mt-4 fw-bold text-primary">Why Choose SynoCast?</h3>
-        <ul class="text-muted">
-            <li><strong>Accuracy:</strong> We use state-of-the-art technology to ensure our forecasts are precise.</li>
-            <li><strong>Timeliness:</strong> Our news feed is updated around the clock.</li>
-            <li><strong>User-Centric:</strong> We design our platform with you in mind, ensuring a seamless experience.
-            </li>
-        </ul>
+                    <hr class="my-5 opacity-10">
+
+                    <div class="mb-5">
+                        <h2 class="h3 fw-bold mb-4 text-center">What We Offer</h2>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="text-center p-4 rounded-4 bg-light h-100">
+                                    <div class="mb-3">
+                                        <i class="fas fa-bolt fa-2x text-primary"></i>
+                                    </div>
+                                    <h4 class="h5 fw-bold">Real-Time Accuracy</h4>
+                                    <p class="small text-muted mb-0">Up-to-the-minute weather data sourced from reliable
+                                        global meteorological networks.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-4 rounded-4 bg-light h-100">
+                                    <div class="mb-3">
+                                        <i class="fas fa-globe-americas fa-2x text-primary"></i>
+                                    </div>
+                                    <h4 class="h5 fw-bold">Global Coverage</h4>
+                                    <p class="small text-muted mb-0">Forecasts for any location worldwide, ensuring
+                                        you're covered wherever you go.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-4 rounded-4 bg-light h-100">
+                                    <div class="mb-3">
+                                        <i class="fas fa-newspaper fa-2x text-primary"></i>
+                                    </div>
+                                    <h4 class="h5 fw-bold">Weather News</h4>
+                                    <p class="small text-muted mb-0">Stay informed with the latest weather-related news
+                                        and climate updates.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-primary bg-opacity-10 p-5 rounded-4 text-center">
+                        <h2 class="h3 fw-bold mb-3">Join Our Community</h2>
+                        <p class="mb-4 text-muted">Stay ahead of the weather. Subscribe to our newsletter for daily
+                            updates and severe weather alerts.</p>
+                        <button type="button" class="btn btn_subscribe" data-bs-toggle="modal"
+                            data-bs-target="#subscribe_modal">
+                            Subscribe Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock %}
+{% endblock body %}
