@@ -5,7 +5,7 @@
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**SynoCast** is a modern, lightweight weather storytelling hub built with Flask. It combines a marketing-style landing page, a curated newsroom, and an interactive weather dashboard into a seamless user experience. The application dynamically adapts to the visitor's location, displaying local time and timezone information.
+**SynoCast** is a modern, lightweight weather storytelling hub built with Flask. It combines a marketing-style landing page with interactive weather tools to provide a seamless user experience. The application dynamically adapts to the visitor's location, displaying local time and timezone information.
 
 **Live Preview:** [https://syno-cast.vercel.app/](https://syno-cast.vercel.app/)
 
@@ -15,19 +15,17 @@
 
 ### 🌍 Core Experience
 
-- **Dynamic Landing Page:** Engaging hero banners and storytelling elements that introduce the WeatherTrip brand.
-- **Curated Newsroom:** A dedicated section for breaking news and featured weather stories.
+- **Dynamic Landing Page:** Engaging hero banners and storytelling elements that introduce the SynoCast brand.
 - **Geo-Aware Header:** Automatically detects and displays the user's local time and timezone using IP geolocation.
 
 ### ⚡ Interactive Elements
 
-- **Weather Dashboard:** Real-time weather forecasts with a clean, modern UI.
-- **Interactive Map:** Integrated Leaflet.js map for exploring weather conditions globally.
-- **Smart Chatbot:** A built-in conversational interface for instant user support (Demo).
+- **AI Weather Assistant:** A built-in conversational interface powered by **Groq** (Cloud) and **Ollama** (Local) for instant weather-related support.
+- **Interactive Map:** Integrated Leaflet.js map with backend proxy endpoints for forward and reverse geocoding (Nominatim).
 
 ### 🔔 Engagement
 
-- **Subscription System:** Robust email subscription feature powered by **Resend**, complete with OTP (One-Time Password) verification for security.
+- **Secure Subscriptions:** Robust email subscription feature powered by **Resend**, complete with OTP (One-Time Password) verification for security.
 
 ---
 
@@ -38,7 +36,7 @@
 - **Database:** SQLite
 - **APIs & Services:**
   - **Resend:** Transactional emails
-  - **Open-Meteo:** Weather data
+  - **Groq & Ollama:** AI Chat capabilities
   - **Nominatim (OSM):** Geocoding
   - **ipapi.co:** IP-based geolocation
 
@@ -53,10 +51,10 @@ SynoCast/
 ├── templates/             # Jinja2 HTML templates
 │   ├── base.html          # Base layout with navbar & footer
 │   ├── home.html          # Landing page
-│   ├── news.html          # News section
-│   └── weather.html       # Weather dashboard
+│   ├── news.html          # News section template
+│   └── weather.html       # Weather dashboard template
 └── assests/               # Static assets
-    ├── js/                # Client-side logic (Map, Weather, Modals)
+    ├── js/                # Client-side logic (Map, Chatbot, Modals)
     ├── styles/            # Custom CSS
     └── ...                # Images & Icons
 ```
@@ -99,26 +97,22 @@ Follow these steps to set up the project locally.
    pip install -r requirements.txt
    ```
 
-   _(Note: If `requirements.txt` is missing, install manually: `pip install flask requests resend`)_
+4. **Set up Environment Variables**
 
-4. **Run the application**
+   Create a `.env` file (optional for local dev, but recommended for keys):
+
+   ```env
+   GROQ_API_KEY=your_groq_api_key
+   ```
+
+5. **Run the application**
 
    ```bash
    python app.py
    ```
 
-5. **Visit the App**
+6. **Visit the App**
    Open your browser and navigate to: [http://127.0.0.1:5000](http://127.0.0.1:5000)
-
----
-
-## ⚙️ Configuration
-
-The application uses the following default configuration. For production, consider using environment variables.
-
-- **Secret Key:** `synocast-dev-secret` (Change this for production!)
-- **Database:** `subscriptions.db` (Auto-created on first run)
-- **Resend API Key:** Configured in `app.py` (Replace with your own key for production)
 
 ---
 
