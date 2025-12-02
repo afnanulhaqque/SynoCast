@@ -142,13 +142,6 @@ def terms():
     return render_template("terms.html", active_page="terms", date_time_info=get_local_time_string())
 
 
-@app.route("/chatbot")
-def chatbot():
-    # We don't have a dedicated chatbot page template; render the home template and
-    # rely on the modal instead (it is available on base.html).
-    return render_template("home.html", active_page="chatbot", date_time_info=get_local_time_string())
-
-
 @app.route('/chat', methods=['POST'])
 def chat_api():
     """A very lightweight chat endpoint returning a JSON reply.
@@ -337,6 +330,55 @@ def otp():
     except Exception as e:
         app.logger.error(f"An error occurred: {e}")
         return jsonify({"success": False, "message": "An internal server error occurred."}), 500
+
+
+@app.route("/api/ai_chat", methods=["POST"])
+def api_ai_chat():
+    """
+    Proxy endpoint to interact with local Ollama instance.
+    Expects JSON: { "message": "user question" }
+    """
+    data = request.get_json(silent=True) or {}
+    user_message = data.get("message", "")
+
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+
+    # Ollama API endpoint (assuming default local setup)
+    ollama_url = "http://localhost:11434/api/chat"
+    
+    # System prompt to guide the bot
+    system_prompt = (
+        "You are SynoBot, a helpful weather assistant. "
+        "Answer questions about weather, climate, and meteorology concisely. "
+        "If a user asks about something unrelated, politely steer them back to weather topics."
+    )
+
+    payload = {
+        "model": "llama3",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
+        ],
+        "stream": False
+    }
+
+    try:
+        # 120 second timeout for model inference
+        response = requests.post(ollama_url, json=payload, timeout=120)
+        response.raise_for_status()
+        
+        result = response.json()
+        # Extract the assistant's reply
+        bot_reply = result.get("message", {}).get("content", "I'm sorry, I couldn't generate a response.")
+        
+        return jsonify({"reply": bot_reply})
+
+    except requests.exceptions.ConnectionError:
+        return jsonify({"error": "Ollama service is not reachable. Is it running?"}), 503
+    except Exception as e:
+        app.logger.error(f"Ollama API error: {e}")
+        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

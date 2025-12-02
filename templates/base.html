@@ -1,21 +1,16 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/assests/styles/style.css">
-    <link rel="stylesheet" href="/assests/styles/favorites.css">
-    <title>
-        {% block title %}
-        {% endblock title %}
-        - SynoCast
-    </title>
-    <link rel="icon" href="/assests/logo/logo-small.svg" type="image/x-icon">
-    <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="/assests/styles/style.css">
+<link rel="stylesheet" href="/assests/styles/favorites.css">
+<title>
+    {% block title %}
+    {% endblock title %}
+    - SynoCast
+</title>
+<link rel="icon" href="/assests/logo/logo-small.svg" type="image/x-icon">
+<script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
 </head>
 
 <body>
@@ -80,7 +75,8 @@
                     <div class="footer_item mb-2">
                         <a href="/about" class="text-decoration-none text-muted me-3 footer-text-link">About
                             SynoCast</a>
-                        <a href="/terms" class="text-decoration-none text-muted footer-text-link">Terms of Use</a>
+                        <a href="/terms" class="text-decoration-none text-muted footer-text-link">Terms of
+                            Use</a>
                     </div>
                     <div class="footer_item">
                         <p>&copy; 2025 <span>SynoCast</span>. All rights reserved.</p>
@@ -103,7 +99,8 @@
                     <div class="step step-contact">
                         <!-- Email Input -->
                         <div class="mb-3 input-group-email">
-                            <label for="subscriber-email" class="col-form-label">Email address</label>
+                            <label for="subscriber-email" class="col-form-label">Email
+                                address</label>
                             <input type="email" class="form-control" id="subscriber-email"
                                 placeholder="you@example.com">
                         </div>
@@ -112,7 +109,8 @@
                     <div class="step step-otp d-none">
                         <p class="text-muted" id="otp-instructions"></p>
                         <div class="mb-3">
-                            <label for="subscriber-otp" class="col-form-label">One-Time Password</label>
+                            <label for="subscriber-otp" class="col-form-label">One-Time
+                                Password</label>
                             <input type="text" class="form-control" id="subscriber-otp" placeholder="6-digit code"
                                 maxlength="6" pattern="\d{6}" required>
                         </div>
@@ -144,7 +142,23 @@
                 </div>
                 <div class="modal-body">
                     <div class="chatbot_wrapper">
-                        <div class="chatbot_messages" id="chatbot_messages" aria-live="polite"></div>
+                        <div class="chatbot_messages" id="chatbot_messages" aria-live="polite">
+                            <!-- Messages will appear here -->
+                            <div class="typing-indicator" id="modal-typing-indicator" style="display: none;">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                        <div class="example-questions" id="modal-example-questions">
+                            <div class="suggestion-chip" id="modal-auto-question-trigger"
+                                data-question="What is the weather outlook?">
+                                <i class="fas fa-magic"></i> Ask Auto Question
+                            </div>
+                            <div class="suggestion-chip" data-question="What is the weather in New York?">New York
+                                Weather</div>
+                            <div class="suggestion-chip" data-question="Explain humidity">
+                                Explain Humidity</div>
+                            <div class="suggestion-chip" data-question="Best weather for hiking?">Hiking Weather</div>
+                        </div>
                         <form id="chatbot_form" class="chatbot_form d-flex mt-3" role="search">
                             <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..."
                                 aria-label="Chat message" autocomplete="off">
