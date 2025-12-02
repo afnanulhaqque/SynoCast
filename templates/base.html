@@ -67,7 +67,9 @@
             <div class="card header_card">
                 <div class="card-body w-50 mx-auto text-center">
                     <div class="footer_item">
-                        <img src="/assests/logo/logo.png" alt="SynoCast-Logo" class="synocast_logo">
+                        <a href="#" onclick="scrollToTop(event)">
+                            <img src="/assests/logo/logo.png" alt="SynoCast-Logo" class="synocast_logo">
+                        </a>
                     </div>
                     <div class="footer_icon_div footer_item">
                         <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/">
@@ -189,6 +191,7 @@
 
     <script src="{{ url_for('static', filename='js/subscribe_modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chatbot_modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scroll_to_top.js') }}"></script>
 </body>
 
 </html>
