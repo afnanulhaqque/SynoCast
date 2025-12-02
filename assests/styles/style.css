@@ -218,7 +218,7 @@ main {
 .btn_explore:hover,
 .btn_subscribe:hover {
   background-color: rgba(105, 55, 245, 1);
-  color: white;
+  color: white !important;
   border: 2px solid rgba(105, 55, 245, 1);
 }
 
