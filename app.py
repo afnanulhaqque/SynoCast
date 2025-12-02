@@ -335,7 +335,7 @@ def otp():
 @app.route("/api/ai_chat", methods=["POST"])
 def api_ai_chat():
     """
-    Proxy endpoint to interact with local Ollama instance.
+    Chat endpoint that supports both local Ollama and Groq API (for deployment).
     Expects JSON: { "message": "user question" }
     """
     data = request.get_json(silent=True) or {}
@@ -344,9 +344,6 @@ def api_ai_chat():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    # Ollama API endpoint (assuming default local setup)
-    ollama_url = "http://localhost:11434/api/chat"
-    
     # System prompt to guide the bot
     system_prompt = (
         "You are SynoBot, a helpful weather assistant. "
@@ -354,6 +351,38 @@ def api_ai_chat():
         "If a user asks about something unrelated, politely steer them back to weather topics."
     )
 
+    # 1. Try Groq API first if Key is available (Preferred for Deployment)
+    groq_api_key = os.environ.get("GROQ_API_KEY")
+    if groq_api_key:
+        try:
+            groq_url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {groq_api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": "llama3-8b-8192",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ],
+                "temperature": 0.7
+            }
+            
+            response = requests.post(groq_url, json=payload, headers=headers, timeout=10)
+            response.raise_for_status()
+            result = response.json()
+            bot_reply = result["choices"][0]["message"]["content"]
+            return jsonify({"reply": bot_reply})
+
+        except Exception as e:
+            app.logger.error(f"Groq API error: {e}")
+            # Fallthrough to Ollama if Groq fails (or return error if on Vercel)
+            if os.environ.get("VERCEL"):
+                 return jsonify({"error": "Groq API failed and local Ollama is not available on Vercel."}), 500
+
+    # 2. Fallback to Local Ollama (Development)
+    ollama_url = "http://localhost:11434/api/chat"
     payload = {
         "model": "llama3",
         "messages": [
@@ -364,18 +393,20 @@ def api_ai_chat():
     }
 
     try:
-        # 120 second timeout for model inference
+        # 120 second timeout for local model inference
         response = requests.post(ollama_url, json=payload, timeout=120)
         response.raise_for_status()
         
         result = response.json()
-        # Extract the assistant's reply
         bot_reply = result.get("message", {}).get("content", "I'm sorry, I couldn't generate a response.")
         
         return jsonify({"reply": bot_reply})
 
     except requests.exceptions.ConnectionError:
-        return jsonify({"error": "Ollama service is not reachable. Is it running?"}), 503
+        msg = "Ollama service is not reachable. Is it running?"
+        if groq_api_key:
+            msg += " (Groq API also failed)"
+        return jsonify({"error": msg}), 503
     except Exception as e:
         app.logger.error(f"Ollama API error: {e}")
         return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
