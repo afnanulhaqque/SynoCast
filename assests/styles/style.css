@@ -29,9 +29,13 @@ main {
 
 .synocast_logo {
   height: 73.3px;
-  width: 181px;
-  top: 25px;
-  left: 77px;
+  width: 240px;
+}
+
+.synocast_logo_navbar {
+  position: relative;
+  /* top: 1px !important; */
+  left: 70px !important;
 }
 
 .nav_text,
