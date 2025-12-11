@@ -412,5 +412,15 @@ def api_ai_chat():
         return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
 
 
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html", date_time_info=get_local_time_string(), active_page="404"), 404
+
+@app.route("/404")
+def error_404():
+    return render_template("404.html", date_time_info=get_local_time_string(), active_page="404")
+
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -63,7 +63,7 @@
 
         {% endblock body %}
 
-        <div class="mt-5">
+        <div class="{% if active_page != '404' %}mt-5{% endif %}">
             <div class="card header_card">
                 <div class="card-body w-50 mx-auto text-center">
                     <div class="footer_item">
