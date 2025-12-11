@@ -3,7 +3,7 @@ import sqlite3
 import requests
 import random
 import resend
-from flask import Flask, render_template, request, session, jsonify
+from flask import Flask, render_template, request, session, jsonify, abort
 from datetime import datetime, timedelta, timezone
 
 app = Flask(
@@ -417,10 +417,22 @@ def api_ai_chat():
 def page_not_found(e):
     return render_template("404.html", date_time_info=get_local_time_string(), active_page="404"), 404
 
-@app.route("/404")
-def error_404():
-    return render_template("404.html", date_time_info=get_local_time_string(), active_page="404")
+from jinja2.exceptions import TemplateSyntaxError
 
+@app.errorhandler(500)
+def internal_error(e):
+    return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
+
+
+@app.errorhandler(TemplateSyntaxError)
+def syntax_error(e):
+    return render_template("syntax_error.html"), 500
+
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    # Fallback to 500 page for generic exceptions
+    return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
