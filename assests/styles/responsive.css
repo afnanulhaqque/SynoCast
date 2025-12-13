@@ -167,43 +167,50 @@
     margin-bottom: 15px;
   }
 
-  /* News Cards - Stack vertically */
+  /* Latest News Section - Main Columns Stacking */
+  .news_sub_banner > .row:nth-child(2) > .col-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  /* News Cards Internal Layout - Mobile */
   .news_sub_banner .card-body .row,
   .breaking_news_section .card-body .row,
   .featured_news_section .card-body .row {
-    flex-direction: column !important;
+    flex-direction: column !important; /* Stack Text and Image */
+    display: flex !important;
   }
 
+  /* Reset width for internal items (Text col and Image col) */
   .news_sub_banner .card-body .row > *,
   .breaking_news_section .card-body .row > *,
   .featured_news_section .card-body .row > * {
     width: 100% !important;
     max-width: 100% !important;
-    text-align: left;
-    margin-bottom: 5px;
-  }
-
-  .news_sub_banner .card-thumb,
-  .breaking_news_section .col-5 img {
-    /* Ensure images in cards take full width if needed or adjust logic */
-    width: 100%;
-    height: auto;
-  }
-
-  /* Reset col-5/col-7 layout for news cards to stack image and text */
-  .breaking_news_section .card .row.g-0 {
-    flex-direction: column-reverse; /* Put image on top or bottom as preferred, standard bootstrap row */
-  }
-
-  .breaking_news_section .card .col-7,
-  .breaking_news_section .card .col-5 {
-    width: 100%;
-  }
-
-  .breaking_news_section .card .col-5 img {
-    height: 200px;
-    object-fit: cover;
+    flex: 0 0 100% !important;
     margin-bottom: 10px;
+  }
+
+  /* Order adjustment: Image on top for small cards if desired, or keep default */
+  /* Current HTML has text (col-7) then image (col-5). 
+     flex-direction: column puts text on top. 
+     If we want image on top: flex-direction: column-reverse 
+  */
+
+  /* Specific styling for the thumbnail images in the small cards */
+  .news_sub_banner .col-5 img,
+  .breaking_news_section .col-5 img {
+    height: 180px; /* Fixed height for consistency */
+    width: 100%;
+    object-fit: cover;
+  }
+
+  /* Adjust the main featured image in right col if needed */
+  .news_sub_banner > .row > .col-6:first-child .card img {
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
   }
 
   /* Specific overrides for flex items */
