@@ -63,7 +63,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    searchBtn.addEventListener('click', searchLocation);
+    if (searchBtn) {
+        searchBtn.addEventListener('click', searchLocation);
+    }
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             searchLocation();

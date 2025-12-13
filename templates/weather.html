@@ -180,13 +180,10 @@
       <div class="card-body p-0 position-relative">
         <!-- Map Controls -->
         <div class="map-controls">
-          <div class="search-box input-group shadow-sm">
-            <input type="text" id="location-search" class="form-control border-0" placeholder="Search city..."
-              aria-label="Search city">
-            <button class="btn btn-light bg-white border-0 text-primary" type="button" id="search-btn">
-              <i class="fas fa-search"></i>
-            </button>
-          </div>
+          <form class="animated-search-form" onsubmit="return false;">
+            <input id="location-search" type="search" placeholder="Search city..." aria-label="Search city" required>
+            <i class="fas fa-search search-icon"></i>
+          </form>
           <button class="btn btn-light shadow-sm locate-btn" id="locate-btn" title="My Location">
             <i class="fas fa-location-arrow"></i>
           </button>

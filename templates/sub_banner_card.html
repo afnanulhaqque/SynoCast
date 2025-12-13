@@ -23,12 +23,11 @@
                     <hr class="dropdown-divider">
                 </li>
                 <li>
-                    <div class="input-group">
-                        <input type="text" id="new-city-input" class="form-control form-control-sm"
-                            placeholder="Add city...">
-                        <button class="btn btn-primary btn-sm" type="button" id="add-city-btn"><i
-                                class="fa-solid fa-plus"></i></button>
-                    </div>
+                    <form class="animated-search-form" onsubmit="return false;">
+                        <input id="new-city-input" type="search" required placeholder="Add city..."
+                            aria-label="Add city">
+                        <i class="fas fa-search search-icon"></i>
+                    </form>
                 </li>
             </ul>
         </div>

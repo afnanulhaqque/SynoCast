@@ -1744,8 +1744,92 @@ main {
   overflow: hidden;
 }
 
-@media (max-width: 991px) {
-  .news-card-large .news-img-large {
-    height: 250px;
-  }
+/* =========================================
+   Animated Search Bar
+   ========================================= */
+
+.animated-search-form {
+  --bg: transparent;
+  --fg: #17181c;
+  --input: #ffffff;
+  --primary: #6937f5;
+  --dur: 1s;
+  position: relative;
+  width: 100%;
+  max-width: 17em;
+  margin: auto;
+}
+
+.animated-search-form input,
+.animated-search-form .search-icon {
+  margin: auto;
+  display: block;
+  transition: all calc(var(--dur) * 0.5) linear;
+}
+
+.animated-search-form input {
+  background: transparent;
+  border-radius: 50%;
+  /* Removed drawing box-shadow, added standard border/outline if needed or keep clean */
+  box-shadow: none;
+  caret-color: var(--primary);
+  width: 2em;
+  height: 2em;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  color: transparent;
+  font: 1em/1.5 "Poppins", sans-serif;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 2; /* Input on top to capture clicks */
+}
+
+/* Ensure placeholder is also hidden */
+.animated-search-form input::placeholder {
+  color: transparent;
+}
+
+.animated-search-form input:focus,
+.animated-search-form input:valid {
+  background: var(--input);
+  border-radius: 0.25em;
+  padding: 0.75em 1em;
+  transition-duration: calc(var(--dur) * 0.25);
+  transition-delay: calc(var(--dur) * 0.25);
+  width: 100%;
+  height: 3em;
+  outline: transparent;
+  cursor: text;
+  color: var(--fg);
+}
+
+/* Show placeholder when expanded */
+.animated-search-form input:focus::placeholder,
+.animated-search-form input:valid::placeholder {
+  color: rgba(0, 0, 0, 0.5); /* or var(--fg) with opacity */
+}
+
+.animated-search-form .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--fg);
+  font-size: 1.2em;
+  pointer-events: none; /* Let clicks pass to input */
+  z-index: 1;
+}
+
+/* 
+   Hide icon when expanding (or move it?)
+   Let's fade it out so user types in clean space.
+   Alternatively, we could keep it as a "submit" button on the right, but form submits on Enter.
+*/
+.animated-search-form input:focus + .search-icon,
+.animated-search-form input:valid + .search-icon {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
 }

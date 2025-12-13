@@ -63,9 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!query) return;
 
         // Show loading state on button
-        const originalBtnHtml = addCityBtn.innerHTML;
-        addCityBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        addCityBtn.disabled = true;
+        let originalBtnHtml = '';
+        if (addCityBtn) {
+            originalBtnHtml = addCityBtn.innerHTML;
+            addCityBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            addCityBtn.disabled = true;
+        }
 
         try {
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
@@ -95,8 +98,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(error);
             alert('Error searching for city');
         } finally {
-            addCityBtn.innerHTML = originalBtnHtml;
-            addCityBtn.disabled = false;
+            if (addCityBtn) {
+                addCityBtn.innerHTML = originalBtnHtml;
+                addCityBtn.disabled = false;
+            }
         }
     }
 
