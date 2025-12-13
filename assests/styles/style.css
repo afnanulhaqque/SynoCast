@@ -798,10 +798,88 @@ main {
 }
 
 .weather-info h4 {
-  font-size: 1rem; /* Reduced font size */
-  font-weight: 700;
+  font-weight: 500;
   color: #333;
-  text-decoration: none !important; /* Ensure no underline */
+}
+
+.weather-icon-lg {
+  margin-left: 10px;
+}
+
+.weather-details {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.detail-item {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.detail-item i {
+  color: #6937f5;
+  margin-right: 5px;
+}
+
+/* Hamburger Menu Animation */
+.hamburger-menu {
+  width: 30px;
+  height: 20px;
+  position: relative;
+  margin: 0 auto;
+  transform: rotate(0deg);
+  transition: 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.hamburger-menu span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: #6937f5;
+  border-radius: 9px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: 0.25s ease-in-out;
+}
+
+.hamburger-menu span:nth-child(1) {
+  top: 0px;
+}
+
+.hamburger-menu span:nth-child(2) {
+  top: 9px;
+}
+
+.hamburger-menu span:nth-child(3) {
+  top: 18px;
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-menu span:nth-child(1) {
+  top: 9px;
+  transform: rotate(135deg);
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-menu span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-menu span:nth-child(3) {
+  top: 9px;
+  transform: rotate(-135deg);
+}
+
+/* Ensure Logo Adjustments on Mobile */
+@media screen and (max-width: 768px) {
+  .synocast_logo_navbar {
+    left: 0 !important;
+    max-width: 120px;
+  }
 }
 
 .temp-container {

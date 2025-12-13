@@ -1,0 +1,266 @@
+/* Responsive Design Stylesheet */
+
+/* =========================================
+   1. Date/Time Information Section
+   ========================================= */
+@media screen and (max-width: 1200px) {
+  .date_time_info span {
+    left: 20px !important; /* Reset large left margin */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .date_time_info {
+    text-align: center;
+    padding: 5px 0;
+  }
+
+  .date_time_info span {
+    left: 0 !important;
+    font-size: 11px; /* Smaller font */
+    display: block;
+    width: 100%;
+    padding: 0 10px;
+    white-space: normal; /* Allow wrapping if needed, prevents horizontal scroll */
+    line-height: 1.4;
+  }
+}
+
+/* =========================================
+   2. Chatbot Component
+   ========================================= */
+@media screen and (max-width: 768px) {
+  /* Ensure floating button doesn't block content */
+  .floating-chat-btn-container {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .floating-chat-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .floating-chat-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Full screen modal on mobile */
+  .chatbot-modal-dialog {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 0;
+  }
+
+  .chatbot-modal-dialog .modal-content {
+    height: 100%;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  /* Extra small devices adjustments */
+  .chatbot-modal-dialog .modal-header {
+    padding: 10px;
+  }
+
+  .chatbot-modal-dialog .modal-title {
+    font-size: 1rem;
+  }
+}
+
+/* =========================================
+   3. Home Page - Latest News Section
+   ========================================= */
+/* Tablet Breakpoint (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .navbar-collapse {
+    background-color: #fefaf9;
+    padding: 1rem;
+    z-index: 1000;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* News Sub Banner Layout */
+  .news_sub_banner .card-body .row,
+  .breaking_news_section .card-body .row,
+  .featured_news_section .card-body .row {
+    flex-wrap: wrap; /* Allow wrapping */
+  }
+}
+
+/* Mobile Breakpoint (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  /* Layout Adjustments */
+  .row > * {
+    margin-bottom: 20px;
+  }
+
+  /* Typography */
+  h1,
+  .display-3 {
+    font-size: 2.5rem;
+  }
+
+  h2,
+  .display-4 {
+    font-size: 2rem;
+  }
+
+  /* Footer Adjustments */
+  .footer_item {
+    margin-bottom: 15px;
+  }
+
+  /* News Cards - Stack vertically */
+  .news_sub_banner .card-body .row,
+  .breaking_news_section .card-body .row,
+  .featured_news_section .card-body .row {
+    flex-direction: column !important;
+  }
+
+  .news_sub_banner .card-body .row > *,
+  .breaking_news_section .card-body .row > *,
+  .featured_news_section .card-body .row > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: left;
+    margin-bottom: 5px;
+  }
+
+  .news_sub_banner .card-thumb,
+  .breaking_news_section .col-5 img {
+    /* Ensure images in cards take full width if needed or adjust logic */
+    width: 100%;
+    height: auto;
+  }
+
+  /* Reset col-5/col-7 layout for news cards to stack image and text */
+  .breaking_news_section .card .row.g-0 {
+    flex-direction: column-reverse; /* Put image on top or bottom as preferred, standard bootstrap row */
+  }
+
+  .breaking_news_section .card .col-7,
+  .breaking_news_section .card .col-5 {
+    width: 100%;
+  }
+
+  .breaking_news_section .card .col-5 img {
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+
+  /* Specific overrides for flex items */
+  .col-lg-6.d-flex.flex-column.align-items-end {
+    align-items: center !important;
+  }
+
+  /* Weather Page Adjustments */
+  .weather-hero-card .display-1 {
+    font-size: 4rem;
+  }
+
+  .weather-hero-card .display-5 {
+    font-size: 2rem;
+  }
+}
+
+/* Small Mobile Breakpoint */
+@media screen and (max-width: 320px) {
+  .sub_heading {
+    font-size: 1.1rem !important;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-text {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================================
+   4. Banner Optimization
+   ========================================= */
+
+/* Desktop / Large Screens */
+@media screen and (min-width: 1025px) {
+  .banner_image {
+    max-height: 500px; /* Reduced max height */
+  }
+}
+
+/* Tablet Breakpoint (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .banner_image {
+    min-height: 350px;
+    max-height: 450px;
+  }
+
+  .banner_image_text {
+    width: 80% !important;
+    left: 10% !important;
+    top: 25% !important;
+  }
+}
+
+/* Mobile Breakpoint (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .banner_image {
+    min-height: 250px;
+    max-height: 350px;
+  }
+
+  .banner_image_text {
+    width: 95% !important;
+    left: 2.5% !important;
+    top: 50% !important;
+    transform: translateY(-50%); /* Center vertically */
+    text-align: center;
+    display: block; /* Override grid if used */
+    height: auto;
+  }
+
+  .banner_image_text_news {
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    top: 50% !important;
+    bottom: auto !important;
+  }
+
+  .home_banner_2.sub_heading,
+  .home_banner_2 .sub_heading_2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Small Mobile Breakpoint (max-width: 320px) */
+@media screen and (max-width: 320px) {
+  .banner_image {
+    min-height: 200px;
+    max-height: 280px;
+  }
+
+  .banner_image_text h1 {
+    font-size: 1.5rem;
+  }
+
+  .banner_image_text p {
+    font-size: 0.9rem;
+    display: none; /* Hide description on very small screens if too cluttered */
+  }
+}
