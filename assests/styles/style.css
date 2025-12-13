@@ -1628,3 +1628,124 @@ main {
   box-shadow: 0 15px 35px rgba(105, 55, 245, 0.4);
   background-color: #5628d2;
 }
+
+/* =========================================
+   Latest News Section Redesign
+   ========================================= */
+
+.latest-news-section .header-line {
+  height: 2px;
+  background-color: #6937f5;
+  opacity: 0.8;
+  border-radius: 2px;
+}
+
+.latest-news-section .section-title {
+  color: #1a1b4b;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.latest-news-section .view-all-btn {
+  border-color: #6937f5;
+  color: #6937f5;
+  padding: 0.375rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.latest-news-section .view-all-btn:hover {
+  background-color: #6937f5;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Common Card Styles */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.transition-scale {
+  transition: transform 0.5s ease;
+}
+
+.card:hover .transition-scale {
+  transform: scale(1.05);
+}
+
+.hover-text-primary {
+  transition: color 0.2s ease;
+}
+
+.card:hover .hover-text-primary {
+  color: #6937f5 !important;
+}
+
+.hover-bg-light:hover {
+  background-color: #f8f9fa;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.x-small {
+  font-size: 0.75rem;
+}
+
+/* Large News Card */
+.news-card-large .news-img-large {
+  height: 350px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.news-card-large .badge {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+}
+
+.read-more-link {
+  font-size: 0.9rem;
+  transition: gap 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.read-more-link:hover {
+  gap: 5px;
+}
+
+/* Small News Card */
+.news-card-small {
+  overflow: hidden;
+  border-radius: 12px !important;
+}
+
+.news-card-small .card-title {
+  line-height: 1.4;
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 991px) {
+  .news-card-large .news-img-large {
+    height: 250px;
+  }
+}

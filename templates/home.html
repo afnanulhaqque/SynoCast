@@ -2,7 +2,7 @@
 {% block title %} Home {% endblock title %}
 {% block body %}
 
-<div class="position-relative w-100" style="height: 600px;">
+<div class="position-relative w-100 home-banner-container" style="height: 600px;">
   <img src="/assests/images/banner-home.png" class="w-100 h-100 position-absolute top-0 start-0" alt="Banner"
     style="z-index: -1; object-fit: cover; object-position: center;">
   <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="z-index: -1; opacity: 0.2;"></div>
@@ -69,72 +69,124 @@
   </div>
 </div>
 
-<div class="container mt-5 news_sub_banner">
-  <div class="row mb-4">
+<div class="container mt-5 news_sub_banner latest-news-section">
+  <div class="row mb-4 align-items-center">
     <div class="col-12 d-flex align-items-center">
-      <h2 class="fw-bold text-uppercase mb-0 me-3">Latest News</h2>
-      <div style="flex-grow: 1; height: 2px; background-color: #6937f5;"></div>
+      <h2 class="fw-bold text-uppercase mb-0 me-3 section-title">Latest News</h2>
+      <div class="flex-grow-1 header-line"></div>
+      <a href="/news" class="btn btn-sm btn-outline-primary rounded-pill ms-3 view-all-btn d-none d-md-block">View
+        All</a>
     </div>
   </div>
-  <div class="row justify-content-md-center">
-    <div class="col-6">
-      <div class="card border-0">
-        <img src="/assests/images/sub-banner-news.png" class="card-img-top mb-3 rounded-0" alt="Latest News">
-        <div class="card-body px-0">
-          <h5 class="card-title text-primary fw-bold">Heavy rain in New Orleans</h5>
-          <p class="card-text text-muted">Heavy rainfall has caused significant flooding in parts of New Orleans.
+
+  <div class="row">
+    <!-- Featured Large Article -->
+    <div class="col-lg-6 mb-4 mb-lg-0">
+      <div class="card border-0 h-100 news-card-large shadow-sm hover-lift">
+        <div class="position-relative overflow-hidden rounded-3">
+          <img src="/assests/images/sub-banner-news.png" class="card-img-top news-img-large transition-scale"
+            alt="Latest News">
+          <span class="badge bg-primary position-absolute top-0 start-0 m-3">Featured</span>
+        </div>
+        <div class="card-body px-1 py-3">
+          <div class="d-flex align-items-center text-muted small mb-2">
+            <span class="me-3"><i class="far fa-clock me-1"></i> 2 hours ago</span>
+            <span><i class="far fa-user me-1"></i> Sarah Jenkins</span>
+          </div>
+          <a href="#" class="text-decoration-none text-dark">
+            <h3 class="card-title fw-bold mb-2 hover-text-primary">Heavy rain in New Orleans causes major disruption
+            </h3>
+          </a>
+          <p class="card-text text-muted mb-3">Heavy rainfall has caused significant flooding in parts of New Orleans.
             Emergency services are on high alert as the water levels continue to rise. Residents are advised to stay
-            indoors and avoid flooded areas.
-          </p>
+            indoors...</p>
+          <a href="#" class="fw-semibold text-primary text-decoration-none read-more-link">Read Full Story <i
+              class="fas fa-arrow-right ms-1 small"></i></a>
         </div>
       </div>
     </div>
-    <div class="col-6">
-      <!-- Item 1 -->
-      <div class="card mb-4 border-0">
-        <div class="row g-0 align-items-start">
-          <div class="col-7">
-            <div class="card-body p-0 pe-3">
-              <h6 class="card-title text-primary fw-bold mb-2" style="font-size: 16px;">Heavy rain in New Orleans</h6>
-              <p class="card-text text-muted small" style="font-size: 13px; line-height: 1.4;">Meteorologists warn of
-                continued precipitation throughout the week. Local authorities are monitoring the situation closely to
-                ensure public safety.</p>
+
+    <!-- Side List Articles -->
+    <div class="col-lg-6">
+      <div class="d-flex flex-column gap-3">
+        <!-- Item 1 -->
+        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
+          <div class="row g-0 align-items-center p-2">
+            <div class="col-8">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center text-muted x-small mb-1">
+                  <span class="badge bg-light text-primary border me-2">Weather</span>
+                  <span>4 hours ago</span>
+                </div>
+                <a href="#" class="text-decoration-none text-dark">
+                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Meteorologists warn of continued
+                    precipitation throughout the week</h5>
+                </a>
+                <p class="card-text text-muted small text-truncate-2">Local authorities are monitoring the situation
+                  closely to ensure public safety across the region.</p>
+              </div>
             </div>
-          </div>
-          <div class="col-5">
-            <img src="/assests/images/breaking-news-1.png" class="img-fluid rounded-0" alt="News Thumbnail">
+            <div class="col-4">
+              <div class="overflow-hidden rounded-3 h-100">
+                <img src="/assests/images/breaking-news-1.png"
+                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
+                  style="min-height: 100px;">
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- Item 2 -->
-      <div class="card mb-4 border-0">
-        <div class="row g-0 align-items-start">
-          <div class="col-7">
-            <div class="card-body p-0 pe-3">
-              <h6 class="card-title text-primary fw-bold mb-2" style="font-size: 16px;">Heavy rain in New Orleans</h6>
-              <p class="card-text text-muted small" style="font-size: 13px; line-height: 1.4;">Meteorologists warn of
-                continued precipitation throughout the week. Local authorities are monitoring the situation closely to
-                ensure public safety.</p>
+
+        <!-- Item 2 -->
+        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
+          <div class="row g-0 align-items-center p-2">
+            <div class="col-8">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center text-muted x-small mb-1">
+                  <span class="badge bg-light text-primary border me-2">Alert</span>
+                  <span>5 hours ago</span>
+                </div>
+                <a href="#" class="text-decoration-none text-dark">
+                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Global temperature records broken for the
+                    third consecutive month</h5>
+                </a>
+                <p class="card-text text-muted small text-truncate-2">Climate scientists express concern over the
+                  accelerating rate of warming observed globally.</p>
+              </div>
             </div>
-          </div>
-          <div class="col-5">
-            <img src="/assests/images/breaking-news-2.png" class="img-fluid rounded-0" alt="News Thumbnail">
+            <div class="col-4">
+              <div class="overflow-hidden rounded-3 h-100">
+                <img src="/assests/images/breaking-news-2.png"
+                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
+                  style="min-height: 100px;">
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- Item 3 -->
-      <div class="card mb-4 border-0">
-        <div class="row g-0 align-items-start">
-          <div class="col-7">
-            <div class="card-body p-0 pe-3">
-              <h6 class="card-title text-primary fw-bold mb-2" style="font-size: 16px;">Heavy rain in New Orleans</h6>
-              <p class="card-text text-muted small" style="font-size: 13px; line-height: 1.4;">Meteorologists warn of
-                continued precipitation throughout the week. Local authorities are monitoring the situation closely to
-                ensure public safety.</p>
+
+        <!-- Item 3 -->
+        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
+          <div class="row g-0 align-items-center p-2">
+            <div class="col-8">
+              <div class="card-body p-2">
+                <div class="d-flex align-items-center text-muted x-small mb-1">
+                  <span class="badge bg-light text-primary border me-2">Forecast</span>
+                  <span>6 hours ago</span>
+                </div>
+                <a href="#" class="text-decoration-none text-dark">
+                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Upcoming solar eclipse expected to draw
+                    millions of viewers</h5>
+                </a>
+                <p class="card-text text-muted small text-truncate-2">Travel agencies report a surge in bookings for
+                  destinations along the path of totality.</p>
+              </div>
             </div>
-          </div>
-          <div class="col-5">
-            <img src="/assests/images/breaking-news-3.png" class="img-fluid rounded-0" alt="News Thumbnail">
+            <div class="col-4">
+              <div class="overflow-hidden rounded-3 h-100">
+                <img src="/assests/images/breaking-news-3.png"
+                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
+                  style="min-height: 100px;">
+              </div>
+            </div>
           </div>
         </div>
       </div>
