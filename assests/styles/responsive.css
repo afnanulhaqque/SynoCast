@@ -34,6 +34,7 @@
   .floating-chat-btn-container {
     bottom: 20px;
     right: 20px;
+    z-index: 1040;
   }
 
   .floating-chat-btn {
@@ -46,22 +47,33 @@
     height: 24px;
   }
 
-  /* Full screen modal on mobile */
+  /* Chatbot Modal - Mobile Fixes */
   .chatbot-modal-dialog {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 100vh !important;
-    max-width: 100vw !important;
+    width: 90% !important; /* Not full width */
+    max-width: 380px !important;
+    height: 60vh !important; /* Not full height, preserve context */
+    max-height: 600px !important;
     margin: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    border-radius: 0;
+    position: fixed !important;
+    bottom: 80px !important; /* Position above floating button */
+    right: 5% !important; /* Center horizontally or align right with gap */
+    left: auto !important;
+    border-radius: 20px !important;
+    transition: transform 0.3s ease-out;
+  }
+
+  /* Adjust right alignment calculation if needed or use left: 50% + translateX */
+  @media (min-width: 400px) {
+    .chatbot-modal-dialog {
+      right: 20px !important;
+    }
   }
 
   .chatbot-modal-dialog .modal-content {
     height: 100%;
-    border-radius: 0;
-    border: none;
+    border-radius: 20px !important;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -73,6 +85,37 @@
 
   .chatbot-modal-dialog .modal-title {
     font-size: 1rem;
+  }
+
+  .chatbot-modal-dialog {
+    width: 95% !important;
+    right: 2.5% !important;
+  }
+}
+
+/* =========================================
+   2.5 Map Control Visibility Fix
+   ========================================= */
+@media screen and (max-width: 768px) {
+  /* Map Controls - Reposition below weather overlay */
+  .map-controls {
+    left: auto !important;
+    right: 20px !important; /* Align with right side */
+    top: 250px !important; /* Position below the weather overlay (approx 220px) */
+    flex-direction: column; /* Stack vertically if needed, or keep row */
+    align-items: flex-end;
+  }
+
+  .search-box {
+    width: 180px; /* Slightly smaller */
+  }
+
+  /* Ensure clear separation */
+  .weather-overlay {
+    /* Ensure it stays at top right */
+    right: 20px;
+    top: 20px;
+    max-width: 200px; /* Limit width */
   }
 }
 
