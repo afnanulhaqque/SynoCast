@@ -98,12 +98,14 @@
    ========================================= */
 @media screen and (max-width: 768px) {
   /* Map Controls - Reposition below weather overlay */
+  /* Map Controls - Reposition to bottom left for short/mobile devices */
   .map-controls {
-    left: auto !important;
-    right: 20px !important; /* Align with right side */
-    top: 250px !important; /* Position below the weather overlay (approx 220px) */
-    flex-direction: column; /* Stack vertically if needed, or keep row */
-    align-items: flex-end;
+    left: 20px !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 20px !important;
+    flex-direction: column-reverse; /* Stack upwards */
+    align-items: flex-start;
   }
 
   .search-box {
