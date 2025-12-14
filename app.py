@@ -22,6 +22,9 @@ else:
 # Resend API Key
 resend.api_key = "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V"
 
+# OpenWeatherMap API Key
+OPENWEATHER_API_KEY = "1254601d1d95a31977b5b19d0c989a93"
+
 def init_db():
     """Create the subscriptions table if it does not already exist and handle migrations."""
     conn = sqlite3.connect(DATABASE)
@@ -158,6 +161,42 @@ def chat_api():
 
 
 
+
+
+
+@app.route("/api/weather")
+def api_weather():
+    """
+    Proxy endpoint for OpenWeatherMap API.
+    Required params: lat, lon
+    """
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat or lon parameters"}), 400
+
+    try:
+        # Fetch Current Weather
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        current_res = requests.get(current_url, timeout=5)
+        current_res.raise_for_status()
+        current_data = current_res.json()
+
+        # Fetch Forecast (5 Day / 3 Hour)
+        forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        forecast_res = requests.get(forecast_url, timeout=5)
+        forecast_res.raise_for_status()
+        forecast_data = forecast_res.json()
+
+        return jsonify({
+            "current": current_data,
+            "forecast": forecast_data
+        })
+
+    except Exception as e:
+        app.logger.error(f"OpenWeatherMap API error: {e}")
+        return jsonify({"error": "Failed to fetch weather data"}), 500
 
 
 @app.route("/api/geocode/search")

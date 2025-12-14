@@ -120,27 +120,37 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchWeather(lat, lon, cityName) {
         if(cityEl) cityEl.textContent = cityName || "Loading...";
         
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode&hourly=temperature_2m,weathercode&timezone=auto`;
+        const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
         
         try {
             const res = await fetch(weatherUrl);
             const data = await res.json();
             
             if (data.current) {
-                if(tempEl) tempEl.textContent = `${Math.round(data.current.temperature_2m)}°`;
-                if(windEl) windEl.textContent = `${data.current.wind_speed_10m} km/h`;
-                if(humidityEl) humidityEl.textContent = `${data.current.relative_humidity_2m}%`;
+                // Current Weather Data Mapping (OpenWeatherMap)
+                if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
+                if(windEl) windEl.textContent = `${data.current.wind.speed} m/s`; // OpenWeatherMap returns m/s by default
+                if(humidityEl) humidityEl.textContent = `${data.current.main.humidity}%`;
                 
-                // Update time/date based on timezone
-                const localTime = new Date(new Date().toLocaleString("en-US", {timeZone: data.timezone}));
-                
+                // Update time/date (using system time for now as OWM doesn't give simple timezone string like 'Europe/London')
+                // But we can use the 'timezone' offset in seconds from OWM
+                const offsetSeconds = data.current.timezone; 
+                const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+
                 if(timeEl) timeEl.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                 if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
                 if(dayEl) dayEl.textContent = "Today"; 
+                
+                // Update Condition Text and Icon (if needed elsewhere, though this file updates hourly)
+                 if (data.current.weather && data.current.weather[0]) {
+                    const condition = data.current.weather[0].main;
+                     const conditionEl = document.getElementById('home-condition');
+                     if(conditionEl) conditionEl.textContent = condition;
+                 }
             }
 
-            if (data.hourly && forecastEl) {
-                updateForecast(data.hourly, data.timezone);
+            if (data.forecast && forecastEl) {
+                updateForecast(data.forecast, data.current.timezone);
             }
 
         } catch (error) {
@@ -149,50 +159,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updateForecast(hourly, timezone) {
+    function updateForecast(forecastData, timezoneOffset) {
         forecastEl.innerHTML = '';
         
-        // Get current time in the city's timezone
-        const cityTime = new Date(new Date().toLocaleString("en-US", {timeZone: timezone}));
+        // OpenWeatherMap 5-day forecast returns a list of 40 items (every 3 hours)
+        const hourlyList = forecastData.list;
         
-        const year = cityTime.getFullYear();
-        const month = String(cityTime.getMonth() + 1).padStart(2, '0');
-        const day = String(cityTime.getDate()).padStart(2, '0');
-        const hour = String(cityTime.getHours()).padStart(2, '0');
-        
-        const currentHourStr = `${year}-${month}-${day}T${hour}:00`;
-        
-        let startIndex = hourly.time.indexOf(currentHourStr);
-        // If exact match not found (e.g. API delay), try to find closest
-        if (startIndex === -1) {
-             startIndex = hourly.time.findIndex(t => t >= currentHourStr);
-             if (startIndex === -1) startIndex = 0;
-        }
-
-        // Show next 5 items (e.g. current + 4 intervals)
+        // Show next 5 items from the list
         for (let i = 0; i < 5; i++) {
-            const index = startIndex + (i * 3); // Every 3 hours
-            if (index >= hourly.time.length) break;
-
-            const temp = Math.round(hourly.temperature_2m[index]);
-            const timeStr = hourly.time[index].split('T')[1]; // HH:MM
-            const wCode = hourly.weathercode[index];
+            if (i >= hourlyList.length) break;
             
-            // Map weather code to icon
+            const item = hourlyList[i];
+            const temp = Math.round(item.main.temp);
+            
+            // Calculate time for this forecast item
+            // item.dt is unix timestamp
+            const date = new Date(item.dt * 1000);
+            // Adjust to city timezone if critical, but for simple display local browser time of the timestamp is usually fine 
+            // or we shift it like we did for current time.
+            // Let's keep it simple and show the time from the timestamp (which is UTC) converted to local or city time.
+            // To match the city time logic properly:
+            const itemTime = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
+            
+            const timeStr = itemTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+
+            const wCode = item.weather[0].id;
+            
+            // Map weather code to icon (OpenWeatherMap codes)
             let iconClass = 'fa-sun';
-            if (wCode > 3) iconClass = 'fa-cloud';
-            if (wCode > 45) iconClass = 'fa-smog';
-            if (wCode > 50) iconClass = 'fa-cloud-rain';
-            if (wCode > 60) iconClass = 'fa-cloud-showers-heavy';
-            if (wCode > 70) iconClass = 'fa-snowflake';
-            if (wCode > 95) iconClass = 'fa-bolt';
+            if (wCode >= 200 && wCode < 300) iconClass = 'fa-bolt';
+            else if (wCode >= 300 && wCode < 500) iconClass = 'fa-cloud-rain';
+            else if (wCode >= 500 && wCode < 600) iconClass = 'fa-cloud-showers-heavy';
+            else if (wCode >= 600 && wCode < 700) iconClass = 'fa-snowflake';
+            else if (wCode >= 700 && wCode < 800) iconClass = 'fa-smog';
+            else if (wCode === 800) iconClass = 'fa-sun';
+            else if (wCode > 800) iconClass = 'fa-cloud';
+
+             // Night time check could be added here based on time/sunset
 
             const div = document.createElement('div');
             div.className = i === 0 ? 'bg-primary text-white rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover' : 'bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover';
             div.style.minWidth = '55px';
             
             div.innerHTML = `
-                <p class="small mb-1" style="font-size: 10px;">${i === 0 ? 'Now' : timeStr}</p>
+                <p class="small mb-1" style="font-size: 10px;">${timeStr}</p>
                 <i class="fa-solid ${iconClass} mb-1"></i>
                 <p class="small mb-0 fw-bold">${temp}°</p>
             `;

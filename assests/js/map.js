@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     async function updateWeather(lat, lon) {
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`;
+        const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
         const geocodeUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
 
         // Show loading state
@@ -103,19 +103,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const weatherData = await weatherRes.json();
 
             // Fetch City Name (Reverse Geocoding)
+            // We can still use this for better location details if OWM name is too generic
             const geoRes = await fetch(geocodeUrl);
             const geoData = await geoRes.json();
 
             // Update UI
             if (weatherData.current) {
-                document.getElementById('weather-temp').textContent = Math.round(weatherData.current.temperature_2m);
-                document.getElementById('weather-wind').textContent = `${weatherData.current.wind_speed_10m} km/h`;
-                document.getElementById('weather-humidity').textContent = `${weatherData.current.relative_humidity_2m}%`;
+                // OpenWeatherMap returns temp in Celsius (metric units requested in backend)
+                document.getElementById('weather-temp').textContent = Math.round(weatherData.current.main.temp);
+                document.getElementById('weather-wind').textContent = `${weatherData.current.wind.speed} m/s`;
+                document.getElementById('weather-humidity').textContent = `${weatherData.current.main.humidity}%`;
+                
+                // Update Icon
+                const w = weatherData.current.weather[0];
+                const id = w.id;
+                let iconClass = 'fa-sun';
+                if (id >= 200 && id < 300) iconClass = 'fa-bolt';
+                else if (id >= 300 && id < 500) iconClass = 'fa-cloud-rain';
+                else if (id >= 500 && id < 600) iconClass = 'fa-cloud-showers-heavy';
+                else if (id >= 600 && id < 700) iconClass = 'fa-snowflake';
+                else if (id >= 700 && id < 800) iconClass = 'fa-smog';
+                else if (id === 800) iconClass = w.icon.includes('n') ? 'fa-moon' : 'fa-sun';
+                else if (id > 800) iconClass = 'fa-cloud';
+
+                const iconContainer = document.getElementById('weather-icon');
+                if (iconContainer) {
+                    iconContainer.innerHTML = `<i class="fas ${iconClass} fa-2x"></i>`;
+                }
             }
 
             let locationName = "Unknown Location";
             if (geoData.address) {
                 locationName = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.county || "Unknown Location";
+            } else if (weatherData.current && weatherData.current.name) {
+                 locationName = weatherData.current.name;
             }
             document.getElementById('weather-city').textContent = locationName;
 
