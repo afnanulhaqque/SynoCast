@@ -562,6 +562,7 @@ main {
 
   .navbar-nav {
     align-items: center;
+    margin: 0 !important;
   }
 
   .navbar-nav .nav-item {
