@@ -5,7 +5,7 @@
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**SynoCast** is a modern, lightweight weather storytelling hub built with Flask. It combines a marketing-style landing page with interactive weather tools to provide a seamless user experience. The application dynamically adapts to the visitor's location, displaying local time and timezone information.
+**SynoCast** is a modern, feature-rich weather forecasting application built with Flask. It combines real-time weather data with AI-powered insights, news updates, and a responsive design to deliver a premium user experience. The application automatically adapts to the user's location and provides detailed forecasts, weather news, and an interactive AI assistant.
 
 **Live Preview:** [https://syno-cast.vercel.app/](https://syno-cast.vercel.app/)
 
@@ -13,19 +13,34 @@
 
 ## 🚀 Features
 
-### 🌍 Core Experience
+### 🌍 Core Weather Experience
 
-- **Dynamic Landing Page:** Engaging hero banners and storytelling elements that introduce the SynoCast brand.
-- **Geo-Aware Header:** Automatically detects and displays the user's local time and timezone using IP geolocation.
+- **Real-Time Data:** Accurate current weather and forecasts powered by the **OpenWeatherMap API**.
+- **Detailed Forecasts:** 5-day / 3-hour forecast data with visual trends.
+- **Geo-Awareness:** Automatically detects and displays local time, city, and region using IP geolocation (ipapi.co).
 
-### ⚡ Interactive Elements
+### 🤖 SynoBot - AI Weather Assistant
 
-- **AI Weather Assistant:** A built-in conversational interface powered by **Groq** (Cloud) and **Ollama** (Local) for instant weather-related support.
-- **Interactive Map:** Integrated Leaflet.js map with backend proxy endpoints for forward and reverse geocoding (Nominatim).
+- **Smart Conversations:** Integrated AI chatbot ("SynoBot") to answer weather-related queries.
+- **Dual-Engine Power:**
+  - **Cloud:** Powered by **Groq** (Llama 3 model) for fast, deployed responses.
+  - **Local:** Fallback to **Ollama** (Llama 3 model) for local development and privacy.
 
-### 🔔 Engagement
+### ⚡ Interactive & Dynamic
 
-- **Secure Subscriptions:** Robust email subscription feature powered by **Resend**, complete with OTP (One-Time Password) verification for security.
+- **Interactive Map:** Leaflet.js map with search capabilities, ensuring users can find weather for any specific location.
+- **News Integration:** A dedicated News section aggregating the latest weather and environmental stories.
+- **Responsive Design:** Fully optimized for Mobile, Tablet, and Desktop with adaptive layouts (e.g., specific mobile adjustments for navigation and modals).
+
+### 🔔 User Engagement
+
+- **Secure Subscriptions:** Email subscription system with **OTP (One-Time Password)** verification using the **Resend API**.
+- **User-Friendly Forms:** Clean and secure input handling for user data.
+
+### 🛡️ Robustness
+
+- **Custom Error Pages:** Polished, branded pages for 404 (Not Found) and 500 (Server Error) to maintain user immersion even when things go wrong.
+- **Security:** Secure session handling and environment-based configuration.
 
 ---
 
@@ -33,12 +48,13 @@
 
 - **Backend:** Python (Flask)
 - **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5
-- **Database:** SQLite
+- **Database:** SQLite (for subscription management)
+- **AI & ML:** Groq API (Cloud), Ollama (Local)
 - **APIs & Services:**
-  - **Resend:** Transactional emails
-  - **Groq & Ollama:** AI Chat capabilities
-  - **Nominatim (OSM):** Geocoding
-  - **ipapi.co:** IP-based geolocation
+  - **OpenWeatherMap:** Weather data
+  - **Resend:** Transactional emails & OTPs
+  - **Nominatim (OSM):** Geocoding (Forward & Reverse)
+  - **ipapi.co:** IP geolocation
 
 ---
 
@@ -46,29 +62,32 @@
 
 ```bash
 SynoCast/
-├── app.py                 # Main application entry point & routes
-├── subscriptions.db       # SQLite database
+├── app.py                 # Main Flask application & routes
+├── subscriptions.db       # SQLite database (auto-created)
 ├── templates/             # Jinja2 HTML templates
-│   ├── base.html          # Base layout with navbar & footer
-│   ├── home.html          # Landing page
-│   ├── news.html          # News section template
-│   └── weather.html       # Weather dashboard template
-└── assests/               # Static assets
-    ├── js/                # Client-side logic (Map, Chatbot, Modals)
-    ├── styles/            # Custom CSS
-    └── ...                # Images & Icons
+│   ├── base.html          # Master layout
+│   ├── home.html          # Main dashboard
+│   ├── weather.html       # Detailed weather view
+│   ├── news.html          # Weather news feed
+│   ├── 404.html           # Custom 404 error page
+│   └── ...                # Other templates
+├── assests/               # Static assets
+│   ├── js/                # Client-side scripts (Map, Chat, UI)
+│   ├── styles/            # Custom CSS
+│   └── icons/             # Images & WebP assets
+└── requirements.txt       # Python dependencies
 ```
 
 ---
 
 ## 🏁 Getting Started
 
-Follow these steps to set up the project locally.
+Follow these steps to run SynoCast locally.
 
 ### Prerequisites
 
 - Python 3.10 or higher
-- pip (Python package manager)
+- [Ollama](https://ollama.com/) (Optional, for local AI chat)
 
 ### Installation
 
@@ -99,10 +118,13 @@ Follow these steps to set up the project locally.
 
 4. **Set up Environment Variables**
 
-   Create a `.env` file (optional for local dev, but recommended for keys):
+   Create a `.env` file in the root directory. While some keys can be configured in `app.py`, it is recommended to use environment variables for security, especially for the AI features:
 
    ```env
-   GROQ_API_KEY=your_groq_api_key
+   GROQ_API_KEY=your_groq_api_key_here
+   # Add other keys if you modify app.py to read them from env:
+   # RESEND_API_KEY=...
+   # OPENWEATHER_API_KEY=...
    ```
 
 5. **Run the application**
@@ -118,7 +140,7 @@ Follow these steps to set up the project locally.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome!
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -130,7 +152,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is available under the [MIT License](LICENSE).
 
 ---
 
