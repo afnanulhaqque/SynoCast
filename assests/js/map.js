@@ -1,10 +1,85 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- Map Initialization ---
-    const map = L.map('map').setView([51.505, -0.09], 5); // Default to London, Zoomed out
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // --- Map Initialization ---
+    
+    // 1. Define Base Layers
+    const standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    });
+
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+    const satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        attribution: ''
+    });
+
+    // Group Satellite + Labels
+    const satelliteHybrid = L.layerGroup([satelliteLayer, satelliteLabels]);
+
+    // 2. Initialize Map with Default Layer
+    const map = L.map('map', {
+        center: [51.505, -0.09],
+        zoom: 5,
+        layers: [satelliteHybrid], // Default to Satellite as requested last
+        attributionControl: false // Remove attribution as requested
+    });
+
+    // 3. Add Layer Control
+    const baseMaps = {
+        "Standard": standardLayer,
+        "Satellite": satelliteHybrid
+    };
+
+    const layerControl = L.control.layers(baseMaps, null, { position: 'bottomleft' });
+    
+    // Override _initLayout to prevent default behavior completely
+    const originalInitLayout = layerControl._initLayout;
+    layerControl._initLayout = function() {
+        originalInitLayout.call(this);
+        // Remove standard Leaflet listeners
+        L.DomEvent.off(this._container, 'mouseenter', this.expand, this);
+        L.DomEvent.off(this._container, 'mouseleave', this.collapse, this);
+    };
+
+    layerControl.addTo(map);
+
+    const container = layerControl.getContainer();
+    
+    // Prevent map interactions
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.disableScrollPropagation(container);
+
+    // 1. OPEN ON HOVER
+    container.addEventListener('mouseenter', function() {
+        layerControl.expand();
+    });
+
+    // 2. CLOSE ON CLICK (Toggle logic)
+    // If we click while expanded, it should collapse.
+    // If we click while collapsed (and somehow didn't hover? e.g. touch), it expands.
+    container.addEventListener('click', function(e) {
+        // If clicking an input/label, let it do its job (change layer) but don't collapse immediately? 
+        // Or maybe user wants to click icon to close?
+        // Standard Leaflet hides the icon when expanded. So clicking "the icon" when expanded is impossible unless we style it differently.
+        // But if user clicks the *header* or *container*, we can toggle.
+        
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.tagName === 'SPAN') {
+            return; 
+        }
+
+        if (container.classList.contains('leaflet-control-layers-expanded')) {
+            layerControl.collapse();
+        } else {
+            layerControl.expand();
+        }
+    });
+
+    // Close when clicking map
+    map.on('click', function() {
+        layerControl.collapse();
+    });
 
     // Add a marker to the map
     let marker = L.marker([51.505, -0.09]).addTo(map);
@@ -95,7 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const geocodeUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
 
         // Show loading state
-        document.getElementById('weather-city').textContent = "Loading...";
+        const overlay = document.getElementById('weather-overlay');
+        if (overlay) overlay.classList.add('loading');
+        
+        const mapCityEl = document.getElementById('map-city');
+        if (mapCityEl) mapCityEl.textContent = "Loading...";
 
         try {
             // Fetch Weather
@@ -110,9 +189,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update UI
             if (weatherData.current) {
                 // OpenWeatherMap returns temp in Celsius (metric units requested in backend)
-                document.getElementById('weather-temp').textContent = Math.round(weatherData.current.main.temp);
-                document.getElementById('weather-wind').textContent = `${weatherData.current.wind.speed} m/s`;
-                document.getElementById('weather-humidity').textContent = `${weatherData.current.main.humidity}%`;
+                const mapTempEl = document.getElementById('map-temp');
+                if (mapTempEl) mapTempEl.textContent = Math.round(weatherData.current.main.temp);
+                
+                const mapWindEl = document.getElementById('map-wind');
+                if (mapWindEl) mapWindEl.textContent = `${weatherData.current.wind.speed} m/s`;
+                
+                const mapHumEl = document.getElementById('map-humidity');
+                if (mapHumEl) mapHumEl.textContent = `${weatherData.current.main.humidity}%`;
                 
                 // Update Icon
                 const w = weatherData.current.weather[0];
@@ -126,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 else if (id === 800) iconClass = w.icon.includes('n') ? 'fa-moon' : 'fa-sun';
                 else if (id > 800) iconClass = 'fa-cloud';
 
-                const iconContainer = document.getElementById('weather-icon');
+                const iconContainer = document.getElementById('map-icon');
                 if (iconContainer) {
                     iconContainer.innerHTML = `<i class="fas ${iconClass} fa-2x"></i>`;
                 }
@@ -138,11 +222,14 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (weatherData.current && weatherData.current.name) {
                  locationName = weatherData.current.name;
             }
-            document.getElementById('weather-city').textContent = locationName;
+            if (mapCityEl) mapCityEl.textContent = locationName;
 
         } catch (error) {
             console.error("Error fetching data:", error);
-            document.getElementById('weather-city').textContent = "Error loading data";
+            const mapCityEl = document.getElementById('map-city');
+            if (mapCityEl) mapCityEl.textContent = "Error loading data";
+        } finally {
+            if (overlay) overlay.classList.remove('loading');
         }
     }
 });

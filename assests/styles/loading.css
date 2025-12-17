@@ -1,0 +1,76 @@
+/* Skeleton Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #eff1f3 4%, #e2e2e2 25%, #eff1f3 36%);
+  background-size: 1000px 100%;
+  color: transparent !important;
+  border-radius: 4px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Specific Skeleton Shapes */
+.skeleton-text {
+  height: 1em;
+  width: 100%;
+  margin-bottom: 0.5em;
+  display: inline-block;
+}
+
+.skeleton-text.w-50 {
+  width: 50%;
+}
+.skeleton-text.w-75 {
+  width: 75%;
+}
+.skeleton-text.display-1 {
+  height: 1.2em;
+  border-radius: 8px;
+}
+
+.skeleton-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.skeleton-card {
+  background-color: #fff; /* Fallback */
+}
+
+/* Map Loading Overlay */
+.weather-overlay {
+  transition: all 0.3s ease;
+}
+
+.weather-overlay.loading .weather-info {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.map-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  display: none;
+}
+
+.weather-overlay.loading .map-loading-spinner {
+  display: block;
+}
+
+.spinner-border-primary {
+  color: #6937f5;
+}

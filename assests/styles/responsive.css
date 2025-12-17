@@ -352,3 +352,22 @@
     display: none !important;
   }
 }
+
+/* Map Toggle Button Mobile Override */
+@media (max-width: 768px) {
+  /* Target the specific layers control container when it is in the bottom-left */
+  .leaflet-bottom.leaflet-left {
+    width: 100%; /* Allow child to position itself freely if needed, or just let use pointer-events trick */
+    pointer-events: none; /* Let clicks pass through empty space */
+    display: flex;
+    justify-content: flex-end; /* Push content to the right */
+    padding-right: 10px;
+    bottom: 20px;
+  }
+
+  .leaflet-bottom.leaflet-left .leaflet-control-layers {
+    pointer-events: auto; /* Re-enable clicks on the button */
+    margin-right: 0;
+    margin-left: 0;
+  }
+}

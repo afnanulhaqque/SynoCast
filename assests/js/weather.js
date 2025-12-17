@@ -86,6 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
             currentData = data.current;
             forecastData = data.forecast;
 
+            // Remove skeletons
+            document.querySelectorAll('.skeleton').forEach(el => {
+                el.classList.remove('skeleton');
+                el.classList.remove('skeleton-text');
+                el.classList.remove('w-50');
+                el.classList.remove('w-75');
+                if(el.tagName === 'H1' || el.tagName === 'H3' || el.tagName === 'P') el.textContent = ''; // Clear "Loading..." text
+            });
+            document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
+
             updateCurrentWeather(data.current);
             updateHourlyForecast(data.forecast, data.current.timezone);
             updateDailyForecast(data.forecast, data.current.timezone);
@@ -95,7 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error(error);
-            if(cityEl) cityEl.textContent = "Error loading weather";
+            if(cityEl) {
+                cityEl.classList.remove('skeleton'); 
+                cityEl.textContent = "Error loading weather";
+            }
         }
     }
 

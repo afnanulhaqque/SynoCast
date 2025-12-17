@@ -3,6 +3,7 @@ import sqlite3
 import requests
 import random
 import resend
+import concurrent.futures
 from flask import Flask, render_template, request, session, jsonify, abort
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
@@ -17,6 +18,13 @@ app = Flask(
     static_url_path="/assests",
 )
 app.secret_key = "synocast-dev-secret"
+
+# Simple in-memory cache for weather data
+# Key: f"{lat},{lon}"
+# Value: {"timestamp": float, "data": dict}
+WEATHER_CACHE = {}
+CACHE_DURATION = 600  # 10 minutes in seconds
+
 EXPECTED_OTP = "123456"
 if os.environ.get("VERCEL"):
     DATABASE = "/tmp/subscriptions.db"
@@ -74,21 +82,47 @@ except Exception as e:
 def get_local_time_string():
     # 1. Get user IP address first
     ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
-    if ip.startswith("127.") or ip == "localhost":
-        city = "Islamabad"
-        region = "Punjab"
-        utc_offset = "+0500"
+    
+    # Check session for cached location data
+    if "location_data" in session and session["location_data"].get("ip") == ip:
+        data = session["location_data"]
+        city = data.get("city", "Unknown")
+        region = data.get("region", "")
+        utc_offset = data.get("utc_offset", "+0000")
     else:
-        # 2. Fetch IP info
-        try:
-            data = requests.get(f"https://ipapi.co/{ip}/json/", timeout=5).json()
-            city = data.get("city", "")
-            region = data.get("region", "")
-            utc_offset = data.get("utc_offset", "0000")
-        except:
-            city = "Unknown"
-            region = ""
-            utc_offset = "+0000"
+        if ip.startswith("127.") or ip == "localhost":
+            city = "Islamabad"
+            region = "Punjab"
+            utc_offset = "+0500"
+            # Cache local dev defaults too
+            session["location_data"] = {
+                "ip": ip,
+                "city": city,
+                "region": region,
+                "utc_offset": utc_offset
+            }
+        else:
+            # 2. Fetch IP info
+            try:
+                # Reduced timeout to fail faster
+                resp = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
+                resp.raise_for_status()
+                data = resp.json()
+                city = data.get("city", "")
+                region = data.get("region", "")
+                utc_offset = data.get("utc_offset", "+0000")
+                
+                # Cache successful lookup
+                session["location_data"] = {
+                    "ip": ip,
+                    "city": city,
+                    "region": region,
+                    "utc_offset": utc_offset
+                }
+            except:
+                city = "Unknown"
+                region = ""
+                utc_offset = "+0000"
 
     # 3. Convert offset string (“-0300”) to hours/minutes
     try:
@@ -180,23 +214,45 @@ def api_weather():
     if not lat or not lon:
         return jsonify({"error": "Missing lat or lon parameters"}), 400
 
-    try:
-        # Fetch Current Weather
-        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
-        current_res = requests.get(current_url, timeout=5)
-        current_res.raise_for_status()
-        current_data = current_res.json()
+    # Check Cache
+    cache_key = f"{lat},{lon}"
+    now_ts = datetime.utcnow().timestamp()
+    
+    if cache_key in WEATHER_CACHE:
+        cached_entry = WEATHER_CACHE[cache_key]
+        if now_ts - cached_entry["timestamp"] < CACHE_DURATION:
+            app.logger.info(f"Serving weather for {cache_key} from cache")
+            return jsonify(cached_entry["data"])
 
-        # Fetch Forecast (5 Day / 3 Hour)
+    try:
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
         forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
-        forecast_res = requests.get(forecast_url, timeout=5)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_current = executor.submit(requests.get, current_url, timeout=5)
+            future_forecast = executor.submit(requests.get, forecast_url, timeout=5)
+
+            current_res = future_current.result()
+            forecast_res = future_forecast.result()
+
+        current_res.raise_for_status()
         forecast_res.raise_for_status()
+
+        current_data = current_res.json()
         forecast_data = forecast_res.json()
 
-        return jsonify({
+        result = {
             "current": current_data,
             "forecast": forecast_data
-        })
+        }
+
+        # Update Cache
+        WEATHER_CACHE[cache_key] = {
+            "timestamp": now_ts,
+            "data": result
+        }
+
+        return jsonify(result)
 
     except Exception as e:
         app.logger.error(f"OpenWeatherMap API error: {e}")
