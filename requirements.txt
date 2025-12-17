@@ -2,3 +2,5 @@ flask
 requests
 resend
 
+google-generativeai
+python-dotenv

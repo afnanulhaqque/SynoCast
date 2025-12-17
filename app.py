@@ -5,6 +5,10 @@ import random
 import resend
 from flask import Flask, render_template, request, session, jsonify, abort
 from datetime import datetime, timedelta, timezone
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(
     __name__,
@@ -346,7 +350,7 @@ def otp():
 @app.route("/api/ai_chat", methods=["POST"])
 def api_ai_chat():
     """
-    Chat endpoint that supports both local Ollama and Groq API (for deployment).
+    Chat endpoint that uses Google Gemini.
     Expects JSON: { "message": "user question" }
     """
     data = request.get_json(silent=True) or {}
@@ -362,64 +366,31 @@ def api_ai_chat():
         "If a user asks about something unrelated, politely steer them back to weather topics."
     )
 
-    # 1. Try Groq API first if Key is available (Preferred for Deployment)
-    groq_api_key = os.environ.get("GROQ_API_KEY")
-    if groq_api_key:
-        try:
-            groq_url = "https://api.groq.com/openai/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {groq_api_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": "llama3-8b-8192",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
-                "temperature": 0.7
-            }
-            
-            response = requests.post(groq_url, json=payload, headers=headers, timeout=10)
-            response.raise_for_status()
-            result = response.json()
-            bot_reply = result["choices"][0]["message"]["content"]
-            return jsonify({"reply": bot_reply})
-
-        except Exception as e:
-            app.logger.error(f"Groq API error: {e}")
-            # Fallthrough to Ollama if Groq fails (or return error if on Vercel)
-            if os.environ.get("VERCEL"):
-                 return jsonify({"error": "Groq API failed and local Ollama is not available on Vercel."}), 500
-
-    # 2. Fallback to Local Ollama (Development)
-    ollama_url = "http://localhost:11434/api/chat"
-    payload = {
-        "model": "llama3",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message}
-        ],
-        "stream": False
-    }
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_api_key:
+         # Fallback or error if key is missing. 
+         # For now, we return a helpful error so the user knows to add the key.
+         app.logger.error("GEMINI_API_KEY not found in environment variables.")
+         return jsonify({"error": "Server configuration error: Gemini API Key missing."}), 500
 
     try:
-        # 120 second timeout for local model inference
-        response = requests.post(ollama_url, json=payload, timeout=120)
-        response.raise_for_status()
+        genai.configure(api_key=gemini_api_key)
+        model = genai.GenerativeModel("gemini-2.5-flash") # Using the latest Flash model available
         
-        result = response.json()
-        bot_reply = result.get("message", {}).get("content", "I'm sorry, I couldn't generate a response.")
+        # Combine system prompt with user message for Gemini
+        # Alternatively, use system_instruction if supported by the library version/model, 
+        # but prepending is safe and standard for simple "system" behavior in chat.
+        full_prompt = f"{system_prompt}\n\nUser: {user_message}"
         
-        return jsonify({"reply": bot_reply})
+        response = model.generate_content(full_prompt)
+        
+        if response.text:
+             return jsonify({"reply": response.text})
+        else:
+             return jsonify({"reply": "I'm sorry, I couldn't generate a response."})
 
-    except requests.exceptions.ConnectionError:
-        msg = "Ollama service is not reachable. Is it running?"
-        if groq_api_key:
-            msg += " (Groq API also failed)"
-        return jsonify({"error": msg}), 503
     except Exception as e:
-        app.logger.error(f"Ollama API error: {e}")
+        app.logger.error(f"Gemini API error: {e}")
         return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
 
 
