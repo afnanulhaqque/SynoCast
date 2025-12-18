@@ -4,7 +4,7 @@ import requests
 import random
 import resend
 import concurrent.futures
-from flask import Flask, render_template, request, session, jsonify, abort
+from flask import Flask, render_template, request, session, jsonify
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -180,12 +180,6 @@ def about():
 @app.route("/terms")
 def terms():
     return render_template("terms.html", active_page="terms", date_time_info=get_local_time_string())
-
-
-
-
-
-
 
 
 

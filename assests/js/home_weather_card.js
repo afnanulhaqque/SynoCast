@@ -141,11 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
                 if(dayEl) dayEl.textContent = "Today"; 
                 
-                // Update Condition Text and Icon (if needed elsewhere, though this file updates hourly)
-                 if (data.current.weather && data.current.weather[0]) {
-                    const condition = data.current.weather[0].main;
+                if (data.current.weather && data.current.weather[0]) {
                      const conditionEl = document.getElementById('home-condition');
-                     if(conditionEl) conditionEl.textContent = condition;
+                     if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
                  }
             }
 
@@ -195,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (wCode === 800) iconClass = 'fa-sun';
             else if (wCode > 800) iconClass = 'fa-cloud';
 
-             // Night time check could be added here based on time/sunset
 
             const div = document.createElement('div');
             div.className = i === 0 ? 'bg-primary text-white rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover' : 'bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover';
