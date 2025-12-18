@@ -25,7 +25,6 @@ app.secret_key = "synocast-dev-secret"
 WEATHER_CACHE = {}
 CACHE_DURATION = 600  # 10 minutes in seconds
 
-EXPECTED_OTP = "123456"
 if os.environ.get("VERCEL"):
     DATABASE = "/tmp/subscriptions.db"
 else:
@@ -183,18 +182,6 @@ def terms():
     return render_template("terms.html", active_page="terms", date_time_info=get_local_time_string())
 
 
-@app.route('/chat', methods=['POST'])
-def chat_api():
-    """A very lightweight chat endpoint returning a JSON reply.
-    For now, the server simply returns an echo-like reply for demonstration.
-    """
-    data = request.get_json(silent=True) or {}
-    message = data.get('message', '')
-    if not message:
-        return jsonify({'reply': "Please send a message."}), 400
-    # Mock reply
-    reply = f"SynoCast: You said '{message}'"
-    return jsonify({'reply': reply})
 
 
 
