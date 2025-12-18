@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const forecastTodayEl = document.getElementById('forecast-today');
     const forecastWeekEl = document.getElementById('forecast-week');
 
+    // --- Highlight Elements ---
+    const highlightDateEl = document.getElementById('weather-highlight-date');
+    const highlightMaxEl = document.getElementById('weather-highlight-max');
+    const highlightMinEl = document.getElementById('weather-highlight-min');
+    const highlightVariationEl = document.getElementById('weather-highlight-variation');
+
     // --- Temperature Unit Toggle Logic ---
     const btnCelsius = document.getElementById('btn-celsius');
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
@@ -92,9 +98,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.classList.remove('skeleton-text');
                 el.classList.remove('w-50');
                 el.classList.remove('w-75');
-                if(el.tagName === 'H1' || el.tagName === 'H3' || el.tagName === 'P') el.textContent = ''; // Clear "Loading..." text
+                // if(el.tagName === 'H1' || el.tagName === 'H3' || el.tagName === 'P') el.textContent = ''; // Clear "Loading..." text
             });
             document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
+            document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton-card'));
 
             updateCurrentWeather(data.current);
             updateHourlyForecast(data.forecast, data.current.timezone);
@@ -163,6 +170,27 @@ document.addEventListener('DOMContentLoaded', function() {
              const min = Math.round(current.main.temp_min);
              minTempEl.setAttribute('data-celsius', min);
              minTempEl.textContent = `${min}°`;
+        }
+
+        // Update Highlights Section
+        if (highlightDateEl) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            highlightDateEl.textContent = new Date().toLocaleDateString('en-US', options);
+        }
+        if (highlightMaxEl) {
+            const max = Math.round(current.main.temp_max);
+            highlightMaxEl.setAttribute('data-celsius', max);
+            highlightMaxEl.textContent = `${max}°`;
+        }
+        if (highlightMinEl) {
+            const min = Math.round(current.main.temp_min);
+            highlightMinEl.setAttribute('data-celsius', min);
+            highlightMinEl.textContent = `${min}°`;
+        }
+        if (highlightVariationEl) {
+            const var_temp = Math.round(current.main.temp_max - current.main.temp_min);
+            highlightVariationEl.setAttribute('data-celsius', var_temp);
+            highlightVariationEl.textContent = `${var_temp}°`;
         }
     }
 
