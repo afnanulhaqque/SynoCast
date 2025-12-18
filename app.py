@@ -31,10 +31,10 @@ else:
     DATABASE = os.path.join(app.root_path, "subscriptions.db")
 
 # Resend API Key
-resend.api_key = "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V"
+resend.api_key = os.environ.get("RESEND_API_KEY", "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V")
 
 # OpenWeatherMap API Key
-OPENWEATHER_API_KEY = "1254601d1d95a31977b5b19d0c989a93"
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "1254601d1d95a31977b5b19d0c989a93")
 
 def init_db():
     """Create the subscriptions table if it does not already exist and handle migrations."""
@@ -452,15 +452,17 @@ def api_ai_chat():
         "Only if context is completely missing should you ask for their location."
     )
 
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    # Use provided key, but sanitize it
+    gemini_api_key = "AIzaSyAWLYuB3gWYcuDLRJDLIkMYk34ZgVnLqz8"
+    
     if not gemini_api_key:
-         app.logger.error("GEMINI_API_KEY not found in environment variables.")
          return jsonify({"error": "Server configuration error: Gemini API Key missing."}), 500
 
     try:
         # Strip the key to ensure no whitespace/newlines cause issues
-        genai.configure(api_key=gemini_api_key.strip())
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        gemini_api_key = gemini_api_key.strip()
+        genai.configure(api_key=gemini_api_key)
+        model = genai.GenerativeModel("models/gemini-1.5-flash")
         
         full_prompt = f"{system_prompt}{weather_context}\n\nUser: {user_message}"
         
@@ -485,6 +487,8 @@ from jinja2.exceptions import TemplateSyntaxError
 
 @app.errorhandler(500)
 def internal_error(e):
+    if request.path.startswith('/api/'):
+        return jsonify({"error": "Internal server error occurred"}), 500
     return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
 
 
@@ -495,6 +499,13 @@ def syntax_error(e):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
+    app.logger.error(f"Unhandled Exception: {e}")
+    if request.path.startswith('/api/'):
+        # Check if it's a known error from Gemini or other APIs
+        error_msg = str(e)
+        if "API_KEY_INVALID" in error_msg:
+            return jsonify({"error": "Invalid API Key for AI service"}), 500
+        return jsonify({"error": f"An unexpected error occurred: {error_msg}"}), 500
     # Fallback to 500 page for generic exceptions
     return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
 
