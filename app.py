@@ -406,37 +406,82 @@ def otp():
 @app.route("/api/ai_chat", methods=["POST"])
 def api_ai_chat():
     """
-    Chat endpoint that uses Google Gemini.
-    Expects JSON: { "message": "user question" }
+    Chat endpoint that uses Google Gemini with weather context.
+    Expects JSON: { "message": "user question", "lat": float, "lon": float }
     """
     data = request.get_json(silent=True) or {}
     user_message = data.get("message", "")
+    lat = data.get("lat")
+    lon = data.get("lon")
 
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    # System prompt to guide the bot
+    # Initialize weather context
+    weather_context = ""
+    
+    # If lat/lon not in request, try to get them via IP
+    if not (lat and lon):
+        try:
+            ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
+            if ip.startswith("127.") or ip == "localhost":
+                # Default to Islamabad for local development
+                lat, lon = 33.6844, 73.0479
+            else:
+                resp_ip = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
+                if resp_ip.ok:
+                    ip_data = resp_ip.json()
+                    lat = ip_data.get("latitude")
+                    lon = ip_data.get("longitude")
+                    app.logger.info(f"IP-based location detection: {lat}, {lon}")
+        except Exception as e:
+            app.logger.warning(f"IP-based location fallback failed: {e}")
+
+    if lat and lon:
+        try:
+            # Fetch current weather for context
+            current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+            resp = requests.get(current_url, timeout=5)
+            resp.raise_for_status()
+            w_data = resp.json()
+            
+            temp = w_data['main']['temp']
+            cond = w_data['weather'][0]['description']
+            humidity = w_data['main']['humidity']
+            wind = w_data['wind']['speed']
+            city = w_data.get('name', 'your location')
+            
+            weather_context = (
+                f"\n\nCURRENT WEATHER CONTEXT for {city}:\n"
+                f"- Temperature: {temp}°C\n"
+                f"- Conditions: {cond}\n"
+                f"- Humidity: {humidity}%\n"
+                f"- Wind Speed: {wind} m/s\n"
+                "CRITICAL: Use this data to answer. DO NOT ask the user for their location if this context is present."
+            )
+        except Exception as e:
+            app.logger.warning(f"Could not fetch weather context for AI: {e}")
+
     system_prompt = (
-        "You are SynoBot, a helpful weather assistant. "
-        "Answer questions about weather, climate, and meteorology concisely. "
-        "If a user asks about something unrelated, politely steer them back to weather topics."
+        "You are SynoBot, a powerful AI weather assistant for the SynoCast website. "
+        "Your goal is to provide immediate, context-aware answers. "
+        "If CURRENT WEATHER CONTEXT is provided below, use it to answer directly. "
+        "NEVER ask for the user's city, zip code, or location if the context is already provided. "
+        "For example, if asked 'Should I carry an umbrella?' and it's raining in the context, say 'Yes, it is raining in [City] right now'. "
+        "Only if context is completely missing should you ask for their location."
     )
 
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     if not gemini_api_key:
-         # Fallback or error if key is missing. 
-         # For now, we return a helpful error so the user knows to add the key.
          app.logger.error("GEMINI_API_KEY not found in environment variables.")
          return jsonify({"error": "Server configuration error: Gemini API Key missing."}), 500
 
     try:
-        genai.configure(api_key=gemini_api_key)
-        model = genai.GenerativeModel("gemini-2.5-flash") # Using the latest Flash model available
+        # Strip the key to ensure no whitespace/newlines cause issues
+        genai.configure(api_key=gemini_api_key.strip())
+        model = genai.GenerativeModel("gemini-1.5-flash")
         
-        # Combine system prompt with user message for Gemini
-        # Alternatively, use system_instruction if supported by the library version/model, 
-        # but prepending is safe and standard for simple "system" behavior in chat.
-        full_prompt = f"{system_prompt}\n\nUser: {user_message}"
+        full_prompt = f"{system_prompt}{weather_context}\n\nUser: {user_message}"
         
         response = model.generate_content(full_prompt)
         

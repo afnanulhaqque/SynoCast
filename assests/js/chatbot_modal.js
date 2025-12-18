@@ -59,13 +59,28 @@ document.addEventListener('DOMContentLoaded', function () {
         input.value = '';
         showTyping();
 
+        const payload = { message: message };
+
+        // Try to get geolocation if available
+        if (navigator.geolocation) {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                });
+                payload.lat = position.coords.latitude;
+                payload.lon = position.coords.longitude;
+            } catch (geoErr) {
+                console.warn('Geolocation failed or denied', geoErr);
+            }
+        }
+
         try {
             const response = await fetch('/api/ai_chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
