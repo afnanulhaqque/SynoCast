@@ -15,63 +15,53 @@ body %}
 
 <div class="container text-center mt-5 news_sub_banner">
   <div class="row justify-content-md-center">
+    {% if breaking_news %}
     <div class="col-8">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Meteorologists are predicting a significant shift in global weather patterns this year.
-            Experts suggest that these changes could lead to more frequent storms and unpredictable temperature
-            fluctuations across major continents.</p>
+          <h5 class="card-title">{{ breaking_news[0].title }}</h5>
+          <p class="card-text">{{ breaking_news[0].description[:300] }}{% if breaking_news[0].description|length > 300
+            %}...{% endif %}</p>
           <div class="row mt-2 mb-2">
             <div class="col-6 text-start">
-              <span class="grey_color fs-7">Auther Name</span>
+              <span class="grey_color fs-7">{{ breaking_news[0].author if breaking_news[0].author else 'News Desk'
+                }}</span>
             </div>
             <div class="col-6 text-end">
-              <a href="#" class="card-link">Article link</a>
+              <a href="{{ breaking_news[0].url }}" target="_blank" class="card-link">Article link</a>
             </div>
           </div>
         </div>
-        <img src="/assests/images/sub-banner-news.png" class="card-img-top" alt="...">
+        <img
+          src="{{ breaking_news[0].urlToImage if breaking_news[0].urlToImage else '/assests/images/sub-banner-news.png' }}"
+          class="card-img-top" alt="Featured News" style="height: 400px; object-fit: cover;">
       </div>
 
     </div>
     <div class="col-4">
-      <div class="card">
+      {% for article in breaking_news[1:] %}
+      <div class="card mb-3">
         <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Stay updated with the latest weather forecasts and storm tracking alerts for your region.
-          </p>
-          <a href="#" class="card-link">Article link</a>
-
+          <h5 class="card-title fs-6">{{ article.title }}</h5>
+          <p class="card-text small">{{ article.description[:100] }}...</p>
+          <a href="{{ article.url }}" target="_blank" class="card-link small">Article link</a>
         </div>
       </div>
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Stay updated with the latest weather forecasts and storm tracking alerts for your region.
-          </p>
-          <a href="#" class="card-link">Article link</a>
+      {% endfor %}
+      {% if breaking_news|length < 3 %} <!-- Placeholder if not enough breaking news -->
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">More News Coming Soon</h5>
+            <p class="card-text small">Stay tuned for more weather updates from around the globe.</p>
+          </div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Stay updated with the latest weather forecasts and storm tracking alerts for your region.
-          </p>
-          <a href="#" class="card-link">Article link</a>
-
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">Stay updated with the latest weather forecasts and storm tracking alerts for your region.
-          </p>
-          <a href="#" class="card-link">Article link</a>
-
-        </div>
-      </div>
+        {% endif %}
     </div>
+    {% else %}
+    <div class="col-12">
+      <p class="text-muted">Loading weather news...</p>
+    </div>
+    {% endif %}
   </div>
 </div>
 
@@ -82,90 +72,43 @@ body %}
 
   <div class="text-center mt-5">
     <div class="row justify-content-md-center">
+      {% if breaking_news %}
+      {% for article in breaking_news %}
       <div class="col-4">
-        <div class="card">
-          <img src="/assests/images/breaking-news-1.png" class="card-img-top" alt="...">
+        <div class="card h-100">
+          <img
+            src="{{ article.urlToImage if article.urlToImage else '/assests/images/breaking-news-' ~ loop.index ~ '.png' }}"
+            class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
           <div class="card-body">
             <div class="row mt-1 mb-2">
               <div class="col-6 text-start">
-                <span class="grey_color fs-7">11/19/2025</span>
+                <span class="grey_color fs-7">{{ article.publishedAt[:10] }}</span>
               </div>
               <div class="col-6 text-start fw-semibold">
-                <span class="fs-7">BBC News</span>
+                <span class="fs-7">{{ article.source.name[:15] }}</span>
               </div>
             </div>
             <div class="text-start">
-              <p class="card-text">Recent studies show a correlation between ocean temperatures and increased hurricane
-                activity. Scientists are urging coastal communities to prepare for potentially severe weather events in
-                the coming months.</p>
+              <h6 class="fw-bold">{{ article.title[:60] }}...</h6>
+              <p class="card-text small">{{ article.description[:120] }}...</p>
             </div>
             <div class="row mt-2">
               <div class="col-6 text-start">
-                <span class="grey_color fs-7">Auther Name</span>
+                <span class="grey_color fs-7">{{ article.author[:15] if article.author else 'News Desk' }}</span>
               </div>
               <div class="col-6 text-end">
-                <a href="#" class="card-link">Article link</a>
+                <a href="{{ article.url }}" target="_blank" class="card-link small">Article link</a>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-4">
-        <div class="card">
-          <img src="/assests/images/breaking-news-2.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <div class="row mt-1 mb-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">11/19/2025</span>
-              </div>
-              <div class="col-6 text-start fw-semibold">
-                <span class="fs-7">BBC News</span>
-              </div>
-            </div>
-            <div class="text-start">
-              <p class="card-text">Recent studies show a correlation between ocean temperatures and increased hurricane
-                activity. Scientists are urging coastal communities to prepare for potentially severe weather events in
-                the coming months.</p>
-            </div>
-            <div class="row mt-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">Auther Name</span>
-              </div>
-              <div class="col-6 text-end">
-                <a href="#" class="card-link">Article link</a>
-              </div>
-            </div>
-          </div>
-        </div>
+      {% endfor %}
+      {% else %}
+      <div class="col-12">
+        <p class="text-muted">Loading breaking news...</p>
       </div>
-      <div class="col-4">
-        <div class="card">
-          <img src="/assests/images/breaking-news-3.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <div class="row mt-1 mb-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">11/19/2025</span>
-              </div>
-              <div class="col-6 text-start fw-semibold">
-                <span class="fs-7">BBC News</span>
-              </div>
-            </div>
-            <div class="text-start">
-              <p class="card-text">Recent studies show a correlation between ocean temperatures and increased hurricane
-                activity. Scientists are urging coastal communities to prepare for potentially severe weather events in
-                the coming months.</p>
-            </div>
-            <div class="row mt-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">Auther Name</span>
-              </div>
-              <div class="col-6 text-end">
-                <a href="#" class="card-link">Article link</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -178,62 +121,43 @@ body %}
 
   <div class="text-center mt-5">
     <div class="row justify-content-md-center">
+      {% if featured_news %}
+      {% for article in featured_news %}
       <div class="col-6">
-        <div class="card">
-          <img src="/assests/images/featured-new-1.png" class="card-img-top" alt="...">
+        <div class="card h-100">
+          <img
+            src="{{ article.urlToImage if article.urlToImage else '/assests/images/featured-new-' ~ loop.index ~ '.png' }}"
+            class="card-img-top" alt="{{ article.title }}" style="height: 350px; object-fit: cover;">
           <div class="card-body">
             <div class="row mt-1 mb-2">
               <div class="col-6 text-start">
-                <span class="grey_color fs-7">11/19/2025</span>
+                <span class="grey_color fs-7">{{ article.publishedAt[:10] }}</span>
               </div>
               <div class="col-6 text-start fw-semibold">
-                <span class="fs-7">BBC News</span>
+                <span class="fs-7">{{ article.source.name }}</span>
               </div>
             </div>
             <div class="text-start">
-              <p class="card-text">Recent studies show a correlation between ocean temperatures and increased hurricane
-                activity. Scientists are urging coastal communities to prepare for potentially severe weather events in
-                the coming months.</p>
+              <h5 class="fw-bold">{{ article.title }}</h5>
+              <p class="card-text">{{ article.description[:200] }}...</p>
             </div>
             <div class="row mt-2">
               <div class="col-6 text-start">
-                <span class="grey_color fs-7">Auther Name</span>
+                <span class="grey_color fs-7">{{ article.author if article.author else 'News Desk' }}</span>
               </div>
               <div class="col-6 text-end">
-                <a href="#" class="card-link">Article link</a>
+                <a href="{{ article.url }}" target="_blank" class="card-link">Article link</a>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-6">
-        <div class="card">
-          <img src="/assests/images/featured-new-2.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <div class="row mt-1 mb-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">11/19/2025</span>
-              </div>
-              <div class="col-6 text-start fw-semibold">
-                <span class="fs-7">BBC News</span>
-              </div>
-            </div>
-            <div class="text-start">
-              <p class="card-text">Recent studies show a correlation between ocean temperatures and increased hurricane
-                activity. Scientists are urging coastal communities to prepare for potentially severe weather events in
-                the coming months.</p>
-            </div>
-            <div class="row mt-2">
-              <div class="col-6 text-start">
-                <span class="grey_color fs-7">Auther Name</span>
-              </div>
-              <div class="col-6 text-end">
-                <a href="#" class="card-link">Article link</a>
-              </div>
-            </div>
-          </div>
-        </div>
+      {% endfor %}
+      {% else %}
+      <div class="col-12">
+        <p class="text-muted">Loading featured news from Pakistan...</p>
       </div>
+      {% endif %}
     </div>
   </div>
 

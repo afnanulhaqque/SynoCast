@@ -80,27 +80,29 @@
   </div>
 
   <div class="row">
+    {% if latest_news %}
     <!-- Featured Large Article -->
     <div class="col-lg-6 mb-4 mb-lg-0">
       <div class="card border-0 h-100 news-card-large shadow-sm hover-lift">
         <div class="position-relative overflow-hidden rounded-3">
-          <img src="/assests/images/sub-banner-news.png" class="card-img-top news-img-large transition-scale"
-            alt="Latest News">
+          <img
+            src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assests/images/sub-banner-news.png' }}"
+            class="card-img-top news-img-large transition-scale" alt="{{ latest_news[0].title }}">
           <span class="badge bg-primary position-absolute top-0 start-0 m-3">Featured</span>
         </div>
         <div class="card-body px-1 py-3">
           <div class="d-flex align-items-center text-muted small mb-2">
-            <span class="me-3"><i class="far fa-clock me-1"></i> 2 hours ago</span>
-            <span><i class="far fa-user me-1"></i> Sarah Jenkins</span>
+            <span class="me-3"><i class="far fa-clock me-1"></i> {{ latest_news[0].publishedAt[:10] }}</span>
+            <span><i class="far fa-user me-1"></i> {{ latest_news[0].author[:20] if latest_news[0].author else 'News
+              Desk' }}</span>
           </div>
-          <a href="#" class="text-decoration-none text-dark">
-            <h3 class="card-title fw-bold mb-2 hover-text-primary">Heavy rain in New Orleans causes major disruption
-            </h3>
+          <a href="{{ latest_news[0].url }}" target="_blank" class="text-decoration-none text-dark">
+            <h3 class="card-title fw-bold mb-2 hover-text-primary">{{ latest_news[0].title }}</h3>
           </a>
-          <p class="card-text text-muted mb-3">Heavy rainfall has caused significant flooding in parts of New Orleans.
-            Emergency services are on high alert as the water levels continue to rise. Residents are advised to stay
-            indoors...</p>
-          <a href="#" class="fw-semibold text-primary text-decoration-none read-more-link">Read Full Story <i
+          <p class="card-text text-muted mb-3">{{ latest_news[0].description[:150] }}{% if
+            latest_news[0].description|length > 150 %}...{% endif %}</p>
+          <a href="{{ latest_news[0].url }}" target="_blank"
+            class="fw-semibold text-primary text-decoration-none read-more-link">Read Full Story <i
               class="fas fa-arrow-right ms-1 small"></i></a>
         </div>
       </div>
@@ -109,88 +111,49 @@
     <!-- Side List Articles -->
     <div class="col-lg-6">
       <div class="d-flex flex-column gap-3">
-        <!-- Item 1 -->
+        {% for article in latest_news[1:] %}
         <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
           <div class="row g-0 align-items-center p-2">
             <div class="col-8">
               <div class="card-body p-2">
                 <div class="d-flex align-items-center text-muted x-small mb-1">
                   <span class="badge bg-light text-primary border me-2">Weather</span>
-                  <span>4 hours ago</span>
+                  <span>{{ article.publishedAt[:10] }}</span>
                 </div>
-                <a href="#" class="text-decoration-none text-dark">
-                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Meteorologists warn of continued
-                    precipitation throughout the week</h5>
+                <a href="{{ article.url }}" target="_blank" class="text-decoration-none text-dark">
+                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">{{ article.title }}</h5>
                 </a>
-                <p class="card-text text-muted small text-truncate-2">Local authorities are monitoring the situation
-                  closely to ensure public safety across the region.</p>
+                <p class="card-text text-muted small text-truncate-2">{{ article.description }}</p>
               </div>
             </div>
             <div class="col-4">
               <div class="overflow-hidden rounded-3 h-100">
-                <img src="/assests/images/breaking-news-1.png"
+                <img
+                  src="{{ article.urlToImage if article.urlToImage else '/assests/images/breaking-news-' ~ loop.index ~ '.png' }}"
                   class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
                   style="min-height: 100px;">
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Item 2 -->
-        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
-          <div class="row g-0 align-items-center p-2">
-            <div class="col-8">
-              <div class="card-body p-2">
-                <div class="d-flex align-items-center text-muted x-small mb-1">
-                  <span class="badge bg-light text-primary border me-2">Alert</span>
-                  <span>5 hours ago</span>
-                </div>
-                <a href="#" class="text-decoration-none text-dark">
-                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Global temperature records broken for the
-                    third consecutive month</h5>
-                </a>
-                <p class="card-text text-muted small text-truncate-2">Climate scientists express concern over the
-                  accelerating rate of warming observed globally.</p>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="overflow-hidden rounded-3 h-100">
-                <img src="/assests/images/breaking-news-2.png"
-                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
-                  style="min-height: 100px;">
-              </div>
-            </div>
-          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <!-- Fallback if no news fetched -->
+    <div class="col-lg-6 mb-4 mb-lg-0">
+      <div class="card border-0 h-100 news-card-large shadow-sm hover-lift">
+        <div class="position-relative overflow-hidden rounded-3">
+          <img src="/assests/images/sub-banner-news.png" class="card-img-top news-img-large transition-scale"
+            alt="Latest News">
+          <span class="badge bg-primary position-absolute top-0 start-0 m-3">Featured</span>
         </div>
-
-        <!-- Item 3 -->
-        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
-          <div class="row g-0 align-items-center p-2">
-            <div class="col-8">
-              <div class="card-body p-2">
-                <div class="d-flex align-items-center text-muted x-small mb-1">
-                  <span class="badge bg-light text-primary border me-2">Forecast</span>
-                  <span>6 hours ago</span>
-                </div>
-                <a href="#" class="text-decoration-none text-dark">
-                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">Upcoming solar eclipse expected to draw
-                    millions of viewers</h5>
-                </a>
-                <p class="card-text text-muted small text-truncate-2">Travel agencies report a surge in bookings for
-                  destinations along the path of totality.</p>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="overflow-hidden rounded-3 h-100">
-                <img src="/assests/images/breaking-news-3.png"
-                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
-                  style="min-height: 100px;">
-              </div>
-            </div>
-          </div>
+        <div class="card-body px-1 py-3 text-center">
+          <p class="text-muted">Loading latest news from Pakistan...</p>
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 
@@ -202,30 +165,28 @@
     </div>
   </div>
   <div class="row">
+    {% if world_news %}
+    {% for article in world_news %}
     <div class="col-6">
       <div class="card border-0">
-        <img src="/assests/images/featured-new-1.png" class="card-img-top mb-3 rounded-3" alt="Featured News">
+        <img
+          src="{{ article.urlToImage if article.urlToImage else '/assests/images/featured-new-' ~ loop.index ~ '.png' }}"
+          class="card-img-top mb-3 rounded-3" alt="{{ article.title }}" style="height: 300px; object-fit: cover;">
         <div class="card-body px-0">
-          <h5 class="card-title text-primary fw-bold">Heavy rain in New Orleans</h5>
-          <p class="card-text text-muted">Heavy rainfall has caused significant flooding in parts of New Orleans.
-            Emergency services are on high alert as the water levels continue to rise. Residents are advised to stay
-            indoors and avoid flooded areas.
-          </p>
+          <a href="{{ article.url }}" target="_blank" class="text-decoration-none">
+            <h5 class="card-title text-primary fw-bold">{{ article.title }}</h5>
+          </a>
+          <p class="card-text text-muted">{{ article.description[:200] }}{% if article.description|length > 200 %}...{%
+            endif %}</p>
         </div>
       </div>
     </div>
-    <div class="col-6">
-      <div class="card border-0">
-        <img src="/assests/images/featured-new-2.png" class="card-img-top mb-3 rounded-3" alt="Featured News">
-        <div class="card-body px-0">
-          <h5 class="card-title text-primary fw-bold">Heavy rain in New Orleans</h5>
-          <p class="card-text text-muted">Heavy rainfall has caused significant flooding in parts of New Orleans.
-            Emergency services are on high alert as the water levels continue to rise. Residents are advised to stay
-            indoors and avoid flooded areas.
-          </p>
-        </div>
-      </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 text-center">
+      <p class="text-muted">Loading world weather news...</p>
     </div>
+    {% endif %}
   </div>
 </div>
 

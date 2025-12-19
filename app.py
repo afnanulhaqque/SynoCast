@@ -36,6 +36,13 @@ resend.api_key = os.environ.get("RESEND_API_KEY", "re_5UBuV4Aw_KHWvj2y7YPR4ahvMt
 # OpenWeatherMap API Key
 OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "1254601d1d95a31977b5b19d0c989a93")
 
+# NewsAPI.org API Key
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY", "6fd668f55ec7473eacb9ff88fd594420")
+
+# Cache for News Data
+NEWS_CACHE = {} 
+NEWS_CACHE_DURATION = 3600  # 1 hour
+
 def init_db():
     """Create the subscriptions table if it does not already exist and handle migrations."""
     conn = sqlite3.connect(DATABASE)
@@ -152,14 +159,85 @@ def get_local_time_string():
         "gmt_label": gmt_offset   # e.g. "GMT+05:00"
     }
 
+def fetch_weather_news(query="weather", country=None, page_size=10):
+    """
+    Fetch weather-related news from NewsAPI.org.
+    """
+    cache_key = f"{query}_{country}_{page_size}"
+    if cache_key in NEWS_CACHE:
+        cached = NEWS_CACHE[cache_key]
+        if datetime.now().timestamp() - cached["timestamp"] < NEWS_CACHE_DURATION:
+            return cached["articles"]
+
+    try:
+        base_url = "https://newsapi.org/v2/everything"
+        full_query = query
+        if country:
+            full_query = f"{query} {country}"
+            
+        params = {
+            "q": full_query,
+            "pageSize": page_size,
+            "apiKey": NEWS_API_KEY,
+            "language": "en",
+            "sortBy": "publishedAt"
+        }
+        
+        app.logger.info(f"Fetching NewsAPI: {params.get('q')} (pageSize: {page_size})")
+        response = requests.get(base_url, params=params, timeout=10)
+        
+        if not response.ok:
+            app.logger.error(f"NewsAPI Error {response.status_code}: {response.text}")
+            return []
+            
+        data = response.json()
+        articles = data.get("articles", [])
+        
+        if not articles:
+            app.logger.warning(f"No articles found for query: {full_query}")
+            
+        # Filter out removed articles
+        articles = [a for a in articles if a.get("title") and a.get("title") != "[Removed]"]
+        
+        NEWS_CACHE[cache_key] = {
+            "timestamp": datetime.now().timestamp(),
+            "articles": articles
+        }
+        return articles
+    except Exception as e:
+        app.logger.error(f"Exception fetching news: {e}")
+        return []
+
 @app.route("/")
 def home():
-    return render_template("home.html", active_page="home", date_time_info=get_local_time_string())
+    # Latest News (Pakistan weather)
+    latest_news = fetch_weather_news(query="weather", country="Pakistan", page_size=4)
+    # All Around The World news
+    world_news = fetch_weather_news(query="global weather", page_size=2)
+    
+    return render_template(
+        "home.html", 
+        active_page="home", 
+        date_time_info=get_local_time_string(),
+        latest_news=latest_news,
+        world_news=world_news
+    )
 
 
 @app.route("/news")
 def news():
-    return render_template("news.html", active_page="news", date_time_info=get_local_time_string())
+    # Breaking News (Latest weather news)
+    breaking_news = fetch_weather_news(query="weather", page_size=3)
+    # Featured News (Detailed weather stories)
+    featured_news = fetch_weather_news(query="climate change", country="Pakistan", page_size=2)
+    
+    return render_template(
+        "news.html", 
+        active_page="news", 
+        date_time_info=get_local_time_string(),
+        breaking_news=breaking_news,
+        featured_news=featured_news
+    )
 
 
 @app.route("/weather")
