@@ -452,8 +452,8 @@ def api_ai_chat():
         "Only if context is completely missing should you ask for their location."
     )
 
-    # Use provided key, but sanitize it
-    gemini_api_key = "AIzaSyAWLYuB3gWYcuDLRJDLIkMYk34ZgVnLqz8"
+    # Use environment variable for Gemini API key
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
     
     if not gemini_api_key:
          return jsonify({"error": "Server configuration error: Gemini API Key missing."}), 500
@@ -462,7 +462,7 @@ def api_ai_chat():
         # Strip the key to ensure no whitespace/newlines cause issues
         gemini_api_key = gemini_api_key.strip()
         genai.configure(api_key=gemini_api_key)
-        model = genai.GenerativeModel("models/gemini-1.5-flash")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
         
         full_prompt = f"{system_prompt}{weather_context}\n\nUser: {user_message}"
         
