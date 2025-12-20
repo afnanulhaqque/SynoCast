@@ -17,7 +17,7 @@ app = Flask(
     static_folder="assests",
     static_url_path="/assests",
 )
-app.secret_key = "synocast-dev-secret"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "synocast-dev-secret")
 
 # Simple in-memory cache for weather data
 # Key: f"{lat},{lon}"
@@ -31,13 +31,13 @@ else:
     DATABASE = os.path.join(app.root_path, "subscriptions.db")
 
 # Resend API Key
-resend.api_key = os.environ.get("RESEND_API_KEY", "re_5UBuV4Aw_KHWvj2y7YPR4ahvMtwTv561V")
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 # OpenWeatherMap API Key
-OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "1254601d1d95a31977b5b19d0c989a93")
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
 
 # NewsAPI.org API Key
-NEWS_API_KEY = os.environ.get("NEWS_API_KEY", "6fd668f55ec7473eacb9ff88fd594420")
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 
 # Cache for News Data
 NEWS_CACHE = {} 
@@ -227,7 +227,7 @@ def home():
 @app.route("/news")
 def news():
     # Breaking News (Latest weather news)
-    breaking_news = fetch_weather_news(query="weather", page_size=3)
+    breaking_news = fetch_weather_news(query="weather", page_size=4)
     # Featured News (Detailed weather stories)
     featured_news = fetch_weather_news(query="climate change", country="Pakistan", page_size=2)
     
@@ -242,7 +242,14 @@ def news():
 
 @app.route("/weather")
 def weather():
-    return render_template("weather.html", active_page="weather", date_time_info=get_local_time_string())
+    # Breaking News for the weather page
+    breaking_news = fetch_weather_news(query="weather", page_size=3)
+    return render_template(
+        "weather.html", 
+        active_page="weather", 
+        date_time_info=get_local_time_string(),
+        breaking_news=breaking_news
+    )
 
 
 @app.route("/subscribe")
@@ -406,7 +413,7 @@ def otp():
                 r = resend.Emails.send({
                     "from": "SynoCast <onboarding@resend.dev>", 
                     "to": contact_info,
-                    "reply_to": "afnanulhaq4@gmail.com",
+                    "reply_to": os.environ.get("REPLY_TO_EMAIL", "afnanulhaq4@gmail.com"),
                     "subject": "Your SynoCast Subscription OTP",
                     "html": f"""
                     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">

@@ -73,7 +73,7 @@ body %}
   <div class="text-center mt-5">
     <div class="row justify-content-md-center">
       {% if breaking_news %}
-      {% for article in breaking_news %}
+      {% for article in breaking_news[:3] %}
       <div class="col-4">
         <div class="card h-100">
           <img

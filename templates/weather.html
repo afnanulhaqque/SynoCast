@@ -209,27 +209,38 @@
 
     <h4 class="fw-bold mb-4">Breaking news</h4>
     <div class="row g-4">
-      {% for img in ['breaking-news-1.png', 'breaking-news-2.png', 'breaking-news-3.png'] %}
+      {% if breaking_news %}
+      {% for article in breaking_news %}
       <div class="col-md-4">
         <div class="card border-0 h-100">
-          <img src="/assests/images/{{ img }}" class="card-img-top rounded-3 mb-3" alt="News"
-            style="height: 200px; object-fit: cover;">
+          <img
+            src="{{ article.urlToImage if article.urlToImage else '/assests/images/breaking-news-' ~ loop.index ~ '.png' }}"
+            class="card-img-top rounded-3 mb-3" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
           <div class="card-body p-0">
             <div class="d-flex justify-content-between small mb-2">
-              <span class="text-muted">20/09/2024</span>
-              <span class="fw-bold">BBC News</span>
+              <span class="text-muted">{{ article.publishedAt[:10] if article.publishedAt else 'Recently' }}</span>
+              <span class="fw-bold">{{ article.source.name[:15] if article.source and article.source.name else 'News'
+                }}</span>
             </div>
-            <h6 class="fw-bold mb-2">Global Weather Patterns Shift Unexpectedly</h6>
-            <p class="card-text small text-muted text-truncate">Meteorologists are tracking unusual atmospheric changes
-              affecting major continents this season.</p>
+            <h6 class="fw-bold mb-2">{{ article.title[:60] }}{% if article.title|length > 60 %}...{% endif %}</h6>
+            <p class="card-text small text-muted">
+              {{ article.description[:120] if article.description else 'No description available.' }}{% if
+              article.description and article.description|length > 120 %}...{% endif %}
+            </p>
             <div class="d-flex justify-content-between small mt-3 align-items-center">
-              <span class="text-muted">Jimmie Johnson</span>
-              <a href="#" class="text-primary text-decoration-none fw-bold">Access article</a>
+              <span class="text-muted">{{ article.author[:15] if article.author else 'News Desk' }}</span>
+              <a href="{{ article.url }}" target="_blank" class="text-primary text-decoration-none fw-bold">Access
+                article</a>
             </div>
           </div>
         </div>
       </div>
       {% endfor %}
+      {% else %}
+      <div class="col-12">
+        <p class="text-muted text-center">Loading weather news...</p>
+      </div>
+      {% endif %}
     </div>
     <div class="text-center mt-5">
       <a href="/news" class="btn w-100 py-3 rounded-pill fw-bold" style="background-color: #E7E4E3; color: #555;">
