@@ -1988,10 +1988,10 @@ main {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--fg);
+  color: #6937f5; /* Primary color for visibility */
   font-size: 1.2em;
   pointer-events: none; /* Let clicks pass to input */
-  z-index: 1;
+  z-index: 3; /* Ensure it's above the input */
 }
 
 /* 
@@ -2001,8 +2001,9 @@ main {
 */
 .animated-search-form input:focus + .search-icon,
 .animated-search-form input:valid + .search-icon {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 1; /* Keep visible */
+  transform: translate(-10px, -50%) scale(0.8); /* Move slightly left */
+  left: 30px; /* Position inside padding */
 }
 /* Skeleton Loading Animation */
 @keyframes shimmer {
