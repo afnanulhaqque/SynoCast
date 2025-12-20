@@ -77,7 +77,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const response = await fetch('/api/ai_chat', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': SecurityUtils.getCsrfToken()
                 },
                 body: JSON.stringify(payload)
             });

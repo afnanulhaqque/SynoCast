@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': SecurityUtils.getCsrfToken()
                 },
                 body: params,
             });
@@ -111,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': SecurityUtils.getCsrfToken()
                 },
                 body: new URLSearchParams({
                     action: 'verify',

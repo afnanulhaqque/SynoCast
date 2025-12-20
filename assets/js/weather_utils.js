@@ -44,4 +44,9 @@ const WeatherUtils = {
 // Export for use in other scripts
 if (typeof window !== 'undefined') {
     window.WeatherUtils = WeatherUtils;
+    window.SecurityUtils = {
+        getCsrfToken: function() {
+            return document.querySelector('meta[name="_csrf_token"]')?.getAttribute('content');
+        }
+    };
 }

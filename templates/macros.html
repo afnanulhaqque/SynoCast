@@ -1,9 +1,10 @@
 {% macro news_card(article, index, type='breaking') %}
 <div class="col-md-{{ '4' if type == 'breaking' else '6' }}">
     <div class="card border-0 h-100 {{ 'hover-lift' if type == 'breaking' else '' }}">
+        {% set img_height = '200px' if type == 'breaking' else '350px' %}
         <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/' ~ type ~ '-news-' ~ index ~ '.png' }}"
             class="card-img-top {{ 'rounded-3 mb-3' if type == 'breaking' else '' }}" alt="{{ article.title }}"
-            style="height: {{ '200px' if type == 'breaking' else '350px' }}; object-fit: cover;">
+            style="height: {{ img_height }}; object-fit: cover;">
         <div class="card-body {{ 'p-0' if type == 'breaking' else '' }}">
             <div class="d-flex justify-content-between small mb-2">
                 <span class="text-muted">{{ article.publishedAt[:10] if article.publishedAt else 'Recently' }}</span>

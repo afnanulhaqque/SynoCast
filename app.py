@@ -4,12 +4,16 @@ import requests
 import random
 import resend
 import concurrent.futures
-from flask import Flask, render_template, request, session, jsonify
+from flask import Flask, render_template, request, session, jsonify, abort
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 from contextlib import contextmanager
 from dotenv import load_dotenv
 from jinja2.exceptions import TemplateSyntaxError
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_seasurf import SeaSurf
 import utils
 
 load_dotenv()
@@ -20,7 +24,69 @@ app = Flask(
     static_folder="assets",
     static_url_path="/assets",
 )
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "synocast-dev-secret")
+
+# Security Configuration
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+if not app.secret_key:
+    if os.environ.get("VERCEL"):
+        raise ValueError("FLASK_SECRET_KEY must be set in production!")
+    app.secret_key = "synocast-dev-secret-change-me"
+
+# Session Security
+app.config.update(
+    SESSION_COOKIE_SECURE=True if os.environ.get("VERCEL") else False,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=1),
+)
+
+# Initialize Security Extensions
+csrf = SeaSurf(app)
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
+# Content Security Policy configuration
+csp = {
+    'default-src': [
+        '\'self\'',
+        'https://cdn.jsdelivr.net',
+        'https://cdnjs.cloudflare.com',
+    ],
+    'style-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'https://cdn.jsdelivr.net',
+        'https://fonts.googleapis.com',
+        'https://cdnjs.cloudflare.com',
+        'https://unpkg.com',
+    ],
+    'font-src': [
+        '\'self\'',
+        'https://fonts.gstatic.com',
+        'https://cdnjs.cloudflare.com',
+    ],
+    'script-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'https://cdn.jsdelivr.net',
+        'https://unpkg.com',
+    ],
+    'img-src': [
+        '\'self\'',
+        'data:',
+        'https://*', # Allow images from any secure source for news/weather
+    ],
+}
+
+talisman = Talisman(
+    app,
+    content_security_policy=csp,
+    force_https=True if os.environ.get("VERCEL") else False
+)
 
 WEATHER_CACHE = {}
 CACHE_DURATION = 600
@@ -233,6 +299,7 @@ def geocode_reverse():
 
 
 @app.route("/otp", methods=["POST"])
+@limiter.limit("5 per minute; 20 per day")
 def otp():
     try:
         action = request.form.get("action")
@@ -325,6 +392,7 @@ def otp():
 
 
 @app.route("/api/ai_chat", methods=["POST"])
+@limiter.limit("5 per minute; 50 per day")
 def api_ai_chat():
     """
     Chat endpoint that uses Google Gemini with weather context.
