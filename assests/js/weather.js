@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateDisplayUnits();
 
         } catch (error) {
-            console.error(error);
             if(cityEl) {
                 cityEl.classList.remove('skeleton'); 
                 cityEl.textContent = "Error loading weather";

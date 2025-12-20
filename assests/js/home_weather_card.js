@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('City not found');
             }
         } catch (error) {
-            console.error(error);
             alert('Error searching for city');
         } finally {
             if (addCityBtn) {
@@ -152,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } catch (error) {
-            console.error("Weather error:", error);
             if(cityEl) cityEl.textContent = "Error";
         }
     }

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             timeDisplay.textContent = `${formattedDate} Time zone in ${city} - ${region} (${gmtLabel})`;
         } catch (e) {
-            console.error("Error updating dynamic time:", e);
+            // Silently fail or use static template value
         }
     }
 

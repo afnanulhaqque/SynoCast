@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const payload = { message: message };
 
-        // Try to get geolocation if available
         if (navigator.geolocation) {
             try {
                 const position = await new Promise((resolve, reject) => {
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 payload.lat = position.coords.latitude;
                 payload.lon = position.coords.longitude;
             } catch (geoErr) {
-                console.warn('Geolocation failed or denied', geoErr);
+                // Silently fallback to IP-based detection on backend
             }
         }
 
@@ -94,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {
             hideTyping();
             appendMessage('bot', "Sorry, I couldn't connect to the server.");
-            console.error('chat error', err);
         }
     }
 

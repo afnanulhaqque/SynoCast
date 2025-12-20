@@ -133,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Location not found');
             }
         } catch (error) {
-            console.error("Search error:", error);
             alert('Error searching for location');
         }
     }
@@ -225,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mapCityEl) mapCityEl.textContent = locationName;
 
         } catch (error) {
-            console.error("Error fetching data:", error);
             const mapCityEl = document.getElementById('map-city');
             if (mapCityEl) mapCityEl.textContent = "Error loading data";
         } finally {

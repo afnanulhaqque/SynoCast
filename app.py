@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, session, jsonify
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
 from dotenv import load_dotenv
+from jinja2.exceptions import TemplateSyntaxError
 
 load_dotenv()
 
@@ -30,13 +31,9 @@ if os.environ.get("VERCEL"):
 else:
     DATABASE = os.path.join(app.root_path, "subscriptions.db")
 
-# Resend API Key
+# API Keys
 resend.api_key = os.environ.get("RESEND_API_KEY")
-
-# OpenWeatherMap API Key
 OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
-
-# NewsAPI.org API Key
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 
 # Cache for News Data
@@ -46,48 +43,46 @@ NEWS_CACHE_DURATION = 3600  # 1 hour
 def init_db():
     """Create the subscriptions table if it does not already exist and handle migrations."""
     conn = sqlite3.connect(DATABASE)
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS subscriptions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT,
-            phone TEXT,
-            subscription_type TEXT DEFAULT 'email',
-            created_at TEXT NOT NULL
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT,
+                phone TEXT,
+                subscription_type TEXT DEFAULT 'email',
+                created_at TEXT NOT NULL
+            )
+            """
         )
-        """
-    )
-    # Attempt to add columns if they don't exist (for existing databases)
-    try:
-        conn.execute("ALTER TABLE subscriptions ADD COLUMN phone TEXT")
-    except sqlite3.OperationalError:
-        pass
-    try:
-        conn.execute("ALTER TABLE subscriptions ADD COLUMN subscription_type TEXT DEFAULT 'email'")
-    except sqlite3.OperationalError:
-        pass
+        # Handle migrations for existing databases
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(subscriptions)")
+        columns = [column[1] for column in cursor.fetchall()]
         
-    conn.commit()
-    conn.close()
+        if "phone" not in columns:
+            conn.execute("ALTER TABLE subscriptions ADD COLUMN phone TEXT")
+        if "subscription_type" not in columns:
+            conn.execute("ALTER TABLE subscriptions ADD COLUMN subscription_type TEXT DEFAULT 'email'")
+            
+        conn.commit()
+    except Exception as e:
+        app.logger.error(f"Database initialization error: {e}")
+    finally:
+        conn.close()
 
-
-# Flask 3.x no longer provides `before_first_request` on the app instance.
-# Initialize the DB at import time so we don't rely on a lifecycle hook that
-# may not be present across different Flask versions / servers.
+# Initialize the DB at import time
 try:
     init_db()
 except Exception as e:
-    # If initialization fails, log it; apps running under other servers will
-    # pick this up in their logs as well.
-    try:
-        app.logger.exception("Database initialization failed: %s", e)
-    except Exception:
-        # If app.logger itself isn't ready, fallback to printing to stdout
-        print("Database initialization failed:", e)
+    app.logger.error(f"Database initialization failed: {e}")
+
+def get_client_ip():
+    """Get user IP address, handling proxies."""
+    return request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
 
 def get_local_time_string():
-    # 1. Get user IP address first
-    ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
+    ip = get_client_ip()
     
     # Check session for cached location data
     if "location_data" in session and session["location_data"].get("ip") == ip:
@@ -96,67 +91,40 @@ def get_local_time_string():
         region = data.get("region", "")
         utc_offset = data.get("utc_offset", "+0000")
     else:
-        if ip.startswith("127.") or ip == "localhost":
-            city = "Islamabad"
-            region = "Punjab"
-            utc_offset = "+0500"
-            # Cache local dev defaults too
-            session["location_data"] = {
-                "ip": ip,
-                "city": city,
-                "region": region,
-                "utc_offset": utc_offset
-            }
+        if ip.startswith("127.") or ip == "localhost" or ip == "::1":
+            city, region, utc_offset = "Islamabad", "Punjab", "+0500"
+            session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
         else:
-            # 2. Fetch IP info
             try:
-                # Reduced timeout to fail faster
                 resp = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
                 resp.raise_for_status()
                 data = resp.json()
-                city = data.get("city", "")
+                city = data.get("city", "Unknown")
                 region = data.get("region", "")
                 utc_offset = data.get("utc_offset", "+0000")
                 
-                # Cache successful lookup
-                session["location_data"] = {
-                    "ip": ip,
-                    "city": city,
-                    "region": region,
-                    "utc_offset": utc_offset
-                }
-            except:
-                city = "Unknown"
-                region = ""
-                utc_offset = "+0000"
+                session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
+            except Exception:
+                city, region, utc_offset = "Unknown", "", "+0000"
 
-    # 3. Convert offset string (“-0300”) to hours/minutes
     try:
-        offset_hours = int(utc_offset[:3])     # "-03" -> -3
-        offset_minutes = int(utc_offset[3:])   # "00" -> 0
-    except:
-        offset_hours = 0
-        offset_minutes = 0
+        offset_hours = int(utc_offset[:3])
+        offset_minutes = int(utc_offset[3:])
+    except (ValueError, TypeError):
+        offset_hours = offset_minutes = 0
 
     tz = timezone(timedelta(hours=offset_hours, minutes=offset_minutes))
-
-    # 4. Local time = now in that timezone
     now = datetime.now(tz)
-
-    # 5. Format like your example
     formatted = now.strftime("%A, %B %d, %Y, %H:%M")
-
-    # 6. Convert offset to GMT format: "-0300" → "GMT-03:00"
     gmt_offset = f"GMT{utc_offset[:3]}:{utc_offset[3:]}"
-
-    full_string =  f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
+    full_string = f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
 
     return {
         "display_string": full_string,
         "city": city,
         "region": region,
-        "utc_offset": utc_offset, # e.g. "+0500"
-        "gmt_label": gmt_offset   # e.g. "GMT+05:00"
+        "utc_offset": utc_offset,
+        "gmt_label": gmt_offset
     }
 
 def fetch_weather_news(query="weather", country=None, page_size=10):
@@ -489,16 +457,15 @@ def api_ai_chat():
     # If lat/lon not in request, try to get them via IP
     if not (lat and lon):
         try:
-            ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
-            if ip.startswith("127.") or ip == "localhost":
+            ip = get_client_ip()
+            if ip.startswith("127.") or ip == "localhost" or ip == "::1":
                 # Default to Islamabad for local development
                 lat, lon = 33.6844, 73.0479
             else:
                 resp_ip = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
                 if resp_ip.ok:
                     ip_data = resp_ip.json()
-                    lat = ip_data.get("latitude")
-                    lon = ip_data.get("longitude")
+                    lat, lon = ip_data.get("latitude"), ip_data.get("longitude")
                     app.logger.info(f"IP-based location detection: {lat}, {lon}")
         except Exception as e:
             app.logger.warning(f"IP-based location fallback failed: {e}")
@@ -568,7 +535,6 @@ def api_ai_chat():
 def page_not_found(e):
     return render_template("404.html", date_time_info=get_local_time_string(), active_page="404"), 404
 
-from jinja2.exceptions import TemplateSyntaxError
 
 @app.errorhandler(500)
 def internal_error(e):
