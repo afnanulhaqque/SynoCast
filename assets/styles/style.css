@@ -737,7 +737,7 @@ main {
 .map-controls {
   position: absolute;
   top: 20px;
-  left: 20px;
+  left: 80px;
   z-index: 1000;
   display: flex;
   gap: 15px;
@@ -1938,10 +1938,9 @@ main {
 }
 
 .animated-search-form input {
-  background: transparent;
+  background: white;
   border-radius: 50%;
-  /* Removed drawing box-shadow, added standard border/outline if needed or keep clean */
-  box-shadow: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   caret-color: var(--primary);
   width: 2em;
   height: 2em;
