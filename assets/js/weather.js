@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
 
     function celsiusToFahrenheit(celsius) {
-        return Math.round((celsius * 9/5) + 32);
+        return WeatherUtils.celsiusToFahrenheit(celsius);
     }
 
     function updateDisplayUnits() {
@@ -141,22 +141,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const w = current.weather[0];
             if(heroConditionEl) heroConditionEl.textContent = w.description.charAt(0).toUpperCase() + w.description.slice(1);
             
-            // Map icons (Simplified)
-            let iconClass = 'fa-sun';
-            const id = w.id;
-            if (id >= 200 && id < 300) iconClass = 'fa-bolt';
-            else if (id >= 300 && id < 500) iconClass = 'fa-cloud-rain';
-            else if (id >= 500 && id < 600) iconClass = 'fa-cloud-showers-heavy';
-            else if (id >= 600 && id < 700) iconClass = 'fa-snowflake';
-            else if (id >= 700 && id < 800) iconClass = 'fa-smog';
-            else if (id === 800) iconClass = current.weather[0].icon.includes('n') ? 'fa-moon' : 'fa-sun';
-            else if (id > 800) iconClass = 'fa-cloud';
-            
+            // Map icons (Centralized)
+            const iconClass = WeatherUtils.getIconClass(w.id, w.icon);
             if(heroIconEl) heroIconEl.className = `fas ${iconClass} fa-4x mb-2`;
         }
 
         // Details
-        if(windEl) windEl.textContent = `${current.wind.speed} m/s`;
+        if(windEl) windEl.textContent = WeatherUtils.formatWind(current.wind.speed);
         if(humidityEl) humidityEl.textContent = `${current.main.humidity}%`;
         
         if(maxTempEl) {
@@ -213,12 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const timeStr = localD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
             
             // Icon
-            const wId = item.weather[0].id;
-             let iconClass = 'fa-sun';
-            if (wId >= 300 && wId < 600) iconClass = 'fa-cloud-rain';
-            else if (wId >= 600 && wId < 700) iconClass = 'fa-snowflake';
-            else if (wId === 800) iconClass = item.weather[0].icon.includes('n') ? 'fa-moon' : 'fa-sun';
-            else iconClass = 'fa-cloud';
+            const iconClass = WeatherUtils.getIconClass(item.weather[0].id, item.weather[0].icon);
 
             const activeClass = index === 0 ? 'active-forecast' : '';
             const borderStyle = index === 0 ? 'border: 2px solid #6937F5;' : 'border: 1px solid #eee;';
@@ -286,12 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const pop = Math.round(day.pop * 100);
             
              // Icon
-            const wId = day.weather.id;
-             let iconClass = 'fa-sun';
-            if (wId >= 300 && wId < 600) iconClass = 'fa-cloud-rain';
-            else if (wId >= 600 && wId < 700) iconClass = 'fa-snowflake';
-            else if (wId === 800) iconClass = 'fa-sun';
-            else iconClass = 'fa-cloud';
+            const iconClass = WeatherUtils.getIconClass(day.weather.id, day.weather.icon);
 
             const card = document.createElement('div');
             card.className = `card border-0 rounded-4 p-3 flex-shrink-0`;

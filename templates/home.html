@@ -1,16 +1,19 @@
 {% extends "base.html" %}
+{% from "macros.html" import news_card %}
+
 {% block title %} Home {% endblock title %}
+
 {% block body %}
 
 <div class="position-relative w-100 home-banner-container" style="height: 50vh;">
-  <img src="/assests/images/banner-home.png" class="w-100 h-100 position-absolute top-0 start-0" alt="Banner"
+  <img src="/assets/images/banner-home.png" class="w-100 h-100 position-absolute top-0 start-0" alt="Banner"
     style="z-index: -1; object-fit: cover; object-position: center;">
   <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="z-index: -1; opacity: 0.2;"></div>
 
   <div class="container h-100">
     <div class="row h-100 align-items-center">
       <div class="col-lg-6 text-white pb-5">
-        <h1 class="fw-bold display-3 mb-3" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">WeatherTrip</h1>
+        <h1 class="fw-bold display-3 mb-3" style="text-shadow: 0 2px-10px rgba(0,0,0,0.3);">SynoCast</h1>
         <p class="fs-4 fw-light lh-sm">
           Your Weather, Your Journey: Always a Step Ahead with Our
           <span class="fw-bold">Weather Forecasting App!</span>
@@ -28,21 +31,19 @@
             news.</span></h2>
         <a href="/news" class="btn btn_explore rounded-pill border-2 fw-semibold text-decoration-none">Explore</a>
         <div class="mt-5 position-relative">
-          <img src="/assests/images/weatherTrip-banner_1.svg" class="img-fluid" alt="Weather App User">
+          <img src="/assets/images/weatherTrip-banner_1.svg" class="img-fluid" alt="Weather App User">
         </div>
       </div>
     </div>
 
     <div class="col-lg-6 d-flex flex-column align-items-center align-items-lg-end">
-      <!-- The Card -->
       <div class="bg-white rounded-4 shadow-lg p-0 mb-5 overflow-hidden" style="width: 350px;">
         {% include 'sub_banner_card.html' %}
       </div>
 
-      <!-- Bottom right text -->
       <div class="text-center text-lg-end mt-4" style="max-width: 400px;">
-        <h2 class="h3 fw-bold mb-3">Don't guess the Weather.</h2>
-        <p class="text-muted mb-4">Clime for year-round weather forecasts for your location and across the world.</p>
+        <h2 class="h3 fw-bold mb-3">Don't guess the weather.</h2>
+        <p class="text-muted mb-4">Real-time forecasts and AI insights for your location and across the world.</p>
         <a href="/weather" class="btn btn_get_started rounded-pill fw-semibold text-decoration-none">Get started</a>
       </div>
     </div>
@@ -50,29 +51,28 @@
 </div>
 
 <div class="position-relative mt-5">
-  <img src="/assests/images/banner-news.png" class="img-fluid banner_image" alt="Banner" />
+  <img src="/assets/images/banner-news.png" class="img-fluid banner_image" alt="Banner" />
   <div
-    class="position-absolute bottom-0 start-50 translate-middle-x text-white banner-subtitle banner_image_text banner_image_text_news">
-    <h1 class="fw-bold lh-1">WeatherTrip<span class="fs-6">.news</span></h1>
+    class="position-absolute bottom-0 start-50 translate-middle-x text-white banner_image_text banner_image_text_news">
+    <h1 class="fw-bold lh-1">SynoCast<span class="fs-6">.news</span></h1>
     <p class="fw-normal fs-4">
-      Your guide to weather: Accurate forecasts, storm warnings, tips for
-      preparing and more.
+      Your guide to weather: Accurate forecasts and climate stories.
     </p>
   </div>
   <div class="icons news-banner-icons position-absolute bottom-0 text-white banner-subtitle">
     <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/">
-      <img src="/assests/icons/linkedin-white.png" alt="LinkedIn" class="icon">
+      <img src="/assets/icons/linkedin-white.png" alt="LinkedIn" class="icon">
     </a>
     <a class="icon-link" href="https://www.instagram.com/afn6n_x/">
-      <img src="/assests/icons/instagram-white.png" alt="Instagram" class="icon">
+      <img src="/assets/icons/instagram-white.png" alt="Instagram" class="icon">
     </a>
   </div>
 </div>
 
-<div class="container mt-5 news_sub_banner latest-news-section">
+<div class="container mt-5 latest-news-section">
   <div class="row mb-4 align-items-center">
     <div class="col-12 d-flex align-items-center">
-      <h2 class="fw-bold text-uppercase mb-0 me-3 section-title">Latest News</h2>
+      <h2 class="fw-bold text-uppercase mb-0 me-3 section-title">Latest Headlines</h2>
       <div class="flex-grow-1 header-line"></div>
       <a href="/news" class="btn btn-sm btn-outline-primary rounded-pill ms-3 view-all-btn d-none d-md-block">View
         All</a>
@@ -81,115 +81,63 @@
 
   <div class="row">
     {% if latest_news %}
-    <!-- Featured Large Article -->
     <div class="col-lg-6 mb-4 mb-lg-0">
-      <div class="card border-0 h-100 news-card-large shadow-sm hover-lift">
-        <div class="position-relative overflow-hidden rounded-3">
-          <img
-            src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assests/images/sub-banner-news.png' }}"
-            class="card-img-top news-img-large transition-scale" alt="{{ latest_news[0].title }}">
-          <span class="badge bg-primary position-absolute top-0 start-0 m-3">Featured</span>
-        </div>
-        <div class="card-body px-1 py-3">
-          <div class="d-flex align-items-center text-muted small mb-2">
-            <span class="me-3"><i class="far fa-clock me-1"></i> {{ latest_news[0].publishedAt[:10] }}</span>
-            <span><i class="far fa-user me-1"></i> {{ latest_news[0].author[:20] if latest_news[0].author else 'News
-              Desk' }}</span>
+      <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-3">
+        <img
+          src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assets/images/sub-banner-news.png' }}"
+          class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 350px; object-fit: cover;">
+        <div class="card-body p-4">
+          <div class="small text-muted mb-2">
+            <span><i class="far fa-clock me-1"></i> {{ latest_news[0].publishedAt[:10] }}</span>
           </div>
-          <a href="{{ latest_news[0].url }}" target="_blank" class="text-decoration-none text-dark">
-            <h3 class="card-title fw-bold mb-2 hover-text-primary">{{ latest_news[0].title }}</h3>
-          </a>
-          <p class="card-text text-muted mb-3">{{ latest_news[0].description[:150] }}{% if
-            latest_news[0].description|length > 150 %}...{% endif %}</p>
+          <h4 class="fw-bold mb-3">{{ latest_news[0].title }}</h4>
+          <p class="text-muted small mb-4">{{ latest_news[0].description[:180] }}...</p>
           <a href="{{ latest_news[0].url }}" target="_blank"
-            class="fw-semibold text-primary text-decoration-none read-more-link">Read Full Story <i
-              class="fas fa-arrow-right ms-1 small"></i></a>
+            class="text-primary fw-bold text-decoration-none small">Read Story →</a>
         </div>
       </div>
     </div>
 
-    <!-- Side List Articles -->
     <div class="col-lg-6">
       <div class="d-flex flex-column gap-3">
-        {% for article in latest_news[1:] %}
-        <div class="card border-0 news-card-small shadow-sm hover-bg-light transition-all">
+        {% for article in latest_news[1:4] %}
+        <div class="card border-0 shadow-sm hover-bg-light transition-all rounded-3">
           <div class="row g-0 align-items-center p-2">
             <div class="col-8">
               <div class="card-body p-2">
-                <div class="d-flex align-items-center text-muted x-small mb-1">
-                  <span class="badge bg-light text-primary border me-2">Weather</span>
-                  <span>{{ article.publishedAt[:10] }}</span>
-                </div>
-                <a href="{{ article.url }}" target="_blank" class="text-decoration-none text-dark">
-                  <h5 class="card-title fw-bold mb-2 fs-6 hover-text-primary">{{ article.title }}</h5>
-                </a>
-                <p class="card-text text-muted small text-truncate-2">{{ article.description }}</p>
+                <div class="x-small mb-1 text-primary fw-bold uppercase">Trending</div>
+                <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">{{ article.title[:80] }}...</h6>
+                <p class="text-muted x-small mb-0">{{ article.publishedAt[:10] }}</p>
               </div>
             </div>
             <div class="col-4">
-              <div class="overflow-hidden rounded-3 h-100">
-                <img
-                  src="{{ article.urlToImage if article.urlToImage else '/assests/images/breaking-news-' ~ loop.index ~ '.png' }}"
-                  class="img-fluid w-100 h-100 object-fit-cover transition-scale" alt="News Thumbnail"
-                  style="min-height: 100px;">
-              </div>
+              <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/breaking-news-1.png' }}"
+                class="img-fluid rounded-3" alt="News" style="height: 80px; width: 100%; object-fit: cover;">
             </div>
           </div>
         </div>
         {% endfor %}
       </div>
     </div>
-    {% else %}
-    <!-- Fallback if no news fetched -->
-    <div class="col-lg-6 mb-4 mb-lg-0">
-      <div class="card border-0 h-100 news-card-large shadow-sm hover-lift">
-        <div class="position-relative overflow-hidden rounded-3">
-          <img src="/assests/images/sub-banner-news.png" class="card-img-top news-img-large transition-scale"
-            alt="Latest News">
-          <span class="badge bg-primary position-absolute top-0 start-0 m-3">Featured</span>
-        </div>
-        <div class="card-body px-1 py-3 text-center">
-          <p class="text-muted">Loading latest news from Pakistan...</p>
-        </div>
-      </div>
-    </div>
     {% endif %}
   </div>
 </div>
 
-<div class="container mt-5 mb-5 featured_news_section">
-  <div class="row mb-4">
+<div class="container mt-5 mb-5">
+  <div class="row mb-4 align-items-center">
     <div class="col-12 d-flex align-items-center">
-      <h2 class="fw-bold text-uppercase mb-0 me-3">All Around The World</h2>
-      <div style="flex-grow: 1; height: 2px; background-color: #6937f5;"></div>
+      <h2 class="fw-bold text-uppercase mb-0 me-3 section-title">Around The World</h2>
+      <div class="flex-grow-1 header-line"></div>
     </div>
   </div>
-  <div class="row">
+  <div class="row g-4">
     {% if world_news %}
     {% for article in world_news %}
-    <div class="col-6">
-      <div class="card border-0">
-        <img
-          src="{{ article.urlToImage if article.urlToImage else '/assests/images/featured-new-' ~ loop.index ~ '.png' }}"
-          class="card-img-top mb-3 rounded-3" alt="{{ article.title }}" style="height: 300px; object-fit: cover;">
-        <div class="card-body px-0">
-          <a href="{{ article.url }}" target="_blank" class="text-decoration-none">
-            <h5 class="card-title text-primary fw-bold">{{ article.title }}</h5>
-          </a>
-          <p class="card-text text-muted">{{ article.description[:200] }}{% if article.description|length > 200 %}...{%
-            endif %}</p>
-        </div>
-      </div>
-    </div>
+    {{ news_card(article, loop.index, type='featured') }}
     {% endfor %}
-    {% else %}
-    <div class="col-12 text-center">
-      <p class="text-muted">Loading world weather news...</p>
-    </div>
     {% endif %}
   </div>
 </div>
 
-
-<script src="/assests/js/home_weather_card.js"></script>
+<script src="/assets/js/home_weather_card.js"></script>
 {% endblock body %}

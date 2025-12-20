@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.current) {
                 // Current Weather Data Mapping (OpenWeatherMap)
                 if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
-                if(windEl) windEl.textContent = `${data.current.wind.speed} m/s`; // OpenWeatherMap returns m/s by default
+                if(windEl) windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed); // Use shared formatter
                 if(humidityEl) humidityEl.textContent = `${data.current.main.humidity}%`;
                 
                 // Update time/date (using system time for now as OWM doesn't give simple timezone string like 'Europe/London')
@@ -182,14 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const wCode = item.weather[0].id;
             
             // Map weather code to icon (OpenWeatherMap codes)
-            let iconClass = 'fa-sun';
-            if (wCode >= 200 && wCode < 300) iconClass = 'fa-bolt';
-            else if (wCode >= 300 && wCode < 500) iconClass = 'fa-cloud-rain';
-            else if (wCode >= 500 && wCode < 600) iconClass = 'fa-cloud-showers-heavy';
-            else if (wCode >= 600 && wCode < 700) iconClass = 'fa-snowflake';
-            else if (wCode >= 700 && wCode < 800) iconClass = 'fa-smog';
-            else if (wCode === 800) iconClass = 'fa-sun';
-            else if (wCode > 800) iconClass = 'fa-cloud';
+            const iconClass = WeatherUtils.getIconClass(wCode, item.weather[0].icon);
 
 
             const div = document.createElement('div');

@@ -192,26 +192,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (mapTempEl) mapTempEl.textContent = Math.round(weatherData.current.main.temp);
                 
                 const mapWindEl = document.getElementById('map-wind');
-                if (mapWindEl) mapWindEl.textContent = `${weatherData.current.wind.speed} m/s`;
+                if (mapWindEl) mapWindEl.textContent = WeatherUtils.formatWind(weatherData.current.wind.speed);
                 
                 const mapHumEl = document.getElementById('map-humidity');
                 if (mapHumEl) mapHumEl.textContent = `${weatherData.current.main.humidity}%`;
                 
                 // Update Icon
                 const w = weatherData.current.weather[0];
-                const id = w.id;
-                let iconClass = 'fa-sun';
-                if (id >= 200 && id < 300) iconClass = 'fa-bolt';
-                else if (id >= 300 && id < 500) iconClass = 'fa-cloud-rain';
-                else if (id >= 500 && id < 600) iconClass = 'fa-cloud-showers-heavy';
-                else if (id >= 600 && id < 700) iconClass = 'fa-snowflake';
-                else if (id >= 700 && id < 800) iconClass = 'fa-smog';
-                else if (id === 800) iconClass = w.icon.includes('n') ? 'fa-moon' : 'fa-sun';
-                else if (id > 800) iconClass = 'fa-cloud';
+                const iconClass = WeatherUtils.getIconClass(w.id, w.icon);
 
                 const iconContainer = document.getElementById('map-icon');
                 if (iconContainer) {
-                    iconContainer.innerHTML = `<i class="fas ${iconClass} fa-2x"></i>`;
+                    iconContainer.innerHTML = `<i class="fas ${iconClass}"></i>`;
                 }
             }
 

@@ -60,7 +60,7 @@ SynoCast/
 │   ├── weather.html       # Detailed weather view
 │   ├── news.html          # News feed
 │   └── ...                # Error & auxiliary pages
-└── assests/               # Static assets (Images, JS, CSS)
+└── assets/                # Static assets (Images, JS, CSS)
     ├── js/                # Component-specific logic
     ├── styles/            # Consolidated style.css
     └── icons/             # UI icons

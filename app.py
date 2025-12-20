@@ -7,24 +7,23 @@ import concurrent.futures
 from flask import Flask, render_template, request, session, jsonify
 from datetime import datetime, timedelta, timezone
 import google.generativeai as genai
+from contextlib import contextmanager
 from dotenv import load_dotenv
 from jinja2.exceptions import TemplateSyntaxError
+import utils
 
 load_dotenv()
 
 app = Flask(
     __name__,
     template_folder="templates",
-    static_folder="assests",
-    static_url_path="/assests",
+    static_folder="assets",
+    static_url_path="/assets",
 )
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "synocast-dev-secret")
 
-# Simple in-memory cache for weather data
-# Key: f"{lat},{lon}"
-# Value: {"timestamp": float, "data": dict}
 WEATHER_CACHE = {}
-CACHE_DURATION = 600  # 10 minutes in seconds
+CACHE_DURATION = 600
 
 if os.environ.get("VERCEL"):
     DATABASE = "/tmp/subscriptions.db"
@@ -36,40 +35,41 @@ resend.api_key = os.environ.get("RESEND_API_KEY")
 OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 
-# Cache for News Data
-NEWS_CACHE = {} 
-NEWS_CACHE_DURATION = 3600  # 1 hour
+@contextmanager
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 def init_db():
     """Create the subscriptions table if it does not already exist and handle migrations."""
-    conn = sqlite3.connect(DATABASE)
-    try:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS subscriptions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT,
-                phone TEXT,
-                subscription_type TEXT DEFAULT 'email',
-                created_at TEXT NOT NULL
+    with get_db() as conn:
+        try:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS subscriptions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    phone TEXT,
+                    subscription_type TEXT DEFAULT 'email',
+                    created_at TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-        # Handle migrations for existing databases
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(subscriptions)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        if "phone" not in columns:
-            conn.execute("ALTER TABLE subscriptions ADD COLUMN phone TEXT")
-        if "subscription_type" not in columns:
-            conn.execute("ALTER TABLE subscriptions ADD COLUMN subscription_type TEXT DEFAULT 'email'")
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA table_info(subscriptions)")
+            columns = [column[1] for column in cursor.fetchall()]
             
-        conn.commit()
-    except Exception as e:
-        app.logger.error(f"Database initialization error: {e}")
-    finally:
-        conn.close()
+            if "phone" not in columns:
+                conn.execute("ALTER TABLE subscriptions ADD COLUMN phone TEXT")
+            if "subscription_type" not in columns:
+                conn.execute("ALTER TABLE subscriptions ADD COLUMN subscription_type TEXT DEFAULT 'email'")
+                
+            conn.commit()
+        except Exception as e:
+            app.logger.error(f"Database initialization error: {e}")
 
 # Initialize the DB at import time
 try:
@@ -77,116 +77,17 @@ try:
 except Exception as e:
     app.logger.error(f"Database initialization failed: {e}")
 
-def get_client_ip():
-    """Get user IP address, handling proxies."""
-    return request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
-
-def get_local_time_string():
-    ip = get_client_ip()
-    
-    # Check session for cached location data
-    if "location_data" in session and session["location_data"].get("ip") == ip:
-        data = session["location_data"]
-        city = data.get("city", "Unknown")
-        region = data.get("region", "")
-        utc_offset = data.get("utc_offset", "+0000")
-    else:
-        if ip.startswith("127.") or ip == "localhost" or ip == "::1":
-            city, region, utc_offset = "Islamabad", "Punjab", "+0500"
-            session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
-        else:
-            try:
-                resp = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
-                resp.raise_for_status()
-                data = resp.json()
-                city = data.get("city", "Unknown")
-                region = data.get("region", "")
-                utc_offset = data.get("utc_offset", "+0000")
-                
-                session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
-            except Exception:
-                city, region, utc_offset = "Unknown", "", "+0000"
-
-    try:
-        offset_hours = int(utc_offset[:3])
-        offset_minutes = int(utc_offset[3:])
-    except (ValueError, TypeError):
-        offset_hours = offset_minutes = 0
-
-    tz = timezone(timedelta(hours=offset_hours, minutes=offset_minutes))
-    now = datetime.now(tz)
-    formatted = now.strftime("%A, %B %d, %Y, %H:%M")
-    gmt_offset = f"GMT{utc_offset[:3]}:{utc_offset[3:]}"
-    full_string = f"{formatted} Time zone in {city} - {region} ({gmt_offset})"
-
-    return {
-        "display_string": full_string,
-        "city": city,
-        "region": region,
-        "utc_offset": utc_offset,
-        "gmt_label": gmt_offset
-    }
-
-def fetch_weather_news(query="weather", country=None, page_size=10):
-    """
-    Fetch weather-related news from NewsAPI.org.
-    """
-    cache_key = f"{query}_{country}_{page_size}"
-    if cache_key in NEWS_CACHE:
-        cached = NEWS_CACHE[cache_key]
-        if datetime.now().timestamp() - cached["timestamp"] < NEWS_CACHE_DURATION:
-            return cached["articles"]
-
-    try:
-        base_url = "https://newsapi.org/v2/everything"
-        full_query = query
-        if country:
-            full_query = f"{query} {country}"
-            
-        params = {
-            "q": full_query,
-            "pageSize": page_size,
-            "apiKey": NEWS_API_KEY,
-            "language": "en",
-            "sortBy": "publishedAt"
-        }
-        
-        app.logger.info(f"Fetching NewsAPI: {params.get('q')} (pageSize: {page_size})")
-        response = requests.get(base_url, params=params, timeout=10)
-        
-        if not response.ok:
-            app.logger.error(f"NewsAPI Error {response.status_code}: {response.text}")
-            return []
-            
-        data = response.json()
-        articles = data.get("articles", [])
-        
-        if not articles:
-            app.logger.warning(f"No articles found for query: {full_query}")
-            
-        # Filter out removed articles
-        articles = [a for a in articles if a.get("title") and a.get("title") != "[Removed]"]
-        
-        NEWS_CACHE[cache_key] = {
-            "timestamp": datetime.now().timestamp(),
-            "articles": articles
-        }
-        return articles
-    except Exception as e:
-        app.logger.error(f"Exception fetching news: {e}")
-        return []
-
 @app.route("/")
 def home():
     # Latest News (Pakistan weather)
-    latest_news = fetch_weather_news(query="weather", country="Pakistan", page_size=4)
+    latest_news = utils.fetch_weather_news(query="weather", country="Pakistan", page_size=4, api_key=NEWS_API_KEY)
     # All Around The World news
-    world_news = fetch_weather_news(query="global weather", page_size=2)
+    world_news = utils.fetch_weather_news(query="global weather", page_size=2, api_key=NEWS_API_KEY)
     
     return render_template(
         "home.html", 
         active_page="home", 
-        date_time_info=get_local_time_string(),
+        date_time_info=utils.get_local_time_string(),
         latest_news=latest_news,
         world_news=world_news
     )
@@ -195,14 +96,14 @@ def home():
 @app.route("/news")
 def news():
     # Breaking News (Latest weather news)
-    breaking_news = fetch_weather_news(query="weather", page_size=4)
+    breaking_news = utils.fetch_weather_news(query="weather", page_size=4, api_key=NEWS_API_KEY)
     # Featured News (Detailed weather stories)
-    featured_news = fetch_weather_news(query="climate change", country="Pakistan", page_size=2)
+    featured_news = utils.fetch_weather_news(query="climate change", country="Pakistan", page_size=2, api_key=NEWS_API_KEY)
     
     return render_template(
         "news.html", 
         active_page="news", 
-        date_time_info=get_local_time_string(),
+        date_time_info=utils.get_local_time_string(),
         breaking_news=breaking_news,
         featured_news=featured_news
     )
@@ -211,28 +112,28 @@ def news():
 @app.route("/weather")
 def weather():
     # Breaking News for the weather page
-    breaking_news = fetch_weather_news(query="weather", page_size=3)
+    breaking_news = utils.fetch_weather_news(query="weather", page_size=3, api_key=NEWS_API_KEY)
     return render_template(
         "weather.html", 
         active_page="weather", 
-        date_time_info=get_local_time_string(),
+        date_time_info=utils.get_local_time_string(),
         breaking_news=breaking_news
     )
 
 
 @app.route("/subscribe")
 def subscribe():
-    return render_template("subscribe.html", active_page="subscribe", date_time_info=get_local_time_string())
+    return render_template("subscribe.html", active_page="subscribe", date_time_info=utils.get_local_time_string())
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", active_page="about", date_time_info=get_local_time_string())
+    return render_template("about.html", active_page="about", date_time_info=utils.get_local_time_string())
 
 
 @app.route("/terms")
 def terms():
-    return render_template("terms.html", active_page="terms", date_time_info=get_local_time_string())
+    return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string())
 
 
 
@@ -347,23 +248,10 @@ def otp():
                 return jsonify({"success": False, "message": "Invalid subscription type."}), 400
 
             # Check if already subscribed
-            try:
-                conn = sqlite3.connect(DATABASE)
+            with get_db() as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
                 exists = cursor.fetchone()
-                conn.close()
-            except sqlite3.OperationalError as e:
-                # If table is missing, try to create it (recovery)
-                if "no such table" in str(e):
-                    init_db()
-                    conn = sqlite3.connect(DATABASE)
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT 1 FROM subscriptions WHERE email = ?", (contact_info,))
-                    exists = cursor.fetchone()
-                    conn.close()
-                else:
-                    raise e
 
             if exists:
                 return jsonify({"success": False, "message": "Email is already subscribed"}), 400
@@ -420,13 +308,12 @@ def otp():
                 session.pop("expected_otp", None)
                 session.pop("pending_type", None)
                 
-                conn = sqlite3.connect(DATABASE)
-                conn.execute(
-                    "INSERT INTO subscriptions (email, subscription_type, created_at) VALUES (?, ?, ?)",
-                    (contact_info, sub_type, datetime.utcnow().isoformat()),
-                )
-                conn.commit()
-                conn.close()
+                with get_db() as conn:
+                    conn.execute(
+                        "INSERT INTO subscriptions (email, subscription_type, created_at) VALUES (?, ?, ?)",
+                        (contact_info, sub_type, datetime.utcnow().isoformat()),
+                    )
+                    conn.commit()
                 return jsonify({"success": True, "step": "success"})
 
             return jsonify({"success": False, "message": "Incorrect OTP. Please try again."}), 400
@@ -457,7 +344,7 @@ def api_ai_chat():
     # If lat/lon not in request, try to get them via IP
     if not (lat and lon):
         try:
-            ip = get_client_ip()
+            ip = utils.get_client_ip()
             if ip.startswith("127.") or ip == "localhost" or ip == "::1":
                 # Default to Islamabad for local development
                 lat, lon = 33.6844, 73.0479
@@ -533,19 +420,19 @@ def api_ai_chat():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html", date_time_info=get_local_time_string(), active_page="404"), 404
+    return render_template("404.html", date_time_info=utils.get_local_time_string(), active_page="404"), 404
 
 
 @app.errorhandler(500)
 def internal_error(e):
     if request.path.startswith('/api/'):
         return jsonify({"error": "Internal server error occurred"}), 500
-    return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
+    return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
 
 
 @app.errorhandler(TemplateSyntaxError)
 def syntax_error(e):
-    return render_template("syntax_error.html"), 500
+    return render_template("syntax_error.html", date_time_info=utils.get_local_time_string()), 500
 
 
 @app.errorhandler(Exception)
@@ -558,7 +445,7 @@ def unhandled_exception(e):
             return jsonify({"error": "Invalid API Key for AI service"}), 500
         return jsonify({"error": f"An unexpected error occurred: {error_msg}"}), 500
     # Fallback to 500 page for generic exceptions
-    return render_template("500.html", date_time_info=get_local_time_string(), active_page="404"), 500
+    return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

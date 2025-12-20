@@ -1,5 +1,8 @@
 {% extends "base.html" %}
+{% from "macros.html" import news_card, forecast_skeleton %}
+
 {% block title %} Weather Forecast {% endblock title %}
+
 {% block body %}
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -7,56 +10,50 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-
 <div class="container weather-page mt-5 mb-5">
-  <!-- Header & Search -->
   <div class="row align-items-center mb-4">
     <div class="col-md-6">
-      <h2 class="fw-bold mb-1">Weather Forecast</h2>
-      <p id="weather-date-header" class="text-muted mb-0">Saturday 27, September 2024</p>
-    </div>
-    <div class="col-md-6 text-end">
+      <h2 class="fw-bold mb-1">Interactive Forecast</h2>
+      <p id="weather-date-header" class="text-muted mb-0">Loading local time...</p>
     </div>
   </div>
 
   <!-- Hero Section -->
-  <div class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card"
-    style="min-height: 320px;">
-    <img src="/assests/images/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover"
-      alt="Weather Background" style="filter: brightness(0.6);">
-    <div class="card-img-overlay p-5 d-flex flex-column justify-content-between">
+  <div class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card shadow-lg"
+    style="min-height: 350px;">
+    <img src="/assets/images/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover" alt="Weather"
+      style="filter: brightness(0.55);">
+    <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
       <div class="row h-100">
-        <!-- Left Side: Location & Temp -->
         <div class="col-md-6 d-flex flex-column justify-content-between">
           <div>
-            <h1 id="weather-city" class="display-5 fw-bold mb-0 skeleton">Loading...</h1>
-            <p id="weather-country" class="fs-5 fw-light skeleton w-50">Loading...</p>
+            <h1 id="weather-city" class="display-4 fw-bold mb-0 skeleton">---</h1>
+            <p id="weather-country" class="fs-5 fw-light skeleton w-50">---</p>
           </div>
           <div>
-            <span id="weather-hero-temp" class="display-1 fw-bold temp-display skeleton" data-celsius="">00°</span>
+            <span id="weather-hero-temp" class="display-1 fw-bold temp-display" data-celsius="">--°</span>
           </div>
         </div>
 
-        <!-- Right Side: Icon & Details -->
         <div class="col-md-6 d-flex flex-column justify-content-between text-end">
           <div>
-            <i id="weather-hero-icon" class="fas fa-moon fa-4x mb-2 skeleton-icon"></i>
-            <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto">Loading...</h3>
+            <i id="weather-hero-icon" class="fas fa-sun fa-4x mb-2 text-warning"></i>
+            <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto">Clear Sky</h3>
           </div>
           <div class="d-flex flex-column align-items-end gap-2 fs-6 fw-light">
             <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-arrow-up"></i> <span id="weather-max-temp" class="temp-display skeleton"
-                  data-celsius="">00°</span></span>
+              <span><i class="fas fa-temperature-high me-2"></i> High: <span id="weather-max-temp"
+                  class="temp-display">--°</span></span>
             </div>
             <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-arrow-down"></i> <span id="weather-min-temp" class="temp-display skeleton"
-                  data-celsius="">00°</span></span>
+              <span><i class="fas fa-temperature-low me-2"></i> Low: <span id="weather-min-temp"
+                  class="temp-display">--°</span></span>
             </div>
             <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-wind"></i> <span id="weather-hero-wind" class="skeleton">00 km/h</span></span>
+              <span><i class="fas fa-wind me-2"></i> Wind: <span id="weather-hero-wind">-- km/h</span></span>
             </div>
             <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-tint"></i> <span id="weather-hero-humidity" class="skeleton">00%</span></span>
+              <span><i class="fas fa-tint me-2"></i> Humidity: <span id="weather-hero-humidity">--%</span></span>
             </div>
           </div>
         </div>
@@ -64,138 +61,89 @@
     </div>
   </div>
 
-  <!-- Forecast Section -->
+  <!-- Forecast Tabs -->
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="d-flex gap-4 align-items-baseline">
-        <h4 id="tab-today" class="fw-bold mb-0 text-dark" style="cursor: pointer;">Today</h4>
-        <h4 id="tab-week" class="fw-bold mb-0 text-muted" style="opacity: 0.5; cursor: pointer;">Week</h4>
+        <h4 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1">
+          Today</h4>
+        <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Weekly</h4>
       </div>
-      <div class="d-flex gap-2">
-        <button id="btn-celsius"
-          class="btn rounded-circle p-0 d-flex align-items-center justify-content-center text-white"
-          style="width: 40px; height: 40px; background-color: #6937F5;">
-          <span class="fw-bold">°C</span>
-        </button>
-        <button id="btn-fahrenheit"
-          class="btn rounded-circle p-0 d-flex align-items-center justify-content-center bg-light text-dark"
-          style="width: 40px; height: 40px;">
-          <span class="fw-bold">°F</span>
-        </button>
+      <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+        <button id="btn-celsius" class="btn btn-primary px-3 py-2 fw-bold">°C</button>
+        <button id="btn-fahrenheit" class="btn btn-light px-3 py-2 fw-bold text-muted">°F</button>
       </div>
     </div>
 
-    <div id="forecast-today" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll" style="scrollbar-width: none;">
-      {% for i in range(8) %}
-      <div class="card border-0 rounded-4 p-3 flex-shrink-0 skeleton-card"
-        style="width: 160px; border: 1px solid #eee;">
-        <div class="card-body p-0 d-flex flex-column justify-content-between h-100 skeleton">
-          <div class="skeleton-text w-75 mb-2" style="height: 15px; background: #eee;"></div>
-          <div class="skeleton-text w-50 mb-3" style="height: 12px; background: #eee;"></div>
-          <div class="d-flex justify-content-between align-items-end mt-auto">
-            <div class="skeleton-text w-25" style="height: 15px; background: #eee;"></div>
-            <div class="skeleton-icon" style="width: 35px; height: 35px; background: #eee; border-radius: 50%;"></div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+    <div id="forecast-today" class="d-flex gap-4 overflow-auto pb-4 forecast-scroll">
+      {{ forecast_skeleton(8) }}
     </div>
 
-    <div id="forecast-week" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll d-none"
-      style="scrollbar-width: none;">
-      {% for i in range(7) %}
-      <div class="card border-0 rounded-4 p-3 flex-shrink-0 skeleton-card"
-        style="width: 160px; border: 1px solid #eee;">
-        <div class="card-body p-0 d-flex flex-column justify-content-between h-100 skeleton">
-          <div class="skeleton-text w-75 mb-2"></div>
-          <div class="skeleton-text w-50 mb-3"></div>
-          <div class="d-flex justify-content-between align-items-end mt-auto">
-            <div class="skeleton-text w-25"></div>
-            <div class="skeleton-icon" style="width: 35px; height: 35px;"></div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+    <div id="forecast-week" class="d-flex gap-4 overflow-auto pb-4 forecast-scroll d-none">
+      {{ forecast_skeleton(6) }}
     </div>
   </div>
 
-  <!-- Highlights Section -->
-  <div class="mb-5">
-    <h4 class="fw-bold mb-4">Today's highlight</h4>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card border-0 rounded-4 p-4 h-100" style="background-color: #E7E4E3;">
-          <div class="d-flex flex-column justify-content-between h-100">
-            <p id="weather-highlight-date" class="fw-bold small text-muted mb-4 skeleton">Loading date...</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-arrow-up text-primary"></i> <span id="weather-highlight-max"
-                  class="fs-3 fw-bold temp-display skeleton" data-celsius="">00°</span>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-arrow-down text-primary"></i> <span id="weather-highlight-min"
-                  class="fs-3 fw-bold temp-display skeleton" data-celsius="">00°</span>
-              </div>
+  <!-- Highlights & Map -->
+  <div class="row g-5 mb-5">
+    <div class="col-lg-4">
+      <h4 class="fw-bold mb-4">Daily Statistics</h4>
+      <div class="d-flex flex-column gap-3">
+        <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: #f8f9fa;">
+          <p id="weather-highlight-date" class="fw-bold small text-muted mb-3">Today's Range</p>
+          <div class="d-flex justify-content-between">
+            <div class="text-center">
+              <div class="small text-muted mb-1">Max</div>
+              <span id="weather-highlight-max" class="fs-4 fw-bold text-danger">--°</span>
+            </div>
+            <div class="vr mx-3"></div>
+            <div class="text-center">
+              <div class="small text-muted mb-1">Min</div>
+              <span id="weather-highlight-min" class="fs-4 fw-bold text-primary">--°</span>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-0 rounded-4 p-4 h-100" style="background-color: #E7E4E3;">
-          <div class="d-flex flex-column justify-content-between h-100">
-            <p class="fw-bold small text-muted mb-4">Temp. variation</p>
-            <div>
-              <span id="weather-highlight-variation" class="fs-3 fw-bold temp-display skeleton"
-                data-celsius="">00°</span>
-            </div>
-          </div>
+        <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: #f8f9fa;">
+          <p class="fw-bold small text-muted mb-2">Variation</p>
+          <h3 id="weather-highlight-variation" class="fw-bold mb-0">--°</h3>
+          <small class="text-muted">Temperature delta today</small>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Map Section -->
-  <div class="mb-5">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-header bg-white border-0 pt-4 px-4">
-        <h3 class="mb-0 fw-bold">Interactive Weather Map</h3>
-        <p class="text-muted">Explore weather conditions in real-time</p>
-      </div>
-      <div class="card-body p-0 position-relative">
-        <!-- Map Controls -->
-        <div class="map-controls">
-          <form class="animated-search-form" onsubmit="return false;">
-            <input id="location-search" type="search" placeholder="Search city..." aria-label="Search city" required>
-            <i class="fas fa-search search-icon"></i>
-          </form>
-          <button class="btn btn-light shadow-sm locate-btn" id="locate-btn" title="My Location">
-            <i class="fas fa-location-arrow"></i>
-          </button>
-        </div>
-
-        <div id="map"></div>
-        <!-- Weather Overlay -->
-        <div id="weather-overlay" class="weather-overlay">
-          <div class="map-loading-spinner text-center">
-            <div class="spinner-border spinner-border-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+    <div class="col-lg-8">
+      <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0 position-relative">
+          <div class="map-controls">
+            <form class="animated-search-form" onsubmit="return false;">
+              <input id="location-search" type="search" placeholder="Search a city..." required>
+              <i class="fas fa-search search-icon"></i>
+            </form>
+            <button class="btn btn-white shadow-sm locate-btn border ms-2" id="locate-btn" title="Locate Me">
+              <i class="fas fa-crosshairs"></i>
+            </button>
           </div>
-          <div class="weather-info">
-            <h4 id="map-city" class="mb-1">Loading...</h4>
-            <div class="d-flex align-items-center justify-content-between">
-              <div class="temp-container">
-                <span id="map-temp" class="display-4 fw-bold">--</span>
-                <span class="unit">°C</span>
-              </div>
-              <div id="map-icon" class="weather-icon-lg"></div>
+          <div id="map" style="height: 480px; z-index: 1;"></div>
+
+          <div id="weather-overlay" class="weather-overlay">
+            <div class="map-loading-spinner text-center py-4">
+              <div class="spinner-grow text-primary" role="status"></div>
             </div>
-            <div class="weather-details mt-2">
-              <div class="detail-item">
-                <i class="fas fa-wind"></i> <span id="map-wind">-- km/h</span>
+            <div class="weather-info">
+              <div id="map-city" class="city-name">Loading...</div>
+              <div class="d-flex align-items-center justify-content-between mb-4">
+                <span id="map-temp" class="map-temp-display">--</span>
+                <div id="map-icon" class="map-icon-display"></div>
               </div>
-              <div class="detail-item">
-                <i class="fas fa-tint"></i> <span id="map-humidity">--%</span>
+              <div class="map-details-footer d-flex flex-column gap-2">
+                <div class="detail-item">
+                  <i class="fas fa-wind"></i>
+                  <span id="map-wind">--</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-tint"></i>
+                  <span id="map-humidity">--</span>
+                </div>
               </div>
             </div>
           </div>
@@ -204,55 +152,27 @@
     </div>
   </div>
 
-  <!-- Breaking News Section -->
-  <div class="mb-5">
-
-    <h4 class="fw-bold mb-4">Breaking news</h4>
+  <!-- News Section -->
+  <div class="mt-5 pt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold mb-0">Weather News</h4>
+      <a href="/news" class="btn btn-link text-primary fw-bold text-decoration-none p-0">View all news</a>
+    </div>
     <div class="row g-4">
       {% if breaking_news %}
       {% for article in breaking_news %}
-      <div class="col-md-4">
-        <div class="card border-0 h-100">
-          <img
-            src="{{ article.urlToImage if article.urlToImage else '/assests/images/breaking-news-' ~ loop.index ~ '.png' }}"
-            class="card-img-top rounded-3 mb-3" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
-          <div class="card-body p-0">
-            <div class="d-flex justify-content-between small mb-2">
-              <span class="text-muted">{{ article.publishedAt[:10] if article.publishedAt else 'Recently' }}</span>
-              <span class="fw-bold">{{ article.source.name[:15] if article.source and article.source.name else 'News'
-                }}</span>
-            </div>
-            <h6 class="fw-bold mb-2">{{ article.title[:60] }}{% if article.title|length > 60 %}...{% endif %}</h6>
-            <p class="card-text small text-muted">
-              {{ article.description[:120] if article.description else 'No description available.' }}{% if
-              article.description and article.description|length > 120 %}...{% endif %}
-            </p>
-            <div class="d-flex justify-content-between small mt-3 align-items-center">
-              <span class="text-muted">{{ article.author[:15] if article.author else 'News Desk' }}</span>
-              <a href="{{ article.url }}" target="_blank" class="text-primary text-decoration-none fw-bold">Access
-                article</a>
-            </div>
-          </div>
-        </div>
-      </div>
+      {{ news_card(article, loop.index, type='breaking') }}
       {% endfor %}
       {% else %}
-      <div class="col-12">
-        <p class="text-muted text-center">Loading weather news...</p>
+      <div class="col-12 py-5 text-center">
+        <p class="text-muted">No news updates at the moment.</p>
       </div>
       {% endif %}
     </div>
-    <div class="text-center mt-5">
-      <a href="/news" class="btn w-100 py-3 rounded-pill fw-bold" style="background-color: #E7E4E3; color: #555;">
-        All news
-      </a>
-
-    </div>
   </div>
-
 </div>
 
-<script src="/assests/js/weather.js"></script>
-<script src="/assests/js/map.js"></script>
+<script src="/assets/js/weather.js"></script>
+<script src="/assets/js/map.js"></script>
 
 {% endblock body %}
