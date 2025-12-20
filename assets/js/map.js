@@ -81,8 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
         layerControl.collapse();
     });
 
+    // Custom Purple Marker Icon
+    const purpleMarker = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style='background-color: #6937f5; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);'><div style='width: 10px; height: 10px; background: white; border-radius: 50%; position: absolute; top: 10px; left: 10px;'></div></div>`,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42]
+    });
+
     // Add a marker to the map
-    let marker = L.marker([51.505, -0.09]).addTo(map);
+    let marker = L.marker([51.505, -0.09], { icon: purpleMarker }).addTo(map);
 
     // Try to get user's location
     if (navigator.geolocation) {

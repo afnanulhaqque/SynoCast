@@ -2199,12 +2199,28 @@ main {
   .weather-overlay {
     right: 15px;
     top: 15px;
-    width: 180px;
-    padding: 15px;
+    width: 190px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .weather-info .city-name {
+    font-size: 1rem;
+    margin-bottom: 15px;
   }
 
   .map-temp-display {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+    letter-spacing: -2px;
+  }
+
+  .map-icon-display {
+    font-size: 2.2rem;
+  }
+
+  .map-details-footer {
+    margin-top: 15px;
+    padding-top: 15px;
   }
 }
 
