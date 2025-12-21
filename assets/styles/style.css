@@ -2456,6 +2456,61 @@ main {
   }
 }
 
+/* =========================================
+   Mobile Keyboard Optimization
+   ========================================= */
+
+/* When keyboard is opening (transitional state) */
+body.keyboard-opening {
+  transition: all 0.3s ease;
+}
+
+/* When keyboard is fully open */
+body.keyboard-open .footer,
+body.keyboard-open .floating-chat-btn-container,
+body.keyboard-open .navbar {
+  display: none !important;
+}
+
+/* Adjust chatbot modal when keyboard is open */
+body.keyboard-open .chatbot-modal-dialog {
+  bottom: 10px !important;
+  max-height: 60vh !important;
+  transition: all 0.3s ease;
+}
+
+/* Ensure chatbot input stays visible */
+body.keyboard-open #chatbot_form {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  z-index: 1000;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Adjust map controls when keyboard is open on mobile */
+@media (max-width: 768px) {
+  body.keyboard-open .map-controls {
+    top: 10px;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+  }
+
+  body.keyboard-open .weather-overlay {
+    top: 10px;
+    right: 10px;
+    transform: scale(0.85);
+    transition: all 0.3s ease;
+  }
+}
+
+/* Ensure focused inputs are always visible */
+input:focus,
+textarea:focus {
+  scroll-margin-top: 100px;
+  scroll-margin-bottom: 100px;
+}
+
 /* Map Toggle Button Mobile Override */
 @media (max-width: 768px) {
   /* Target the specific layers control container when it is in the bottom-left */
