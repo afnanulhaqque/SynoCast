@@ -269,7 +269,7 @@ def geocode_search():
     
     try:
         url = f"https://nominatim.openstreetmap.org/search?format=json&q={query}"
-        headers = {'User-Agent': 'SynoCast/1.0'}
+        headers = {'User-Agent': 'SynoCast/1.0', 'Accept-Language': 'en'}
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
         return jsonify(response.json())
@@ -289,7 +289,7 @@ def geocode_reverse():
     
     try:
         url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
-        headers = {'User-Agent': 'SynoCast/1.0'}
+        headers = {'User-Agent': 'SynoCast/1.0', 'Accept-Language': 'en'}
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
         return jsonify(response.json())
