@@ -228,23 +228,30 @@ def api_weather():
     try:
         current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
         forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        pollution_url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Using more workers for better concurrency
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             future_current = executor.submit(requests.get, current_url, timeout=5)
             future_forecast = executor.submit(requests.get, forecast_url, timeout=5)
+            future_pollution = executor.submit(requests.get, pollution_url, timeout=5)
 
             current_res = future_current.result()
             forecast_res = future_forecast.result()
+            pollution_res = future_pollution.result()
 
         current_res.raise_for_status()
         forecast_res.raise_for_status()
+        pollution_res.raise_for_status()
 
         current_data = current_res.json()
         forecast_data = forecast_res.json()
+        pollution_data = pollution_res.json()
 
         result = {
             "current": current_data,
-            "forecast": forecast_data
+            "forecast": forecast_data,
+            "pollution": pollution_data
         }
 
         # Update Cache

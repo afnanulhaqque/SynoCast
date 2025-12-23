@@ -7,7 +7,7 @@
 
 <div class="position-relative w-100 home-banner-container" style="height: 50vh;">
   <img src="/assets/images/banner-home.png" class="w-100 h-100 position-absolute top-0 start-0" alt="Banner"
-    style="z-index: -1; object-fit: cover; object-position: center;">
+    style="z-index: -1; object-fit: cover; object-position: center;" fetchpriority="high">
   <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="z-index: -1; opacity: 0.2;"></div>
 
   <div class="container h-100">
@@ -85,7 +85,8 @@
       <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-3">
         <img
           src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assets/images/sub-banner-news.png' }}"
-          class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 350px; object-fit: cover;">
+          class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 350px; object-fit: cover;" loading="lazy"
+          decoding="async">
         <div class="card-body p-4">
           <div class="small text-muted mb-2">
             <span><i class="far fa-clock me-1"></i> {{ latest_news[0].publishedAt[:10] }}</span>
@@ -112,7 +113,8 @@
             </div>
             <div class="col-4">
               <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/breaking-news-1.png' }}"
-                class="img-fluid rounded-3" alt="News" style="height: 80px; width: 100%; object-fit: cover;">
+                class="img-fluid rounded-3" alt="News" style="height: 80px; width: 100%; object-fit: cover;"
+                loading="lazy">
             </div>
           </div>
         </div>

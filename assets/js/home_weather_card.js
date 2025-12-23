@@ -116,8 +116,8 @@ document.addEventListener('DOMContentLoaded', function() {
         newCityInput.addEventListener('click', (e) => e.stopPropagation());
     }
 
-    async function fetchWeather(lat, lon, cityName) {
-        if(cityEl) cityEl.textContent = cityName || "Loading...";
+    async function fetchWeather(lat, lon, cityName, silent = false) {
+        if(cityEl && !silent) cityEl.textContent = cityName || "Loading...";
         
         const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
         
@@ -126,6 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await res.json();
             
             if (data.current) {
+                // Save to cache
+                data.cityName = cityName;
+                localStorage.setItem('synocast_cached_weather', JSON.stringify(data));
+
                 // Current Weather Data Mapping (OpenWeatherMap)
                 if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
                 if(windEl) windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed); // Use shared formatter
@@ -150,8 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } catch (error) {
-            if(cityEl) cityEl.textContent = "Error";
-            showLocationPrompt();
+            if(!silent) {
+                if(cityEl) cityEl.textContent = "Error";
+                showLocationPrompt();
+            }
         }
     }
 
@@ -185,6 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if(tempEl) tempEl.textContent = "--";
         if(windEl) windEl.textContent = "--";
         if(humidityEl) humidityEl.textContent = "--";
+        const aqiEl = document.getElementById('home-aqi');
+        if(aqiEl) aqiEl.textContent = "--";
         
         // Use current system time
         const now = new Date();
@@ -217,19 +225,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Listen for global location grant
     window.addEventListener('synocast_location_granted', async (e) => {
-        const { lat, lon } = e.detail;
+        const { lat, lon, isCached } = e.detail;
         
-        // Get city name and fetch weather
+        // Show cached weather if available
+        const cachedWeather = JSON.parse(localStorage.getItem('synocast_cached_weather'));
+        if (cachedWeather && isCached) {
+            renderWeatherData(cachedWeather);
+        }
+
+        // Silent refresh in background
         const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
         try {
             const res = await fetch(geoUrl);
             const data = await res.json();
             const name = data.address.city || data.address.town || data.address.village || "My Location";
-            fetchWeather(lat, lon, name);
+            fetchWeather(lat, lon, name, !!isCached);
         } catch (e) {
-            fetchWeather(lat, lon, "My Location");
+            fetchWeather(lat, lon, "My Location", !!isCached);
         }
     });
+
+    function renderWeatherData(data) {
+        if (!data.current) return;
+        if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
+        if(windEl) windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed);
+        if(humidityEl) humidityEl.textContent = `${data.current.main.humidity}%`;
+        if(cityEl) cityEl.textContent = data.cityName || data.current.name;
+        
+        if (data.current.weather && data.current.weather[0]) {
+            const conditionEl = document.getElementById('home-condition');
+            if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
+        }
+
+        if (data.forecast && forecastEl) {
+            updateForecast(data.forecast, data.current.timezone);
+        }
+    }
 
     // Handle manual search focus from other pages
     const urlParams = new URLSearchParams(window.location.search);
@@ -241,5 +272,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     renderFavorites();
-    getCurrentLocation();
+    
+    // Check for cached weather on load
+    const initialCache = JSON.parse(localStorage.getItem('synocast_cached_weather'));
+    if (initialCache) {
+        renderWeatherData(initialCache);
+    } else {
+        showLocationPrompt();
+    }
+    
+    // Default to London if No location after 5s
+    setTimeout(() => {
+        const hasLoc = sessionStorage.getItem('synocast_location_fixed');
+        const hasCachedLoc = localStorage.getItem('synocast_cached_location');
+        if (!hasLoc && !hasCachedLoc && !initialCache) {
+            fetchWeather(51.505, -0.09, "London");
+        }
+    }, 5000);
 });

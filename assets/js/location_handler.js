@@ -15,19 +15,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const modal = new bootstrap.Modal(modalEl);
 
+    // Check on load immediately
+    checkLocationStatus();
+
     async function checkLocationStatus() {
         if (!navigator.geolocation) return;
+
+        // Check for cached location (60 minutes = 3600000 ms)
+        const cachedLoc = JSON.parse(localStorage.getItem('synocast_cached_location'));
+        const now = new Date().getTime();
+
+        if (cachedLoc && (now - cachedLoc.timestamp < 3600000)) {
+            // Use cached location immediately (Instant load)
+            window.dispatchEvent(new CustomEvent('synocast_location_granted', {
+                detail: {
+                    lat: cachedLoc.lat,
+                    lon: cachedLoc.lon,
+                    isCached: true
+                }
+            }));
+            // We still continue to check/refresh in background
+        }
 
         // Use Permissions API to check without prompting
         if (navigator.permissions && navigator.permissions.query) {
             try {
                 const result = await navigator.permissions.query({ name: 'geolocation' });
                 if (result.state === 'granted') {
-                    // Already have it, no need for popup
+                    // Refresh location in background
                     handleLocationGranted();
-                } else {
-                    // State is 'prompt' or 'denied'
-                    modal.show();
+                } else if (result.state === 'prompt') {
+                    // State is 'prompt', show modal with a slight delay if no cached location
+                    if (!cachedLoc || (now - cachedLoc.timestamp >= 3600000)) {
+                        setTimeout(() => modal.show(), 1000);
+                    }
                 }
 
                 // Listen for changes
@@ -39,22 +60,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 };
             } catch (e) {
                 // Fallback for browsers that don't support geolocation permission query
-                modal.show();
+                if (!hasLocation) setTimeout(() => modal.show(), 1200);
             }
         } else {
             // Browsers like Safari might not support permissions.query
-            modal.show();
+            if (!hasLocation) setTimeout(() => modal.show(), 1200);
         }
-    }
+    } // This is the missing closing brace for checkLocationStatus
 
     function handleLocationGranted() {
         navigator.geolocation.getCurrentPosition(position => {
+            const locData = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                timestamp: new Date().getTime()
+            };
+            localStorage.setItem('synocast_cached_location', JSON.stringify(locData));
             sessionStorage.setItem('synocast_location_fixed', 'true');
-            // Notify other scripts (like home_weather_card.js) that location is available
+            
+            // Notify other scripts
             window.dispatchEvent(new CustomEvent('synocast_location_granted', {
                 detail: {
-                    lat: position.coords.latitude,
-                    lon: position.coords.longitude
+                    lat: locData.lat,
+                    lon: locData.lon
                 }
             }));
         });
@@ -83,9 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (searchBtn) {
         searchBtn.onclick = () => {
             modal.hide();
-            // If we are not on home, redirect to home to search? 
-            // Or just allow them to dismiss. 
-            // For now, let's keep it simple.
             if (window.location.pathname !== '/') {
                 window.location.href = '/?focusSearch=true';
             } else {
@@ -95,11 +120,5 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         };
-    }
-
-    // Check on load
-    if (!hasLocation) {
-        // Shorter delay to show popup on all pages
-        setTimeout(checkLocationStatus, 1500);
     }
 });

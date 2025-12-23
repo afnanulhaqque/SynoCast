@@ -83,41 +83,74 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- API Fetching Logic ---
 
-    async function fetchFullForecast(lat, lon) {
+    async function fetchFullForecast(lat, lon, silent = false) {
         try {
             const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
             if (!response.ok) throw new Error('Weather API failed');
             const data = await response.json();
             
+            // Save to cache
+            localStorage.setItem('synocast_full_forecast_cache', JSON.stringify(data));
+
             currentData = data.current;
             forecastData = data.forecast;
 
-            // Remove skeletons
-            document.querySelectorAll('.skeleton').forEach(el => {
-                el.classList.remove('skeleton');
-                el.classList.remove('skeleton-text');
-                el.classList.remove('w-50');
-                el.classList.remove('w-75');
-            });
-            document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
-            document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton-card'));
+            // Remove skeletons (only if not silent)
+            if (!silent) {
+                document.querySelectorAll('.skeleton').forEach(el => {
+                    el.classList.remove('skeleton');
+                    el.classList.remove('skeleton-text');
+                    el.classList.remove('w-50');
+                    el.classList.remove('w-75');
+                });
+                document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
+                document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton-card'));
+            }
 
-            updateCurrentWeather(data.current);
+            updateCurrentWeather(data.current, data.forecast);
             updateHourlyForecast(data.forecast, data.current.timezone);
             updateDailyForecast(data.forecast, data.current.timezone);
+            updateAQI(data.pollution);
             
             // Re-run unit update to ensure new data respects current selection
             updateDisplayUnits();
 
         } catch (error) {
-            if(cityEl) {
+            console.error(error);
+            if(!silent && cityEl) {
                 cityEl.classList.remove('skeleton'); 
                 cityEl.textContent = "Error loading weather";
             }
         }
     }
 
-    function updateCurrentWeather(current) {
+    function updateAQI(pollution) {
+        if (!pollution || !pollution.list || !pollution.list[0]) return;
+        
+        const aqi = pollution.list[0].main.aqi;
+        const aqiValueEl = document.getElementById('weather-aqi-value');
+        const aqiDescEl = document.getElementById('weather-aqi-description');
+        
+        const aqiMap = {
+            1: { label: "Good", color: "#2dce89", text: "Air is clean and healthy." },
+            2: { label: "Fair", color: "#fb6340", text: "Acceptable air quality." },
+            3: { label: "Moderate", color: "#ffd600", text: "Sensitive groups should take care." },
+            4: { label: "Poor", color: "#f5365c", text: "Unhealthy for many people." },
+            5: { label: "Very Poor", color: "#825ee4", text: "Health warning of emergency conditions." }
+        };
+        
+        const status = aqiMap[aqi] || { label: "Unknown", color: "#adb5bd", text: "Data unavailable" };
+        
+        if (aqiValueEl) {
+            aqiValueEl.textContent = status.label;
+            aqiValueEl.style.color = status.color;
+        }
+        if (aqiDescEl) {
+            aqiDescEl.textContent = status.text;
+        }
+    }
+
+    function updateCurrentWeather(current, forecast) {
         if (!current) return;
 
         // Location Name (API might just return city name)
@@ -150,36 +183,44 @@ document.addEventListener('DOMContentLoaded', function() {
         if(windEl) windEl.textContent = WeatherUtils.formatWind(current.wind.speed);
         if(humidityEl) humidityEl.textContent = `${current.main.humidity}%`;
         
+        // Accurate Max/Min from next 24h forecast
+        let dailyMax = current.main.temp_max;
+        let dailyMin = current.main.temp_min;
+
+        if (forecast && forecast.list) {
+            const next24h = forecast.list.slice(0, 8);
+            dailyMax = Math.max(...next24h.map(i => i.main.temp_max));
+            dailyMin = Math.min(...next24h.map(i => i.main.temp_min));
+        }
+
+        const roundedMax = Math.round(dailyMax);
+        const roundedMin = Math.round(dailyMin);
+        const variation = Math.round(dailyMax - dailyMin);
+
         if(maxTempEl) {
-            const max = Math.round(current.main.temp_max);
-            maxTempEl.setAttribute('data-celsius', max);
-            maxTempEl.textContent = `${max}°`;
+            maxTempEl.setAttribute('data-celsius', roundedMax);
+            maxTempEl.textContent = `${roundedMax}°`;
         }
         if(minTempEl) {
-             const min = Math.round(current.main.temp_min);
-             minTempEl.setAttribute('data-celsius', min);
-             minTempEl.textContent = `${min}°`;
+             minTempEl.setAttribute('data-celsius', roundedMin);
+             minTempEl.textContent = `${roundedMin}°`;
         }
 
         // Update Highlights Section
         if (highlightDateEl) {
-            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            highlightDateEl.textContent = new Date().toLocaleDateString('en-US', options);
+            highlightDateEl.textContent = now.toLocaleDateString('en-US', options);
         }
         if (highlightMaxEl) {
-            const max = Math.round(current.main.temp_max);
-            highlightMaxEl.setAttribute('data-celsius', max);
-            highlightMaxEl.textContent = `${max}°`;
+            highlightMaxEl.setAttribute('data-celsius', roundedMax);
+            highlightMaxEl.textContent = `${roundedMax}°`;
         }
         if (highlightMinEl) {
-            const min = Math.round(current.main.temp_min);
-            highlightMinEl.setAttribute('data-celsius', min);
-            highlightMinEl.textContent = `${min}°`;
+            highlightMinEl.setAttribute('data-celsius', roundedMin);
+            highlightMinEl.textContent = `${roundedMin}°`;
         }
         if (highlightVariationEl) {
-            const var_temp = Math.round(current.main.temp_max - current.main.temp_min);
-            highlightVariationEl.setAttribute('data-celsius', var_temp);
-            highlightVariationEl.textContent = `${var_temp}°`;
+            highlightVariationEl.setAttribute('data-celsius', variation);
+            highlightVariationEl.textContent = `${variation}°`;
         }
     }
 
@@ -332,15 +373,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Initialization ---
-    // Get location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            fetchFullForecast(pos.coords.latitude, pos.coords.longitude);
-        }, () => {
-             // Default to London
-            fetchFullForecast(51.505, -0.09);
-        });
-    } else {
-        fetchFullForecast(51.505, -0.09);
+    // Check for cached data first
+    const cachedData = JSON.parse(localStorage.getItem('synocast_full_forecast_cache'));
+    if (cachedData) {
+        currentData = cachedData.current;
+        forecastData = cachedData.forecast;
+        
+        // Remove skeletons immediately
+        document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton', 'skeleton-text', 'w-50', 'w-75'));
+        document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
+        document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton-card'));
+
+        updateCurrentWeather(cachedData.current, cachedData.forecast);
+        updateHourlyForecast(cachedData.forecast, cachedData.current.timezone);
+        updateDailyForecast(cachedData.forecast, cachedData.current.timezone);
+        updateAQI(cachedData.pollution);
+        updateDisplayUnits();
     }
+
+    // Listen for global location grant (faster and unified)
+    window.addEventListener('synocast_location_granted', (e) => {
+        const { lat, lon, isCached } = e.detail;
+        fetchFullForecast(lat, lon, !!isCached);
+    });
+
+    // Fallback or Initial check if already granted
+    setTimeout(() => {
+        if (!currentData) {
+            // Default to London if nothing happens after 5 seconds
+            fetchFullForecast(51.505, -0.09);
+        }
+    }, 5000);
 });
