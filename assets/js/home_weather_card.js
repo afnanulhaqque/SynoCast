@@ -131,8 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(windEl) windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed); // Use shared formatter
                 if(humidityEl) humidityEl.textContent = `${data.current.main.humidity}%`;
                 
-                // Update time/date (using system time for now as OWM doesn't give simple timezone string like 'Europe/London')
-                // But we can use the 'timezone' offset in seconds from OWM
+                // Update time/date
                 const offsetSeconds = data.current.timezone; 
                 const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
 
@@ -143,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.current.weather && data.current.weather[0]) {
                      const conditionEl = document.getElementById('home-condition');
                      if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
-                 }
+                }
             }
 
             if (data.forecast && forecastEl) {
@@ -152,43 +151,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             if(cityEl) cityEl.textContent = "Error";
+            showLocationPrompt();
         }
     }
 
     function updateForecast(forecastData, timezoneOffset) {
+        if(!forecastEl) return;
         forecastEl.innerHTML = '';
-        
-        // OpenWeatherMap 5-day forecast returns a list of 40 items (every 3 hours)
         const hourlyList = forecastData.list;
-        
-        // Show next 5 items from the list
         for (let i = 0; i < 5; i++) {
             if (i >= hourlyList.length) break;
-            
             const item = hourlyList[i];
             const temp = Math.round(item.main.temp);
-            
-            // Calculate time for this forecast item
-            // item.dt is unix timestamp
             const date = new Date(item.dt * 1000);
-            // Adjust to city timezone if critical, but for simple display local browser time of the timestamp is usually fine 
-            // or we shift it like we did for current time.
-            // Let's keep it simple and show the time from the timestamp (which is UTC) converted to local or city time.
-            // To match the city time logic properly:
             const itemTime = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
-            
             const timeStr = itemTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-
             const wCode = item.weather[0].id;
-            
-            // Map weather code to icon (OpenWeatherMap codes)
             const iconClass = WeatherUtils.getIconClass(wCode, item.weather[0].icon);
-
-
             const div = document.createElement('div');
             div.className = i === 0 ? 'bg-primary text-white rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover' : 'bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover';
             div.style.minWidth = '55px';
-            
             div.innerHTML = `
                 <p class="small mb-1" style="font-size: 10px;">${timeStr}</p>
                 <i class="fa-solid ${iconClass} mb-1"></i>
@@ -198,73 +180,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function showLocationPrompt() {
+        if(cityEl) cityEl.textContent = "Turn on your location";
+        if(tempEl) tempEl.textContent = "--";
+        if(windEl) windEl.textContent = "--";
+        if(humidityEl) humidityEl.textContent = "--";
+        
+        // Use current system time
+        const now = new Date();
+        if(timeEl) timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        if(dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        if(dayEl) dayEl.textContent = "Today";
+        
+        // Clear specific elements
+        const conditionEl = document.getElementById('home-condition');
+        if(conditionEl) conditionEl.textContent = "";
+        
+        if(forecastEl) {
+             forecastEl.innerHTML = `
+                <div class="d-flex flex-column align-items-center justify-content-center w-100 text-muted py-3">
+                    <span class="material-icons mb-2" style="font-size: 2rem; opacity: 0.5;">&#xe0c7;</span>
+                    <small>Location access needed</small>
+                </div>
+             `;
+        }
+    }
+
     function getCurrentLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                
-                // Get city name
-                const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
-                try {
-                    const res = await fetch(geoUrl);
-                    const data = await res.json();
-                    const name = data.address.city || data.address.town || data.address.village || "My Location";
-                    fetchWeather(lat, lon, name);
-                } catch (e) {
-                    fetchWeather(lat, lon, "My Location");
-                }
-            }, (error) => {
-                // If denied or error, default to London but show modal if it's a permission issue or first time
-                console.warn("Location access denied or failed:", error);
-                
-                // Show modal logic
-                const modalEl = document.getElementById('locationPermissionModal');
-                if (modalEl) {
-                    const modal = new bootstrap.Modal(modalEl);
-                    modal.show();
-                    
-                    // Wire up buttons
-                    const enableBtn = document.getElementById('btn-enable-location');
-                    const searchBtn = document.getElementById('btn-search-manually');
-                    
-                    if(enableBtn) {
-                        enableBtn.onclick = () => {
-                            modal.hide();
-                            // Retry location
-                            navigator.geolocation.getCurrentPosition(async position => {
-                                const lat = position.coords.latitude;
-                                const lon = position.coords.longitude;
-                                const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
-                                try {
-                                    const res = await fetch(geoUrl);
-                                    const data = await res.json();
-                                    const name = data.address.city || data.address.town || data.address.village || "My Location";
-                                    fetchWeather(lat, lon, name);
-                                } catch (e) {
-                                    fetchWeather(lat, lon, "My Location");
-                                }
-                            }, (err) => {
-                                alert("Location access is still denied. Please check your browser settings or search manually.");
-                                modal.show();
-                            });
-                        };
+        // Show the prompt on the card first
+        showLocationPrompt();
+
+        // Show the custom permission modal
+        const modalEl = document.getElementById('locationPermissionModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+            
+            // Wire up buttons
+            const enableBtn = document.getElementById('btn-enable-location');
+            const searchBtn = document.getElementById('btn-search-manually');
+            
+            if(enableBtn) {
+                enableBtn.onclick = () => {
+                    modal.hide();
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async position => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
+                            try {
+                                const res = await fetch(geoUrl);
+                                const data = await res.json();
+                                const name = data.address.city || data.address.town || data.address.village || "My Location";
+                                fetchWeather(lat, lon, name);
+                            } catch (e) {
+                                fetchWeather(lat, lon, "My Location");
+                            }
+                        }, (error) => {
+                            console.warn("Location access denied or failed:", error);
+                            alert("Location access denied. Please allow it in settings or search manually.");
+                            modal.show();
+                        });
+                    } else {
+                        alert("Geolocation is not supported by your browser.");
                     }
-                    
-                    if(searchBtn) {
-                        searchBtn.onclick = () => {
-                            setTimeout(() => {
-                                if(newCityInput) newCityInput.focus();
-                            }, 500);
-                        };
-                    }
-                }
-                
-                // Still load a default city so the UI isn't empty
-                fetchWeather(51.505, -0.09, "London");
-            });
-        } else {
-            fetchWeather(51.505, -0.09, "London");
+                };
+            }
+            
+            if(searchBtn) {
+                searchBtn.onclick = () => {
+                    modal.hide();
+                    setTimeout(() => {
+                        if(newCityInput) newCityInput.focus();
+                    }, 500);
+                };
+            }
         }
     }
 
