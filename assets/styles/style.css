@@ -2545,3 +2545,78 @@ textarea:focus {
     margin-left: 0;
   }
 }
+
+/* Weather Search Bar Styles */
+.bg-light-subtle {
+  background-color: #f1f3f6 !important;
+}
+
+/* Weather Search Bar Styles - Exact Design Match */
+.search-pill {
+  transition: all 0.3s ease;
+  background-color: #fff;
+  border: 1px solid #6937f5; /* Purple border */
+  border-radius: 50px !important;
+  box-shadow: 0 4px 15px rgba(105, 55, 245, 0.1);
+  overflow: hidden;
+}
+
+.search-pill .input-group-text {
+  background-color: #f1f3f6 !important; /* Shaded icon area */
+  border-right: 2px solid #bee3f8 !important; /* The blue vertical divider */
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  padding-left: 1.25rem;
+  padding-right: 1rem;
+}
+
+.search-pill .input-group-text i {
+  color: #4a5568 !important;
+  font-size: 1.1rem;
+}
+
+.search-pill input {
+  background-color: #fff !important;
+  padding-left: 1rem !important;
+  font-size: 1.05rem;
+  color: #4a5568;
+}
+
+.search-pill input::placeholder {
+  color: #718096;
+}
+
+.search-pill:focus-within {
+  box-shadow: 0 0 0 4px rgba(105, 55, 245, 0.15),
+    0 4px 15px rgba(105, 55, 245, 0.2) !important;
+  border-color: #6937f5 !important;
+}
+
+.search-result-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f1f1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-result-item:hover {
+  background-color: #f8f7ff;
+  padding-left: 25px;
+  color: #6937f5;
+}
+
+.search-result-item i {
+  color: #adb5bd;
+}
+
+.search-result-item:hover i {
+  color: #6937f5;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}

@@ -5,36 +5,29 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    // We only want to auto-trigger if we haven't successfully fetched location in this session
-    // or if the user hasn't explicitly dismissed it for now.
     const hasLocation = sessionStorage.getItem('synocast_location_fixed');
-
-    // Only run if the modal exists in the current page (it should be in base.html)
     const modalEl = document.getElementById('locationPermissionModal');
     if (!modalEl) return;
 
     const modal = new bootstrap.Modal(modalEl);
 
-    // Check on load immediately
+    // Initial check
     checkLocationStatus();
 
     async function checkLocationStatus() {
         if (!navigator.geolocation) return;
 
-        // Check for cached location (60 minutes = 3600000 ms)
+        // Check for cached location (60 minutes)
         const cachedLoc = JSON.parse(localStorage.getItem('synocast_cached_location'));
         const now = new Date().getTime();
 
         if (cachedLoc && (now - cachedLoc.timestamp < 3600000)) {
-            // Use cached location immediately (Instant load)
-            window.dispatchEvent(new CustomEvent('synocast_location_granted', {
-                detail: {
-                    lat: cachedLoc.lat,
-                    lon: cachedLoc.lon,
-                    isCached: true
-                }
-            }));
-            // We still continue to check/refresh in background
+            window.synocast_current_loc = { lat: cachedLoc.lat, lon: cachedLoc.lon, isCached: true };
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('synocast_location_granted', {
+                    detail: window.synocast_current_loc
+                }));
+            }, 100);
         }
 
         // Use Permissions API to check without prompting
@@ -42,53 +35,56 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const result = await navigator.permissions.query({ name: 'geolocation' });
                 if (result.state === 'granted') {
-                    // Refresh location in background
-                    handleLocationGranted();
+                    // Permission already granted, we can call getCurrentPosition WITHOUT a browser prompt
+                    refreshLocationSilently();
                 } else if (result.state === 'prompt') {
-                    // State is 'prompt', show modal with a slight delay if no cached location
+                    // This is where we show ONLY our custom modal. We DON'T call getCurrentPosition here.
                     if (!cachedLoc || (now - cachedLoc.timestamp >= 3600000)) {
-                        setTimeout(() => modal.show(), 1000);
+                        setTimeout(() => {
+                            if (!window.synocast_current_loc) modal.show();
+                        }, 1500);
                     }
                 }
 
-                // Listen for changes
                 result.onchange = function () {
                     if (this.state === 'granted') {
                         modal.hide();
-                        handleLocationGranted();
+                        refreshLocationSilently();
                     }
                 };
             } catch (e) {
-                // Fallback for browsers that don't support geolocation permission query
-                if (!hasLocation) setTimeout(() => modal.show(), 1200);
+                if (!window.synocast_current_loc) setTimeout(() => modal.show(), 2000);
             }
         } else {
-            // Browsers like Safari might not support permissions.query
-            if (!hasLocation) setTimeout(() => modal.show(), 1200);
+            // Browsers like older Safari (no query support) - still show our modal first
+            if (!window.synocast_current_loc) setTimeout(() => modal.show(), 2000);
         }
-    } // This is the missing closing brace for checkLocationStatus
-
-    function handleLocationGranted() {
-        navigator.geolocation.getCurrentPosition(position => {
-            const locData = {
-                lat: position.coords.latitude,
-                lon: position.coords.longitude,
-                timestamp: new Date().getTime()
-            };
-            localStorage.setItem('synocast_cached_location', JSON.stringify(locData));
-            sessionStorage.setItem('synocast_location_fixed', 'true');
-            
-            // Notify other scripts
-            window.dispatchEvent(new CustomEvent('synocast_location_granted', {
-                detail: {
-                    lat: locData.lat,
-                    lon: locData.lon
-                }
-            }));
-        });
     }
 
-    // Wire up the modal buttons
+    function refreshLocationSilently() {
+        // This is ONLY called when we know permission is already granted
+        navigator.geolocation.getCurrentPosition(position => {
+            dispatchLocationEvent(position.coords.latitude, position.coords.longitude, false);
+        }, err => console.warn("Silent refresh failed", err));
+    }
+
+    function dispatchLocationEvent(lat, lon, isCached) {
+        const locData = { lat, lon, timestamp: new Date().getTime() };
+        localStorage.setItem('synocast_cached_location', JSON.stringify(locData));
+        sessionStorage.setItem('synocast_location_fixed', 'true');
+        
+        window.synocast_current_loc = { lat, lon, isCached };
+
+        window.dispatchEvent(new CustomEvent('synocast_location_granted', {
+            detail: window.synocast_current_loc
+        }));
+    }
+
+    function handleLocationGranted(position) {
+        // This is called after a USER ACTION (clicking enable in our modal)
+        dispatchLocationEvent(position.coords.latitude, position.coords.longitude, false);
+    }
+
     const enableBtn = document.getElementById('btn-enable-location');
     const searchBtn = document.getElementById('btn-search-manually');
 
@@ -97,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.hide();
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    handleLocationGranted();
+                    handleLocationGranted(position);
                 },
                 (error) => {
                     console.warn("Location access denied:", error);

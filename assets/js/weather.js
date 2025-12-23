@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const forecastTodayEl = document.getElementById('forecast-today');
     const forecastWeekEl = document.getElementById('forecast-week');
 
+    const searchInput = document.getElementById('weather-search-input');
+    const searchResults = document.getElementById('weather-search-results');
+
     // --- Highlight Elements ---
     const highlightDateEl = document.getElementById('weather-highlight-date');
     const highlightMaxEl = document.getElementById('weather-highlight-max');
@@ -31,6 +34,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Temperature Unit Toggle Logic ---
     const btnCelsius = document.getElementById('btn-celsius');
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
+
+    // --- Search Functionality ---
+    let searchTimeout = null;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            const query = searchInput.value.trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.add('d-none');
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    renderSearchResults(data);
+                } catch (err) {
+                    console.error("Search failed:", err);
+                }
+            }, 300);
+        });
+
+        // Close results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('d-none');
+            }
+        });
+    }
+
+    function renderSearchResults(data) {
+        if (!searchResults) return;
+        
+        if (!data || data.length === 0) {
+            searchResults.innerHTML = '<div class="p-3 text-muted small">No results found</div>';
+        } else {
+            searchResults.innerHTML = data.map(item => `
+                <div class="search-result-item" data-lat="${item.lat}" data-lon="${item.lon}" data-name="${item.display_name.split(',')[0]}">
+                    <i class="fas fa-location-dot"></i>
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold">${item.display_name.split(',')[0]}</span>
+                        <small class="text-muted" style="font-size: 0.75rem;">${item.display_name}</small>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click events to items
+            searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                item.onclick = () => {
+                    const lat = item.getAttribute('data-lat');
+                    const lon = item.getAttribute('data-lon');
+                    const name = item.getAttribute('data-name');
+                    
+                    searchInput.value = name;
+                    searchResults.classList.add('d-none');
+                    
+                    // Fetch weather for selected city
+                    fetchFullForecast(lat, lon);
+                };
+            });
+        }
+        
+        searchResults.classList.remove('d-none');
+    }
 
     function celsiusToFahrenheit(celsius) {
         return WeatherUtils.celsiusToFahrenheit(celsius);
@@ -397,11 +467,35 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchFullForecast(lat, lon, !!isCached);
     });
 
+    // Immediate check if location handler already resolved
+    if (window.synocast_current_loc) {
+        const { lat, lon, isCached } = window.synocast_current_loc;
+        fetchFullForecast(lat, lon, !!isCached);
+    }
+
     // Fallback or Initial check if already granted
-    setTimeout(() => {
-        if (!currentData) {
-            // Default to London if nothing happens after 5 seconds
-            fetchFullForecast(51.505, -0.09);
+    setTimeout(async () => {
+        // If we still have London coordinates (51.505, -0.09) or no data at all
+        const isLondon = currentData && Math.abs(currentData.coord.lat - 51.505) < 0.01;
+        
+        if ((!currentData || isLondon) && !window.synocast_current_loc) {
+            console.log("No specific location found, trying IP fallback...");
+            try {
+                const ipRes = await fetch('/api/ip-location');
+                const ipData = await ipRes.json();
+                
+                if (ipData.status === 'success') {
+                    console.log("Using IP-based location fallback:", ipData.city);
+                    fetchFullForecast(ipData.lat, ipData.lon, true);
+                } else {
+                    throw new Error("IP Geolocation failed");
+                }
+            } catch (err) {
+                if (!currentData) {
+                    console.warn("Falling back to London (Ultimate Fallback)");
+                    fetchFullForecast(51.505, -0.09);
+                }
+            }
         }
-    }, 5000);
+    }, 4500); // Faster fallback check
 });

@@ -225,7 +225,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Listen for global location grant
     window.addEventListener('synocast_location_granted', async (e) => {
-        const { lat, lon, isCached } = e.detail;
+        handleLocationEvent(e.detail);
+    });
+
+    // Immediate check
+    if (window.synocast_current_loc) {
+        handleLocationEvent(window.synocast_current_loc);
+    }
+
+    async function handleLocationEvent(detail) {
+        const { lat, lon, isCached } = detail;
         
         // Show cached weather if available
         const cachedWeather = JSON.parse(localStorage.getItem('synocast_cached_weather'));
@@ -243,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {
             fetchWeather(lat, lon, "My Location", !!isCached);
         }
-    });
+    }
 
     function renderWeatherData(data) {
         if (!data.current) return;
@@ -281,12 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
         showLocationPrompt();
     }
     
-    // Default to London if No location after 5s
-    setTimeout(() => {
+    // Default to IP-based location if no local/cached location after 4.5s
+    setTimeout(async () => {
         const hasLoc = sessionStorage.getItem('synocast_location_fixed');
         const hasCachedLoc = localStorage.getItem('synocast_cached_location');
-        if (!hasLoc && !hasCachedLoc && !initialCache) {
-            fetchWeather(51.505, -0.09, "London");
+        const initialCache = JSON.parse(localStorage.getItem('synocast_cached_weather'));
+        const isLondon = initialCache && initialCache.current && Math.abs(initialCache.current.coord.lat - 51.505) < 0.01;
+
+        if (!hasLoc && !hasCachedLoc && (!initialCache || isLondon) && !window.synocast_current_loc) {
+            try {
+                const ipRes = await fetch('/api/ip-location');
+                const ipData = await ipRes.json();
+                
+                if (ipData.status === 'success') {
+                    console.log("Using IP-based location fallback:", ipData.city);
+                    fetchWeather(ipData.lat, ipData.lon, ipData.city, true);
+                } else {
+                    throw new Error("IP Geolocation failed");
+                }
+            } catch (err) {
+                if (!initialCache) {
+                    console.warn("Falling back to London (Ultimate Fallback)");
+                    fetchWeather(51.505, -0.09, "London");
+                }
+            }
         }
-    }, 5000);
+    }, 4500);
 });

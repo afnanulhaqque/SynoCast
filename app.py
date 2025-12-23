@@ -201,7 +201,34 @@ def about():
 def terms():
     return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string())
 
+@app.route("/api/ip-location")
+def api_ip_location():
+    """Get approximate location based on user's public IP."""
+    try:
+        # Check common IP headers from proxies/CDNs
+        user_ip = request.headers.get('CF-Connecting-IP') or \
+                  request.headers.get('X-Real-IP') or \
+                  request.headers.get('X-Forwarded-For', request.remote_addr)
+        
+        if user_ip and ',' in user_ip:
+            user_ip = user_ip.split(',')[0].strip()
 
+        # If we're on localhost, the API might fail for 127.0.0.1
+        # But for the deployed site, it will have a real public IP
+        url = f"http://ip-api.com/json/{user_ip}?fields=status,lat,lon,city,countryCode"
+        res = requests.get(url, timeout=5)
+        res.raise_for_status()
+        data = res.json()
+        
+        # If the local IP fails, as a last resort, try calling without IP to let the API use the server's breakout IP (less accurate but valid)
+        if data.get('status') == 'fail' and user_ip in ['127.0.0.1', '::1']:
+            res = requests.get("http://ip-api.com/json/?fields=status,lat,lon,city,countryCode", timeout=5)
+            data = res.json()
+
+        return jsonify(data)
+    except Exception as e:
+        app.logger.error(f"IP Location error: {e}")
+        return jsonify({"status": "fail", "message": str(e)}), 500
 
 @app.route("/api/weather")
 def api_weather():
