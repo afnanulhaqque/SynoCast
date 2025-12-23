@@ -145,15 +145,16 @@ except Exception as e:
 
 @app.route("/")
 def home():
-    # Latest News (Pakistan weather)
-    latest_news = utils.fetch_weather_news(query="weather", country="Pakistan", page_size=4, api_key=NEWS_API_KEY)
+    dt_info = utils.get_local_time_string()
+    # Latest News (location-based weather)
+    latest_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=4, api_key=NEWS_API_KEY)
     # All Around The World news
     world_news = utils.fetch_weather_news(query="global weather", page_size=2, api_key=NEWS_API_KEY)
     
     return render_template(
         "home.html", 
         active_page="home", 
-        date_time_info=utils.get_local_time_string(),
+        date_time_info=dt_info,
         latest_news=latest_news,
         world_news=world_news
     )
@@ -161,15 +162,16 @@ def home():
 
 @app.route("/news")
 def news():
+    dt_info = utils.get_local_time_string()
     # Breaking News (Latest weather news)
-    breaking_news = utils.fetch_weather_news(query="weather", page_size=4, api_key=NEWS_API_KEY)
+    breaking_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=4, api_key=NEWS_API_KEY)
     # Featured News (Detailed weather stories)
-    featured_news = utils.fetch_weather_news(query="climate change", country="Pakistan", page_size=2, api_key=NEWS_API_KEY)
+    featured_news = utils.fetch_weather_news(query="climate change", country=dt_info.get('country'), page_size=2, api_key=NEWS_API_KEY)
     
     return render_template(
         "news.html", 
         active_page="news", 
-        date_time_info=utils.get_local_time_string(),
+        date_time_info=dt_info,
         breaking_news=breaking_news,
         featured_news=featured_news
     )
@@ -177,12 +179,13 @@ def news():
 
 @app.route("/weather")
 def weather():
+    dt_info = utils.get_local_time_string()
     # Breaking News for the weather page
-    breaking_news = utils.fetch_weather_news(query="weather", page_size=3, api_key=NEWS_API_KEY)
+    breaking_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=3, api_key=NEWS_API_KEY)
     return render_template(
         "weather.html", 
         active_page="weather", 
-        date_time_info=utils.get_local_time_string(),
+        date_time_info=dt_info,
         breaking_news=breaking_news
     )
 
@@ -200,6 +203,27 @@ def about():
 @app.route("/terms")
 def terms():
     return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string())
+
+@app.route("/api/update-session-location", methods=["POST"])
+def update_session_location():
+    """Update server-side session with client-granted location info."""
+    data = request.get_json(silent=True) or {}
+    city = data.get("city")
+    region = data.get("region")
+    utc_offset = data.get("utc_offset")
+    
+    if city and utc_offset:
+        # Check current IP to handle potential IP changes (though unlikely within session)
+        ip = utils.get_client_ip()
+        session["location_data"] = {
+            "ip": ip,
+            "city": city,
+            "region": region,
+            "utc_offset": utc_offset
+        }
+        return jsonify({"success": True})
+    
+    return jsonify({"success": False, "error": "Missing data"}), 400
 
 @app.route("/api/ip-location")
 def api_ip_location():

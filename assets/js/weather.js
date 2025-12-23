@@ -492,8 +492,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (err) {
                 if (!currentData) {
-                    console.warn("Falling back to London (Ultimate Fallback)");
-                    fetchFullForecast(51.505, -0.09);
+                    console.warn("Falling back to Islamabad (Ultimate Fallback)");
+                    fetchFullForecast(33.6844, 73.0479);
                 }
             }
         }

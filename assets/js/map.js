@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 2. Initialize Map with Default Layer
     const map = L.map('map', {
-        center: [51.505, -0.09],
+        center: [33.6844, 73.0479],
         zoom: 5,
         layers: [satelliteHybrid], // Default to Satellite as requested last
         attributionControl: false // Remove attribution as requested
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Add a marker to the map
-    let marker = L.marker([51.505, -0.09], { icon: purpleMarker }).addTo(map);
+    let marker = L.marker([33.6844, 73.0479], { icon: purpleMarker }).addTo(map);
 
     // Try to get user's location
     if (navigator.geolocation) {
@@ -102,10 +102,10 @@ document.addEventListener('DOMContentLoaded', function() {
             updateWeather(lat, lon);
         }, () => {
             // Fallback if permission denied or error
-            updateWeather(51.505, -0.09);
+            updateWeather(33.6844, 73.0479);
         });
     } else {
-        updateWeather(51.505, -0.09);
+        updateWeather(33.6844, 73.0479);
     }
 
     // Update weather on map move

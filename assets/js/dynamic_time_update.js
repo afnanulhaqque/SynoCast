@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!timeDisplay) return;
 
     function updateTime() {
-        const city = timeDisplay.getAttribute('data-city');
-        const region = timeDisplay.getAttribute('data-region');
-        const utcOffset = timeDisplay.getAttribute('data-offset');
-        const gmtLabel = timeDisplay.getAttribute('data-gmt');
-
-        if (!utcOffset) return;
+        const city = timeDisplay.getAttribute('data-city') || "Unknown";
+        const region = timeDisplay.getAttribute('data-region') || "";
+        const utcOffset = timeDisplay.getAttribute('data-offset') || "+0000";
+        const gmtLabel = timeDisplay.getAttribute('data-gmt') || "GMT+00:00";
 
         try {
             // Convert offset string ("+0500" or "-0300") to hours/minutes
@@ -40,9 +38,72 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formattedDate = cityTime.toLocaleTimeString('en-US', options).replace(/ at /i, ', ');
             
-            timeDisplay.textContent = `${formattedDate} Time zone in ${city} - ${region} (${gmtLabel})`;
+            const locationPart = region ? `${city} - ${region}` : city;
+            timeDisplay.textContent = `${formattedDate} Time zone in ${locationPart} (${gmtLabel})`;
         } catch (e) {
             // Silently fail or use static template value
+        }
+    }
+
+    // Listen for global location grant
+    window.addEventListener('synocast_location_granted', async (e) => {
+        handleLocationChange(e.detail.lat, e.detail.lon);
+    });
+
+    // Immediate check if location is already granted
+    if (window.synocast_current_loc) {
+        handleLocationChange(window.synocast_current_loc.lat, window.synocast_current_loc.lon);
+    }
+
+    async function handleLocationChange(lat, lon) {
+        try {
+            // Reverse geocode to get city/region
+            const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
+            const res = await fetch(geoUrl);
+            const data = await res.json();
+            
+            if (data.address) {
+                const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "My Location";
+                const region = data.address.state || data.address.province || "";
+                
+                // Fetch weather to get timezone offset
+                const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
+                const weatherRes = await fetch(weatherUrl);
+                const weatherData = await weatherRes.json();
+                
+                if (weatherData.current) {
+                    const offsetSeconds = weatherData.current.timezone;
+                    const offsetHours = Math.floor(offsetSeconds / 3600);
+                    const offsetMinutes = Math.abs(Math.floor((offsetSeconds % 3600) / 60));
+                    
+                    const sign = offsetHours >= 0 ? '+' : '-';
+                    const absHours = Math.abs(offsetHours);
+                    const formattedOffset = `${sign}${absHours.toString().padStart(2, '0')}${offsetMinutes.toString().padStart(2, '0')}`;
+                    const gmtLabel = `GMT${sign}${absHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
+                    
+                    // Update attributes
+                    timeDisplay.setAttribute('data-city', city);
+                    timeDisplay.setAttribute('data-region', region);
+                    timeDisplay.setAttribute('data-offset', formattedOffset);
+                    timeDisplay.setAttribute('data-gmt', gmtLabel);
+                    
+                    // Trigger immediate update
+                    updateTime();
+                    
+                    // Update server session
+                    const csrfToken = document.querySelector('meta[name="_csrf_token"]')?.getAttribute('content');
+                    fetch('/api/update-session-location', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({ city, region, utc_offset: formattedOffset })
+                    });
+                }
+            }
+        } catch (err) {
+            console.warn("Failed to update top bar location:", err);
         }
     }
 

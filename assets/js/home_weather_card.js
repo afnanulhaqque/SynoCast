@@ -287,7 +287,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initialCache) {
         renderWeatherData(initialCache);
     } else {
-        showLocationPrompt();
+        // IMPROVEMENT: Check top bar for initial location data (from IP-detection on server)
+        const timeDisplay = document.getElementById('dynamic_time_display');
+        const topCity = timeDisplay?.getAttribute('data-city');
+        const topOffset = timeDisplay?.getAttribute('data-offset');
+        
+        if (topCity && topCity !== 'Unknown') {
+            // We have a city from server-side IP detection
+            // We need lat/lon to fetch weather. Since we don't have them yet, 
+            // we can either geocode the city or rely on the IP fallback below.
+            // But let's at least show the city name immediately.
+            if(cityEl) cityEl.textContent = topCity;
+            showLocationPrompt(); // Still show prompt but with city name
+        } else {
+            showLocationPrompt();
+        }
     }
     
     // Default to IP-based location if no local/cached location after 4.5s
@@ -310,8 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (err) {
                 if (!initialCache) {
-                    console.warn("Falling back to London (Ultimate Fallback)");
-                    fetchWeather(51.505, -0.09, "London");
+                    console.warn("Falling back to Islamabad (Ultimate Fallback)");
+                    fetchWeather(33.6844, 73.0479, "Islamabad");
                 }
             }
         }

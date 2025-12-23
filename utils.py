@@ -20,11 +20,20 @@ def get_local_time_string():
         data = session["location_data"]
         city = data.get("city", "Unknown")
         region = data.get("region", "")
-        utc_offset = data.get("utc_offset", "+0000")
+        country = data.get("country", "Pakistan")
+        country_code = data.get("country_code", "PK")
+        utc_offset = data.get("utc_offset", "+0500")
     else:
         if ip.startswith("127.") or ip == "localhost" or ip == "::1":
-            city, region, utc_offset = "Islamabad", "Punjab", "+0500"
-            session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
+            city, region, country, country_code, utc_offset = "Islamabad", "Punjab", "Pakistan", "PK", "+0500"
+            session["location_data"] = {
+                "ip": ip, 
+                "city": city, 
+                "region": region, 
+                "country": country,
+                "country_code": country_code,
+                "utc_offset": utc_offset
+            }
         else:
             try:
                 resp = requests.get(f"https://ipapi.co/{ip}/json/", timeout=2)
@@ -32,10 +41,19 @@ def get_local_time_string():
                 data = resp.json()
                 city = data.get("city", "Unknown")
                 region = data.get("region", "")
+                country = data.get("country_name", "Unknown")
+                country_code = data.get("country_code", "")
                 utc_offset = data.get("utc_offset", "+0000")
-                session["location_data"] = {"ip": ip, "city": city, "region": region, "utc_offset": utc_offset}
+                session["location_data"] = {
+                    "ip": ip, 
+                    "city": city, 
+                    "region": region, 
+                    "country": country,
+                    "country_code": country_code,
+                    "utc_offset": utc_offset
+                }
             except Exception:
-                city, region, utc_offset = "Unknown", "", "+0000"
+                city, region, country, country_code, utc_offset = "Unknown", "", "Unknown", "", "+0000"
 
     try:
         offset_hours = int(utc_offset[:3])
@@ -53,6 +71,8 @@ def get_local_time_string():
         "display_string": full_string,
         "city": city,
         "region": region,
+        "country": country,
+        "country_code": country_code,
         "utc_offset": utc_offset,
         "gmt_label": gmt_offset
     }
