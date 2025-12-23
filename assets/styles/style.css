@@ -304,8 +304,8 @@ main {
 }
 
 /* Ensure modal uses same font */
-.modal,
-.modal * {
+/* Ensure modal uses same font but allow icons */
+.modal {
   font-family: inherit;
 }
 

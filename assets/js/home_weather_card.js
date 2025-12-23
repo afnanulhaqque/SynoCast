@@ -214,8 +214,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (e) {
                     fetchWeather(lat, lon, "My Location");
                 }
-            }, () => {
-                // Default to London if denied
+            }, (error) => {
+                // If denied or error, default to London but show modal if it's a permission issue or first time
+                console.warn("Location access denied or failed:", error);
+                
+                // Show modal logic
+                const modalEl = document.getElementById('locationPermissionModal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                    
+                    // Wire up buttons
+                    const enableBtn = document.getElementById('btn-enable-location');
+                    const searchBtn = document.getElementById('btn-search-manually');
+                    
+                    if(enableBtn) {
+                        enableBtn.onclick = () => {
+                            modal.hide();
+                            // Retry location
+                            navigator.geolocation.getCurrentPosition(async position => {
+                                const lat = position.coords.latitude;
+                                const lon = position.coords.longitude;
+                                const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
+                                try {
+                                    const res = await fetch(geoUrl);
+                                    const data = await res.json();
+                                    const name = data.address.city || data.address.town || data.address.village || "My Location";
+                                    fetchWeather(lat, lon, name);
+                                } catch (e) {
+                                    fetchWeather(lat, lon, "My Location");
+                                }
+                            }, (err) => {
+                                alert("Location access is still denied. Please check your browser settings or search manually.");
+                                modal.show();
+                            });
+                        };
+                    }
+                    
+                    if(searchBtn) {
+                        searchBtn.onclick = () => {
+                            setTimeout(() => {
+                                if(newCityInput) newCityInput.focus();
+                            }, 500);
+                        };
+                    }
+                }
+                
+                // Still load a default city so the UI isn't empty
                 fetchWeather(51.505, -0.09, "London");
             });
         } else {
