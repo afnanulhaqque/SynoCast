@@ -207,55 +207,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getCurrentLocation() {
-        // Show the prompt on the card first
+        // This is now mostly handled by location_handler.js
+        // If we already have permission, location_handler will fire the event.
+        // If not, it will show the modal.
+        
+        // However, we still need to set the initial "Turn on your location" state on the card
         showLocationPrompt();
+    }
 
-        // Show the custom permission modal
-        const modalEl = document.getElementById('locationPermissionModal');
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-            
-            // Wire up buttons
-            const enableBtn = document.getElementById('btn-enable-location');
-            const searchBtn = document.getElementById('btn-search-manually');
-            
-            if(enableBtn) {
-                enableBtn.onclick = () => {
-                    modal.hide();
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(async position => {
-                            const lat = position.coords.latitude;
-                            const lon = position.coords.longitude;
-                            const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
-                            try {
-                                const res = await fetch(geoUrl);
-                                const data = await res.json();
-                                const name = data.address.city || data.address.town || data.address.village || "My Location";
-                                fetchWeather(lat, lon, name);
-                            } catch (e) {
-                                fetchWeather(lat, lon, "My Location");
-                            }
-                        }, (error) => {
-                            console.warn("Location access denied or failed:", error);
-                            alert("Location access denied. Please allow it in settings or search manually.");
-                            modal.show();
-                        });
-                    } else {
-                        alert("Geolocation is not supported by your browser.");
-                    }
-                };
-            }
-            
-            if(searchBtn) {
-                searchBtn.onclick = () => {
-                    modal.hide();
-                    setTimeout(() => {
-                        if(newCityInput) newCityInput.focus();
-                    }, 500);
-                };
-            }
+    // Listen for global location grant
+    window.addEventListener('synocast_location_granted', async (e) => {
+        const { lat, lon } = e.detail;
+        
+        // Get city name and fetch weather
+        const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
+        try {
+            const res = await fetch(geoUrl);
+            const data = await res.json();
+            const name = data.address.city || data.address.town || data.address.village || "My Location";
+            fetchWeather(lat, lon, name);
+        } catch (e) {
+            fetchWeather(lat, lon, "My Location");
         }
+    });
+
+    // Handle manual search focus from other pages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('focusSearch') === 'true') {
+        setTimeout(() => {
+            if (newCityInput) newCityInput.focus();
+        }, 800);
     }
 
     // Initialize
