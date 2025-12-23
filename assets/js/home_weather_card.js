@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+            const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const data = await res.json();
 
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const lon = position.coords.longitude;
                 
                 // Get city name
-                const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
                 try {
                     const res = await fetch(geoUrl);
                     const data = await res.json();
