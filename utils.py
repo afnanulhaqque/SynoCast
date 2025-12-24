@@ -7,7 +7,10 @@ from datetime import datetime, timedelta, timezone
 from flask import request, session
 
 NEWS_CACHE = {}
+AI_NEWS_CACHE = {}
 NEWS_CACHE_DURATION = 3600
+AI_CACHE_DURATION = 300 # 5 minutes for AI categorization
+
 
 logger = logging.getLogger(__name__)
 
@@ -79,35 +82,54 @@ def get_local_time_string():
         "gmt_label": gmt_offset
     }
 
+def get_dummy_news():
+    """Helper to return high-quality dummy weather news when API fails."""
+    return [
+        {
+            "title": "Severe Storm Warning Issued for Midwestern Regions",
+            "description": "Met agencies have issued critical alerts as a major storm system moves across the Midwest, bringing potential floods and high winds.",
+            "url": "#",
+            "urlToImage": "https://images.unsplash.com/photo-1527482797697-8795b05a13fe?q=80&w=1000&auto=format&fit=crop",
+            "publishedAt": datetime.now().isoformat(),
+            "source": {"name": "SynoNews"}
+        },
+        {
+            "title": "Global Climate Summit Highlights Rising Ocean Temperatures",
+            "description": "Scientists at the recent global summit expressed urgent concerns over the rapid increase in sea surface temperatures this year.",
+            "url": "#",
+            "urlToImage": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1000&auto=format&fit=crop",
+            "publishedAt": datetime.now().isoformat(),
+            "source": {"name": "ClimateWatch"}
+        },
+        {
+            "title": "Air Quality Index Reaches Hazardous Levels in Major Metro Areas",
+            "description": "A combination of stagnant air and regional wildfires has pushed the AQI into the red zone, prompting health advisories.",
+            "url": "#",
+            "urlToImage": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=1000&auto=format&fit=crop",
+            "publishedAt": datetime.now().isoformat(),
+            "source": {"name": "Health First"}
+        },
+        {
+            "title": "New Study Reveals Accelerated Melting of Arctic Sea Ice",
+            "description": "Researchers warn that the Arctic could see ice-free summers much sooner than previously predicted, with serious global implications.",
+            "url": "#",
+            "urlToImage": "https://images.unsplash.com/photo-1581093196277-9f60807dbf06?q=80&w=1000&auto=format&fit=crop",
+            "publishedAt": datetime.now().isoformat(),
+            "source": {"name": "EcoToday"}
+        },
+        {
+            "title": "Monsoon Rainfall Patterns Shifting Due to Climate Variability",
+            "description": "Recent data suggests that the intensity and timing of monsoons are changing, affecting agriculture in several South Asian countries.",
+            "url": "#",
+            "urlToImage": "https://images.unsplash.com/photo-1534274988757-a28bf1f53ee1?q=80&w=1000&auto=format&fit=crop",
+            "publishedAt": datetime.now().isoformat(),
+            "source": {"name": "WorldWeather"}
+        }
+    ]
+
 def fetch_weather_news(query="weather", country=None, page_size=10, api_key=None):
     if not api_key:
-        # Provide high-quality sample data if API key is missing so user can see the UI
-        return [
-            {
-                "title": "Severe Storm Warning Issued for Midwestern Regions",
-                "description": "Met agencies have issued critical alerts as a major storm system moves across the Midwest, bringing potential floods and high winds.",
-                "url": "#",
-                "urlToImage": "https://images.unsplash.com/photo-1527482797697-8795b05a13fe?q=80&w=1000&auto=format&fit=crop",
-                "publishedAt": datetime.now().isoformat(),
-                "source": {"name": "SynoNews"}
-            },
-            {
-                "title": "Global Climate Summit Highlights Rising Ocean Temperatures",
-                "description": "Scientists at the recent global summit expressed urgent concerns over the rapid increase in sea surface temperatures this year.",
-                "url": "#",
-                "urlToImage": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=1000&auto=format&fit=crop",
-                "publishedAt": datetime.now().isoformat(),
-                "source": {"name": "ClimateWatch"}
-            },
-            {
-                "title": "Air Quality Index Reaches Hazardous Levels in Major Metro Areas",
-                "description": "A combination of stagnant air and regional wildfires has pushed the AQI into the red zone, prompting health advisories.",
-                "url": "#",
-                "urlToImage": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=1000&auto=format&fit=crop",
-                "publishedAt": datetime.now().isoformat(),
-                "source": {"name": "Health First"}
-            }
-        ]
+        return get_dummy_news()
         
     cache_key = f"{query}_{country}_{page_size}"
     if cache_key in NEWS_CACHE:
@@ -116,26 +138,67 @@ def fetch_weather_news(query="weather", country=None, page_size=10, api_key=None
             return cached["articles"]
 
     try:
+        # Refine query: Just use the query + weather keywords
+        # If query already has 'weather', don't repeat it too much
+        essential_weather = "weather OR climate OR storm OR forecast OR natural disaster"
+        
+        # NewsAPI 'everything' endpoint accepts Boolean operators
+        if query and "weather" not in query.lower():
+            q = f"({query}) AND ({essential_weather})"
+        else:
+            q = query if query else essential_weather
+            
         params = {
-            "q": f"{query} {country}" if country and country.lower() != "unknown" else query,
-            "pageSize": page_size,
+            "q": q,
+            "pageSize": page_size * 2, # Fetch more to allow for filtering
             "apiKey": api_key,
             "language": "en",
-            "sortBy": "publishedAt"
+            "sortBy": "relevance"
         }
         
         response = requests.get("https://newsapi.org/v2/everything", params=params, timeout=10)
+        
+        if response.status_code in [429, 426]:
+             logger.warning(f"NewsAPI Limit Hit ({response.status_code}). Using dummy data.")
+             return get_dummy_news()
+             
+        if response.status_code in [401, 403]:
+             logger.error(f"NewsAPI Auth Error ({response.status_code}). Check API Key.")
+             return get_dummy_news()
+             
         if not response.ok:
+            logger.error(f"NewsAPI error: {response.status_code} - {response.text}")
             return []
             
         articles = [a for a in response.json().get("articles", []) 
                     if a.get("title") and a.get("title") != "[Removed]"]
         
+        # Secondary local filter: less strict to avoid empty results
+        weather_terms = ['weather', 'forecast', 'storm', 'rain', 'snow', 'temp', 'climate', 'flood', 
+                         'drought', 'heat', 'cold', 'wind', 'degree', 'celsius', 'fahrenheit', 
+                         'monsoon', 'cyclone', 'typhoon', 'hurricane', 'blizzard', 'meteorology']
+        
+        filtered_articles = []
+        for a in articles:
+            text = (a.get('title', '') + ' ' + (a.get('description') or '')).lower()
+            if any(term in text for term in weather_terms):
+                filtered_articles.append(a)
+            elif len(filtered_articles) < 3: # Keep a few even if terms don't match exactly to avoid empty UI
+                filtered_articles.append(a)
+
+        # Ensure we return at most page_size
+        results = filtered_articles[:page_size]
+
+        # ULTIMATE FALLBACK: If no news found even after multiple attempts, use dummy news
+        if not results:
+            logger.info("No weather results found from API. Using dummy news.")
+            return get_dummy_news()
+
         NEWS_CACHE[cache_key] = {
             "timestamp": datetime.now().timestamp(),
-            "articles": articles
+            "articles": results
         }
-        return articles
+        return results
     except Exception as e:
         logger.error(f"News fetch error: {e}")
         return []
@@ -148,10 +211,28 @@ def categorize_news_with_ai(articles, api_key):
     if not articles:
         return []
 
+    # Simple caching logic: use titles to detect if we've seen this exact bundle
+    titles_hash = hash(tuple(a.get('title', '') for a in articles[:15]))
+    now_ts = datetime.now().timestamp()
+    
+    if titles_hash in AI_NEWS_CACHE:
+        cached = AI_NEWS_CACHE[titles_hash]
+        if now_ts - cached["timestamp"] < AI_CACHE_DURATION:
+            logger.info("Serving categorized news from AI cache")
+            return cached["data"]
+
     if not api_key:
-        # Fallback format for news without AI categorization
+
+        # Fallback filter for news without AI
+        weather_terms = ['weather', 'forecast', 'storm', 'rain', 'snow', 'temp', 'climate', 'flood', 
+                         'drought', 'heat', 'cold', 'wind', 'degree', 'celsius', 'fahrenheit', 'monsoon', 'cyclone']
+        
         fallback_results = []
         for a in articles:
+            text = (a.get('title', '') + ' ' + a.get('description', '')).lower()
+            if not any(term in text for term in weather_terms):
+                continue
+
             pub_date = a.get("publishedAt") or datetime.now().isoformat()
             fallback_results.append({
                 "category": "Weather News",
@@ -167,8 +248,10 @@ def categorize_news_with_ai(articles, api_key):
 
     try:
         genai.configure(api_key=api_key)
-        # Use a faster/newer model for categorization
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Use the latest flash model for categorization
+        model = genai.GenerativeModel("gemini-flash-latest")
+
+
         
         article_summaries = []
         for a in articles[:15]: # Limit to first 15 to stay within tokens and time
@@ -190,7 +273,16 @@ def categorize_news_with_ai(articles, api_key):
         ]
 
         prompt = f"""
-        Analyze the following news articles and Filter out ANY that are NOT strictly weather-related.
+        You are a strict weather news filter. Analyze the following news articles. 
+        Discard ANY article that is not explicitly about:
+        - Weather phenomena (rain, snow, wind, storms, etc.)
+        - Climate change or global warming
+        - Natural disasters (floods, droughts, earthquakes, wildfires)
+        - Meteorological forecasts or reports
+        - Environmental climate impact
+        
+        If an article is about politics, entertainment, general technology, or sports (unless directly weather-impacted), DISCARD it.
+        
         Categorize the remaining articles into ONE of these categories: {', '.join(categories)}.
         
         For each valid weather article, provide:
@@ -219,12 +311,21 @@ def categorize_news_with_ai(articles, api_key):
             content = content[3:-3].strip()
 
         categorized_articles = json.loads(content)
+        results = []
         if isinstance(categorized_articles, list):
-            return categorized_articles
+            results = categorized_articles
         elif isinstance(categorized_articles, dict) and "articles" in categorized_articles:
-            return categorized_articles["articles"]
+            results = categorized_articles["articles"]
         
-        raise ValueError("AI response is not a list")
+        if results:
+            AI_NEWS_CACHE[titles_hash] = {
+                "timestamp": now_ts,
+                "data": results
+            }
+            return results
+        
+        raise ValueError("AI response is not a valid list")
+
     except Exception as e:
         logger.error(f"AI categorization error: {e}")
         # Fallback: if AI fails, just return a simplified version of the first few articles

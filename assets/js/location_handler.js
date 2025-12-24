@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Check for cached location (60 minutes)
         const cachedLoc = JSON.parse(localStorage.getItem('synocast_cached_location'));
         const now = new Date().getTime();
+        const hasPermissionHint = localStorage.getItem('synocast_permission_hint') === 'true';
 
         if (cachedLoc && (now - cachedLoc.timestamp < 3600000)) {
             window.synocast_current_loc = { lat: cachedLoc.lat, lon: cachedLoc.lon, isCached: true };
@@ -28,36 +29,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     detail: window.synocast_current_loc
                 }));
             }, 100);
-        }
 
-        // Use Permissions API to check without prompting
-        if (navigator.permissions && navigator.permissions.query) {
-            try {
-                const result = await navigator.permissions.query({ name: 'geolocation' });
-                if (result.state === 'granted') {
-                    // Permission already granted, we can call getCurrentPosition WITHOUT a browser prompt
-                    refreshLocationSilently();
-                } else if (result.state === 'prompt') {
-                    // This is where we show ONLY our custom modal. We DON'T call getCurrentPosition here.
-                    if (!cachedLoc || (now - cachedLoc.timestamp >= 3600000)) {
-                        setTimeout(() => {
-                            if (!window.synocast_current_loc) modal.show();
-                        }, 1500);
-                    }
-                }
-
-                result.onchange = function () {
-                    if (this.state === 'granted') {
-                        modal.hide();
-                        refreshLocationSilently();
-                    }
-                };
-            } catch (e) {
-                if (!window.synocast_current_loc) setTimeout(() => modal.show(), 2000);
+            // If we have a permission hint, we can try to refresh silently
+            if (hasPermissionHint) {
+                refreshLocationSilently();
             }
         } else {
-            // Browsers like older Safari (no query support) - still show our modal first
-            if (!window.synocast_current_loc) setTimeout(() => modal.show(), 2000);
+            // No valid cache. We show our custom modal INSTEAD of calling any browser API
+            // to avoid the native prompt on page load.
+            setTimeout(() => {
+                if (!window.synocast_current_loc) {
+                    modal.show();
+                }
+            }, 1500);
         }
     }
 
@@ -71,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function dispatchLocationEvent(lat, lon, isCached) {
         const locData = { lat, lon, timestamp: new Date().getTime() };
         localStorage.setItem('synocast_cached_location', JSON.stringify(locData));
+        localStorage.setItem('synocast_permission_hint', 'true');
         sessionStorage.setItem('synocast_location_fixed', 'true');
         
         window.synocast_current_loc = { lat, lon, isCached };
@@ -97,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 (error) => {
                     console.warn("Location access denied:", error);
-                    alert("Location access is required for full functionality. Please enable it in browser settings.");
+                    ToastUtils.show("Location Required", "Weather updates require location access. Please enable it in browser settings.", "error");
                     modal.show();
                 }
             );

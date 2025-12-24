@@ -89,13 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderFavorites();
                     newCityInput.value = '';
                 } else {
-                    alert('City already in favorites');
+                    ToastUtils.show("Favorites", "City already in your favorites list.", "warning");
                 }
             } else {
-                alert('City not found');
+                ToastUtils.show("Not Found", "We couldn't find that city. Please check the spelling.", "error");
             }
         } catch (error) {
-            alert('Error searching for city');
+            ToastUtils.show("Search Error", "Something went wrong while searching for the city.", "error");
         } finally {
             if (addCityBtn) {
                 addCityBtn.innerHTML = originalBtnHtml;

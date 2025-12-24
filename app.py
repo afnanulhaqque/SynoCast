@@ -571,10 +571,12 @@ def api_ai_chat():
         # Strip the key to ensure no whitespace/newlines cause issues
         gemini_api_key = gemini_api_key.strip()
         genai.configure(api_key=gemini_api_key)
-        # Using a stable versioned model name
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Using the latest balanced model alias to avoid versioning 404s
+        model = genai.GenerativeModel("gemini-flash-latest")
         
         full_prompt = f"{system_prompt}{weather_context}\n\nUser: {user_message}"
+
+
         
         response = model.generate_content(full_prompt)
         

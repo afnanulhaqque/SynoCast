@@ -49,4 +49,51 @@ if (typeof window !== 'undefined') {
             return document.querySelector('meta[name="_csrf_token"]')?.getAttribute('content');
         }
     };
+
+    window.ToastUtils = {
+        show: function(title, message, type = 'info', duration = 5000) {
+            const container = document.getElementById('synocast-toast-container');
+            if (!container) return;
+
+            const iconClass = type === 'error' ? 'fa-circle-xmark' : 
+                             type === 'warning' ? 'fa-triangle-exclamation' : 
+                             'fa-circle-info';
+
+            const toast = document.createElement('div');
+            toast.className = `synocast-toast ${type}`;
+            toast.innerHTML = `
+                <div class="synocast-toast-icon">
+                    <i class="fa-solid ${iconClass} fs-5"></i>
+                </div>
+                <div class="synocast-toast-content">
+                    <div class="synocast-toast-title">${title}</div>
+                    <div class="synocast-toast-message">${message}</div>
+                </div>
+                <div class="synocast-toast-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            `;
+
+            container.appendChild(toast);
+            
+            // Add close listener
+            toast.querySelector('.synocast-toast-close').onclick = () => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            };
+
+            // Force reflow
+            toast.offsetHeight;
+            toast.classList.add('show');
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 500);
+                    }
+                }, duration);
+            }
+        }
+    };
 }

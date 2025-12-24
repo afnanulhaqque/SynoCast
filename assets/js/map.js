@@ -1,233 +1,268 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // --- Map Initialization ---
-    // --- Map Initialization ---
-    
-    // 1. Define Base Layers
-    const standardLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
+document.addEventListener("DOMContentLoaded", function () {
+  // --- Map Initialization ---
+  // --- Map Initialization ---
 
-    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    });
+  // 1. Define Base Layers
+  const standardLayer = L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }
+  );
 
-    const satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-        attribution: ''
-    });
+  const satelliteLayer = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution:
+        "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+    }
+  );
 
-    // Group Satellite + Labels
-    const satelliteHybrid = L.layerGroup([satelliteLayer, satelliteLabels]);
+  const satelliteLabels = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution: "",
+    }
+  );
 
-    // 2. Initialize Map with Default Layer
-    const map = L.map('map', {
-        center: [33.6844, 73.0479],
-        zoom: 5,
-        layers: [satelliteHybrid], // Default to Satellite as requested last
-        attributionControl: false // Remove attribution as requested
-    });
+  // Group Satellite + Labels
+  const satelliteHybrid = L.layerGroup([satelliteLayer, satelliteLabels]);
 
-    // 3. Add Layer Control
-    const baseMaps = {
-        "Standard": standardLayer,
-        "Satellite": satelliteHybrid
-    };
+  // 2. Initialize Map with Default Layer
+  const map = L.map("map", {
+    center: [33.6844, 73.0479],
+    zoom: 5,
+    layers: [satelliteHybrid], // Default to Satellite as requested last
+    attributionControl: false, // Remove attribution as requested
+  });
 
-    const layerControl = L.control.layers(baseMaps, null, { position: 'bottomleft' });
-    
-    // Override _initLayout to prevent default behavior completely
-    const originalInitLayout = layerControl._initLayout;
-    layerControl._initLayout = function() {
-        originalInitLayout.call(this);
-        // Remove standard Leaflet listeners
-        L.DomEvent.off(this._container, 'mouseenter', this.expand, this);
-        L.DomEvent.off(this._container, 'mouseleave', this.collapse, this);
-    };
+  // 3. Add Layer Control
+  const baseMaps = {
+    Standard: standardLayer,
+    Satellite: satelliteHybrid,
+  };
 
-    layerControl.addTo(map);
+  const layerControl = L.control.layers(baseMaps, null, {
+    position: "bottomleft",
+  });
 
-    const container = layerControl.getContainer();
-    
-    // Prevent map interactions
-    L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
+  // Override _initLayout to prevent default behavior completely
+  const originalInitLayout = layerControl._initLayout;
+  layerControl._initLayout = function () {
+    originalInitLayout.call(this);
+    // Remove standard Leaflet listeners
+    L.DomEvent.off(this._container, "mouseenter", this.expand, this);
+    L.DomEvent.off(this._container, "mouseleave", this.collapse, this);
+  };
 
-    // 1. OPEN ON HOVER
-    container.addEventListener('mouseenter', function() {
-        layerControl.expand();
-    });
+  layerControl.addTo(map);
 
-    // 2. CLOSE ON CLICK (Toggle logic)
-    // If we click while expanded, it should collapse.
-    // If we click while collapsed (and somehow didn't hover? e.g. touch), it expands.
-    container.addEventListener('click', function(e) {
-        // If clicking an input/label, let it do its job (change layer) but don't collapse immediately? 
-        // Or maybe user wants to click icon to close?
-        // Standard Leaflet hides the icon when expanded. So clicking "the icon" when expanded is impossible unless we style it differently.
-        // But if user clicks the *header* or *container*, we can toggle.
-        
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.tagName === 'SPAN') {
-            return; 
-        }
+  const container = layerControl.getContainer();
 
-        if (container.classList.contains('leaflet-control-layers-expanded')) {
-            layerControl.collapse();
-        } else {
-            layerControl.expand();
-        }
-    });
+  // Prevent map interactions
+  L.DomEvent.disableClickPropagation(container);
+  L.DomEvent.disableScrollPropagation(container);
 
-    // Close when clicking map
-    map.on('click', function() {
-        layerControl.collapse();
-    });
+  // 1. OPEN ON HOVER
+  container.addEventListener("mouseenter", function () {
+    layerControl.expand();
+  });
 
-    // Custom Purple Marker Icon
-    const purpleMarker = L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div style='background-color: #6937f5; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);'><div style='width: 10px; height: 10px; background: white; border-radius: 50%; position: absolute; top: 10px; left: 10px;'></div></div>`,
-        iconSize: [30, 42],
-        iconAnchor: [15, 42]
-    });
+  // 2. CLOSE ON CLICK (Toggle logic)
+  // If we click while expanded, it should collapse.
+  // If we click while collapsed (and somehow didn't hover? e.g. touch), it expands.
+  container.addEventListener("click", function (e) {
+    // If clicking an input/label, let it do its job (change layer) but don't collapse immediately?
+    // Or maybe user wants to click icon to close?
+    // Standard Leaflet hides the icon when expanded. So clicking "the icon" when expanded is impossible unless we style it differently.
+    // But if user clicks the *header* or *container*, we can toggle.
 
-    // Add a marker to the map
-    let marker = L.marker([33.6844, 73.0479], { icon: purpleMarker }).addTo(map);
+    if (
+      e.target.tagName === "INPUT" ||
+      e.target.tagName === "LABEL" ||
+      e.target.tagName === "SPAN"
+    ) {
+      return;
+    }
 
-    // Try to get user's location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            map.setView([lat, lon], 16);
-            marker.setLatLng([lat, lon]); // Update marker position
-            updateWeather(lat, lon);
-        }, () => {
-            // Fallback if permission denied or error
-            updateWeather(33.6844, 73.0479);
-        });
+    if (container.classList.contains("leaflet-control-layers-expanded")) {
+      layerControl.collapse();
     } else {
-        updateWeather(33.6844, 73.0479);
+      layerControl.expand();
     }
+  });
 
-    // Update weather on map move
-    map.on('moveend', function() {
-        const center = map.getCenter();
-        marker.setLatLng(center); // Move marker to center
-        updateWeather(center.lat, center.lng);
-    });
+  // Close when clicking map
+  map.on("click", function () {
+    layerControl.collapse();
+  });
 
-    // --- Map Controls ---
+  // Custom Purple Marker Icon
+  const purpleMarker = L.divIcon({
+    className: "custom-div-icon",
+    html: `<div style='background-color: #6937f5; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);'><div style='width: 10px; height: 10px; background: white; border-radius: 50%; position: absolute; top: 10px; left: 10px;'></div></div>`,
+    iconSize: [30, 42],
+    iconAnchor: [15, 42],
+  });
 
-    // Search Functionality
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('location-search');
+  // Add a marker to the map
+  let marker = L.marker([33.6844, 73.0479], { icon: purpleMarker }).addTo(map);
 
-    async function searchLocation() {
-        const query = searchInput.value;
-        if (!query) return;
+  // --- Location Handling integration with location_handler.js ---
 
-        const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
+  function setMapLocation(lat, lon, isCached) {
+    map.setView([lat, lon], 16);
+    marker.setLatLng([lat, lon]);
+    updateWeather(lat, lon);
+  }
 
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
+  // 1. Listen for global location grant
+  window.addEventListener("synocast_location_granted", (e) => {
+    const { lat, lon, isCached } = e.detail;
+    setMapLocation(lat, lon, isCached);
+  });
 
-            if (data && data.length > 0) {
-                const lat = parseFloat(data[0].lat);
-                const lon = parseFloat(data[0].lon);
-                map.setView([lat, lon], 16); // Zoom in on result
-                marker.setLatLng([lat, lon]);
-                updateWeather(lat, lon);
-            } else {
-                alert('Location not found');
-            }
-        } catch (error) {
-            alert('Error searching for location');
-        }
+  // 2. Immediate check if already granted/cached
+  if (window.synocast_current_loc) {
+    const { lat, lon, isCached } = window.synocast_current_loc;
+    setMapLocation(lat, lon, isCached);
+  } else {
+    // Default View until location is resolved
+    updateWeather(33.6844, 73.0479);
+  }
+
+  // Update weather on map move
+  map.on("moveend", function () {
+    const center = map.getCenter();
+    marker.setLatLng(center); // Move marker to center
+    updateWeather(center.lat, center.lng);
+  });
+
+  // --- Map Controls ---
+
+  // Search Functionality
+  const searchBtn = document.getElementById("search-btn");
+  const searchInput = document.getElementById("location-search");
+
+  async function searchLocation() {
+    const query = searchInput.value;
+    if (!query) return;
+
+    const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        map.setView([lat, lon], 16); // Zoom in on result
+        marker.setLatLng([lat, lon]);
+        updateWeather(lat, lon);
+      } else {
+        ToastUtils.show("Not Found", "Location not found on the map.", "error");
+      }
+    } catch (error) {
+      ToastUtils.show("Search Error", "Error searching for location.", "error");
     }
+  }
 
-    if (searchBtn) {
-        searchBtn.addEventListener('click', searchLocation);
+  if (searchBtn) {
+    searchBtn.addEventListener("click", searchLocation);
+  }
+  searchInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      searchLocation();
     }
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchLocation();
+  });
+
+  // Locate Me Functionality
+  document.getElementById("locate-btn").addEventListener("click", function () {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          map.setView([lat, lon], 16);
+          marker.setLatLng([lat, lon]);
+          updateWeather(lat, lon);
+        },
+        () => {
+          ToastUtils.show("Location Error", "Unable to retrieve your location.", "error");
         }
-    });
-
-    // Locate Me Functionality
-    document.getElementById('locate-btn').addEventListener('click', function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                map.setView([lat, lon], 16);
-                marker.setLatLng([lat, lon]);
-                updateWeather(lat, lon);
-            }, () => {
-                alert('Unable to retrieve your location');
-            });
-        } else {
-            alert('Geolocation is not supported by your browser');
-        }
-    });
-
-
-    async function updateWeather(lat, lon) {
-        const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
-        const geocodeUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
-
-        // Show loading state
-        const overlay = document.getElementById('weather-overlay');
-        if (overlay) overlay.classList.add('loading');
-        
-        const mapCityEl = document.getElementById('map-city');
-        if (mapCityEl) mapCityEl.textContent = "Loading...";
-
-        try {
-            // Fetch Weather
-            const weatherRes = await fetch(weatherUrl);
-            const weatherData = await weatherRes.json();
-
-            // Fetch City Name (Reverse Geocoding)
-            // We can still use this for better location details if OWM name is too generic
-            const geoRes = await fetch(geocodeUrl);
-            const geoData = await geoRes.json();
-
-            // Update UI
-            if (weatherData.current) {
-                // OpenWeatherMap returns temp in Celsius (metric units requested in backend)
-                const mapTempEl = document.getElementById('map-temp');
-                if (mapTempEl) mapTempEl.textContent = Math.round(weatherData.current.main.temp);
-                
-                const mapWindEl = document.getElementById('map-wind');
-                if (mapWindEl) mapWindEl.textContent = WeatherUtils.formatWind(weatherData.current.wind.speed);
-                
-                const mapHumEl = document.getElementById('map-humidity');
-                if (mapHumEl) mapHumEl.textContent = `${weatherData.current.main.humidity}%`;
-                
-                // Update Icon
-                const w = weatherData.current.weather[0];
-                const iconClass = WeatherUtils.getIconClass(w.id, w.icon);
-
-                const iconContainer = document.getElementById('map-icon');
-                if (iconContainer) {
-                    iconContainer.innerHTML = `<i class="fas ${iconClass}"></i>`;
-                }
-            }
-
-            let locationName = "Unknown Location";
-            if (geoData.address) {
-                locationName = geoData.address.city || geoData.address.town || geoData.address.village || geoData.address.county || "Unknown Location";
-            } else if (weatherData.current && weatherData.current.name) {
-                 locationName = weatherData.current.name;
-            }
-            if (mapCityEl) mapCityEl.textContent = locationName;
-
-        } catch (error) {
-            const mapCityEl = document.getElementById('map-city');
-            if (mapCityEl) mapCityEl.textContent = "Error loading data";
-        } finally {
-            if (overlay) overlay.classList.remove('loading');
-        }
+      );
+    } else {
+      ToastUtils.show("Not Supported", "Geolocation is not supported by your browser.", "warning");
     }
+  });
+
+  async function updateWeather(lat, lon) {
+    const weatherUrl = `/api/weather?lat=${lat}&lon=${lon}`;
+    const geocodeUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
+
+    // Show loading state
+    const overlay = document.getElementById("weather-overlay");
+    if (overlay) overlay.classList.add("loading");
+
+    const mapCityEl = document.getElementById("map-city");
+    if (mapCityEl) mapCityEl.textContent = "Loading...";
+
+    try {
+      // Fetch Weather
+      const weatherRes = await fetch(weatherUrl);
+      const weatherData = await weatherRes.json();
+
+      // Fetch City Name (Reverse Geocoding)
+      // We can still use this for better location details if OWM name is too generic
+      const geoRes = await fetch(geocodeUrl);
+      const geoData = await geoRes.json();
+
+      // Update UI
+      if (weatherData.current) {
+        // OpenWeatherMap returns temp in Celsius (metric units requested in backend)
+        const mapTempEl = document.getElementById("map-temp");
+        if (mapTempEl)
+          mapTempEl.textContent = Math.round(weatherData.current.main.temp);
+
+        const mapWindEl = document.getElementById("map-wind");
+        if (mapWindEl)
+          mapWindEl.textContent = WeatherUtils.formatWind(
+            weatherData.current.wind.speed
+          );
+
+        const mapHumEl = document.getElementById("map-humidity");
+        if (mapHumEl)
+          mapHumEl.textContent = `${weatherData.current.main.humidity}%`;
+
+        // Update Icon
+        const w = weatherData.current.weather[0];
+        const iconClass = WeatherUtils.getIconClass(w.id, w.icon);
+
+        const iconContainer = document.getElementById("map-icon");
+        if (iconContainer) {
+          iconContainer.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        }
+      }
+
+      let locationName = "Unknown Location";
+      if (geoData.address) {
+        locationName =
+          geoData.address.city ||
+          geoData.address.town ||
+          geoData.address.village ||
+          geoData.address.county ||
+          "Unknown Location";
+      } else if (weatherData.current && weatherData.current.name) {
+        locationName = weatherData.current.name;
+      }
+      if (mapCityEl) mapCityEl.textContent = locationName;
+    } catch (error) {
+      const mapCityEl = document.getElementById("map-city");
+      if (mapCityEl) mapCityEl.textContent = "Error loading data";
+    } finally {
+      if (overlay) overlay.classList.remove("loading");
+    }
+  }
 });
