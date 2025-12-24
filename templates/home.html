@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import news_card %}
+{% from "macros.html" import news_card, weather_news_card %}
 
 {% block title %} Home {% endblock title %}
 
@@ -82,19 +82,28 @@
   <div class="row">
     {% if latest_news %}
     <div class="col-lg-6 mb-4 mb-lg-0">
-      <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-3">
-        <img
-          src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assets/images/sub-banner-news.png' }}"
-          class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 350px; object-fit: cover;" loading="lazy"
-          decoding="async">
+      <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-4">
+        <div class="position-relative">
+          <img
+            src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assets/images/sub-banner-news.png' }}"
+            class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 400px; object-fit: cover;"
+            loading="lazy" decoding="async">
+          <div class="position-absolute top-0 start-0 m-3">
+            <span
+              class="badge rounded-pill bg-{{ 'danger' if latest_news[0].urgency == 'Critical' else 'warning' if latest_news[0].urgency == 'High' else 'info' if latest_news[0].urgency == 'Medium' else 'secondary' }} px-3">
+              {{ latest_news[0].urgency }}
+            </span>
+          </div>
+        </div>
         <div class="card-body p-4">
-          <div class="small text-muted mb-2">
+          <div class="small text-muted mb-2 d-flex justify-content-between">
+            <span><i class="fas fa-map-marker-alt me-1"></i> {{ latest_news[0].location }}</span>
             <span><i class="far fa-clock me-1"></i> {{ latest_news[0].publishedAt[:10] }}</span>
           </div>
           <h4 class="fw-bold mb-3">{{ latest_news[0].title }}</h4>
-          <p class="text-muted small mb-4">{{ latest_news[0].description[:180] }}...</p>
+          <p class="text-muted small mb-4">{{ latest_news[0].summary }}</p>
           <a href="{{ latest_news[0].url }}" target="_blank"
-            class="text-primary fw-bold text-decoration-none small">Read Story →</a>
+            class="btn btn-primary rounded-pill px-4 fw-bold small">Read Full Story</a>
         </div>
       </div>
     </div>
@@ -102,19 +111,23 @@
     <div class="col-lg-6">
       <div class="d-flex flex-column gap-3">
         {% for article in latest_news[1:4] %}
-        <div class="card border-0 shadow-sm hover-bg-light transition-all rounded-3">
-          <div class="row g-0 align-items-center p-2">
-            <div class="col-8">
-              <div class="card-body p-2">
-                <div class="x-small mb-1 text-primary fw-bold uppercase">Trending</div>
-                <h6 class="fw-bold mb-1" style="font-size: 0.9rem;">{{ article.title[:80] }}...</h6>
-                <p class="text-muted x-small mb-0">{{ article.publishedAt[:10] }}</p>
-              </div>
-            </div>
+        <div class="card border-0 shadow-sm hover-lift transition-all rounded-4 overflow-hidden">
+          <div class="row g-0 align-items-center">
             <div class="col-4">
               <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/breaking-news-1.png' }}"
-                class="img-fluid rounded-3" alt="News" style="height: 80px; width: 100%; object-fit: cover;"
-                loading="lazy">
+                class="img-fluid" alt="News" style="height: 120px; width: 100%; object-fit: cover;" loading="lazy">
+            </div>
+            <div class="col-8">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="badge bg-light text-primary border rounded-pill x-small px-2">{{ article.category
+                    }}</span>
+                  <span class="x-small text-muted">{{ article.publishedAt[:10] }}</span>
+                </div>
+                <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">{{ article.title[:85] }}...</h6>
+                <a href="{{ article.url }}" target="_blank"
+                  class="text-primary fw-bold text-decoration-none x-small">Read More →</a>
+              </div>
             </div>
           </div>
         </div>
@@ -135,7 +148,7 @@
   <div class="row g-4">
     {% if world_news %}
     {% for article in world_news %}
-    {{ news_card(article, loop.index, type='featured') }}
+    {{ weather_news_card(article) }}
     {% endfor %}
     {% endif %}
   </div>

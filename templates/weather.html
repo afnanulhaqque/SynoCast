@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import news_card, forecast_skeleton %}
+{% from "macros.html" import news_card, weather_news_card, forecast_skeleton %}
 
 {% block title %} Weather Forecast {% endblock title %}
 
@@ -182,9 +182,9 @@
       <a href="/news" class="btn btn-link text-primary fw-bold text-decoration-none p-0">View all news</a>
     </div>
     <div class="row g-4">
-      {% if breaking_news %}
-      {% for article in breaking_news %}
-      {{ news_card(article, loop.index, type='breaking') }}
+      {% if weather_news %}
+      {% for article in weather_news %}
+      {{ weather_news_card(article) }}
       {% endfor %}
       {% else %}
       <div class="col-12 py-5 text-center">

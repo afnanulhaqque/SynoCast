@@ -26,6 +26,38 @@
 </div>
 {% endmacro %}
 
+{% macro weather_news_card(article) %}
+<div class="col-lg-4 col-md-6 mb-4">
+    <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-4">
+        <div class="position-relative">
+            <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/sub-banner-news.png' }}"
+                class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
+            <div class="position-absolute top-0 start-0 m-3">
+                <span class="badge rounded-pill bg-{{ 'danger' if article.urgency == 'Critical' else 'warning' if article.urgency == 'High' else 'info' if article.urgency == 'Medium' else 'secondary' }} px-3 shadow-sm">
+                    {{ article.urgency }}
+                </span>
+            </div>
+            <div class="position-absolute bottom-0 start-0 m-3">
+                <span class="badge rounded-pill bg-dark text-white px-3 opacity-75">
+                    {{ article.category }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex justify-content-between x-small text-muted mb-2">
+                <span><i class="fas fa-map-marker-alt me-1"></i> {{ article.location }}</span>
+                <span><i class="far fa-clock me-1"></i> {{ article.publishedAt[:10] }}</span>
+            </div>
+            <h5 class="fw-bold mb-3">{{ article.title }}</h5>
+            <p class="text-muted small mb-4">{{ article.summary }}</p>
+            <div class="mt-auto">
+                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-4 fw-bold">Read Full Story</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
 {% macro forecast_skeleton(count=8) %}
 {% for i in range(count) %}
 <div class="card border-0 rounded-4 p-3 flex-shrink-0 skeleton-card shadow-sm"

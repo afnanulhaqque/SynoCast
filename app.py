@@ -146,10 +146,29 @@ except Exception as e:
 @app.route("/")
 def home():
     dt_info = utils.get_local_time_string()
-    # Latest News (location-based weather)
-    latest_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=4, api_key=NEWS_API_KEY)
-    # All Around The World news
-    world_news = utils.fetch_weather_news(query="global weather", page_size=2, api_key=NEWS_API_KEY)
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    news_key = os.environ.get("NEWS_API_KEY")
+    
+    # Robust local query: only include city/country if known
+    location_parts = []
+    if dt_info.get('city') and dt_info.get('city').lower() != "unknown":
+        location_parts.append(dt_info.get('city'))
+    if dt_info.get('country') and dt_info.get('country').lower() != "unknown":
+        location_parts.append(dt_info.get('country'))
+    
+    local_query = f"weather {' '.join(location_parts)}" if location_parts else "weather extreme events"
+    
+    # Latest Headlines
+    raw_latest = utils.fetch_weather_news(query=local_query, page_size=15, api_key=news_key)
+    # If local news empty, try general weather news
+    if not raw_latest:
+        raw_latest = utils.fetch_weather_news(query="weather breaking", page_size=10, api_key=news_key)
+        
+    latest_news = utils.categorize_news_with_ai(raw_latest, gemini_key)
+    
+    # Around The World news
+    raw_world = utils.fetch_weather_news(query="global weather major events", page_size=10, api_key=news_key)
+    world_news = utils.categorize_news_with_ai(raw_world, gemini_key)
     
     return render_template(
         "home.html", 
@@ -163,11 +182,24 @@ def home():
 @app.route("/news")
 def news():
     dt_info = utils.get_local_time_string()
-    # Breaking News (Latest weather news)
-    breaking_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=4, api_key=NEWS_API_KEY)
-    # Featured News (Detailed weather stories)
-    featured_news = utils.fetch_weather_news(query="climate change", country=dt_info.get('country'), page_size=2, api_key=NEWS_API_KEY)
+    gemini_key = os.environ.get("GEMINI_API_KEY")
     
+    # Fetch a larger pool of news to categorize and filter
+    raw_news = utils.fetch_weather_news(query="extreme weather climate impact", page_size=20, api_key=NEWS_API_KEY)
+    all_categorized = utils.categorize_news_with_ai(raw_news, gemini_key)
+    
+    # Breaking News: High/Critical urgency
+    breaking_news = [a for a in all_categorized if a.get('urgency') in ['Critical', 'High']]
+    
+    # Featured Stories: Climate Events, Weather Impact News, Hydrological Updates
+    featured_news = [a for a in all_categorized if a.get('category') in ['Climate Events', 'Weather Impact News', 'Hydrological Updates']]
+    
+    # Fallback if filters are too strict
+    if not breaking_news:
+        breaking_news = all_categorized[:4]
+    if not featured_news:
+        featured_news = all_categorized[4:8]
+
     return render_template(
         "news.html", 
         active_page="news", 
@@ -180,13 +212,17 @@ def news():
 @app.route("/weather")
 def weather():
     dt_info = utils.get_local_time_string()
-    # Breaking News for the weather page
-    breaking_news = utils.fetch_weather_news(query="weather", country=dt_info.get('country'), page_size=3, api_key=NEWS_API_KEY)
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    
+    # Weather News Section: Categorized by relevance
+    raw_weather = utils.fetch_weather_news(query="local weather forecast updates", country=dt_info.get('country'), page_size=10, api_key=NEWS_API_KEY)
+    weather_news = utils.categorize_news_with_ai(raw_weather, gemini_key)
+    
     return render_template(
         "weather.html", 
         active_page="weather", 
         date_time_info=dt_info,
-        breaking_news=breaking_news
+        weather_news=weather_news
     )
 
 
@@ -464,8 +500,9 @@ def api_ai_chat():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    # Initialize weather context
+    # Initialize weather context variables
     weather_context = ""
+    temp, cond, city = None, None, None
     
     # If lat/lon not in request, try to get them via IP
     if not (lat and lon):
@@ -521,26 +558,37 @@ def api_ai_chat():
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     
     if not gemini_api_key:
-         return jsonify({"error": "Server configuration error: Gemini API Key missing."}), 500
+         # Demo mode fallback instead of 500 error
+         demo_reply = (
+             "Hi! I'm SynoBot. Currently, I'm running in **Demo Mode** because a Gemini API Key hasn't been configured yet. "
+             "Once you add your key to the .env file and restart the server, I'll be able to give you deep AI insights! "
+         )
+         if city and temp:
+             demo_reply += f"\n\nIn the meantime, I can see it's currently {temp}°C with {cond} in {city}!"
+         return jsonify({"reply": demo_reply})
 
     try:
         # Strip the key to ensure no whitespace/newlines cause issues
         gemini_api_key = gemini_api_key.strip()
         genai.configure(api_key=gemini_api_key)
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        # Using a stable versioned model name
+        model = genai.GenerativeModel("gemini-1.5-flash")
         
         full_prompt = f"{system_prompt}{weather_context}\n\nUser: {user_message}"
         
         response = model.generate_content(full_prompt)
         
-        if response.text:
+        if response and response.text:
              return jsonify({"reply": response.text})
         else:
-             return jsonify({"reply": "I'm sorry, I couldn't generate a response."})
+             return jsonify({"reply": "I'm sorry, I couldn't generate a response. Please try again."})
 
     except Exception as e:
         app.logger.error(f"Gemini API error: {e}")
-        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
+        error_msg = str(e)
+        if "API_KEY_INVALID" in error_msg:
+            return jsonify({"reply": "It looks like the Gemini API Key is invalid. Please check your .env file."})
+        return jsonify({"reply": "I'm experiencing some technical difficulties. My AI engine is taking a break!"})
 
 
 
