@@ -1,0 +1,62 @@
+{
+  "en": {
+    "home": "Home",
+    "news": "News",
+    "weather": "Weather",
+    "subscribe": "Subscribe",
+    "loading": "Loading...",
+    "search_city": "Search city (e.g., New York)",
+    "historical_trends": "Historical Weather Trends",
+    "export_json": "Export JSON",
+    "export_csv": "Export CSV",
+    "forecast": "Weather Forecast"
+  },
+  "es": {
+    "home": "Inicio",
+    "news": "Noticias",
+    "weather": "Clima",
+    "subscribe": "Suscribirse",
+    "loading": "Cargando...",
+    "search_city": "Buscar ciudad (ej. Nueva York)",
+    "historical_trends": "Tendencias Históricas del Clima",
+    "export_json": "Exportar JSON",
+    "export_csv": "Exportar CSV",
+    "forecast": "Pronóstico del Tiempo"
+  },
+  "fr": {
+    "home": "Accueil",
+    "news": "Nouvelles",
+    "weather": "Météo",
+    "subscribe": "S'abonner",
+    "loading": "Chargement...",
+    "search_city": "Rechercher une ville (ex. New York)",
+    "historical_trends": "Tendances Météo Historiques",
+    "export_json": "Exporter JSON",
+    "export_csv": "Exporter CSV",
+    "forecast": "Prévisions Météo"
+  },
+  "de": {
+    "home": "Startseite",
+    "news": "Nachrichten",
+    "weather": "Wetter",
+    "subscribe": "Abonnieren",
+    "loading": "Laden...",
+    "search_city": "Stadt suchen (z. B. New York)",
+    "historical_trends": "Historische Wettertrends",
+    "export_json": "JSON exportieren",
+    "export_csv": "CSV exportieren",
+    "forecast": "Wettervorhersage"
+  },
+  "ur": {
+    "home": "ہوم",
+    "news": "خبریں",
+    "weather": "موسم",
+    "subscribe": "سبسکرائب کریں",
+    "loading": "لوڈ ہو رہا ہے...",
+    "search_city": "شہر تلاش کریں (مثلاً نیویارک)",
+    "historical_trends": "تاریخی موسمی رجحانات",
+    "export_json": "JSON ایکسپورٹ کریں",
+    "export_csv": "CSV ایکسپورٹ کریں",
+    "forecast": "موسم کی پیشگوئی"
+  }
+}

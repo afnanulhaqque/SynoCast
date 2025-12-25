@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnCelsius = document.getElementById('btn-celsius');
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
 
+    // --- Chart Instance ---
+    let historicalChart = null;
+    let historyData = null; // Store for export
+
     // --- Search Functionality ---
     let searchTimeout = null;
 
@@ -137,6 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
             btnFahrenheit?.classList.add('bg-light', 'text-dark');
             if(btnFahrenheit) btnFahrenheit.style.backgroundColor = '';
         }
+        
+        // Update History Chart if it exists
+        if (historicalChart && historyData) {
+            renderHistoryChart(historyData);
+        }
     }
 
     if (btnCelsius && btnFahrenheit) {
@@ -182,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateDailyForecast(data.forecast, data.current.timezone);
             updateAQI(data.pollution);
             
+            // Fetch History Data
+            fetchHistory(lat, lon);
+
             // Re-run unit update to ensure new data respects current selection
             updateDisplayUnits();
 
@@ -411,6 +423,128 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- History Chart & Export Logic ---
+
+    async function fetchHistory(lat, lon) {
+        try {
+            const res = await fetch(`/api/weather/history?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            historyData = data;
+            renderHistoryChart(data);
+        } catch (err) {
+            console.error("Failed to fetch history:", err);
+        }
+    }
+
+    function renderHistoryChart(data) {
+        const ctx = document.getElementById('historicalChart');
+        if (!ctx) return;
+
+        const labels = data.map(item => item.date);
+        const temps = data.map(item => {
+            const t = parseFloat(item.temp);
+            return currentUnit === 'F' ? WeatherUtils.celsiusToFahrenheit(t) : t;
+        });
+
+        if (historicalChart) {
+            historicalChart.destroy();
+        }
+
+        historicalChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Avg Temperature (${currentUnit})`,
+                    data: temps,
+                    borderColor: '#6937F5',
+                    backgroundColor: 'rgba(105, 55, 245, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6937F5',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#eee',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.parsed.y}°${currentUnit}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            callback: value => `${value}°`
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- Export Functionality ---
+    const exportJsonBtn = document.getElementById('export-json');
+    const exportCsvBtn = document.getElementById('export-csv');
+
+    if (exportJsonBtn) {
+        exportJsonBtn.addEventListener('click', () => {
+            if (!historyData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "weather_history.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+    }
+
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', () => {
+            if (!historyData) return;
+            const headers = "Date,Temperature(C),Condition,Humidity(%),Wind(km/h)\n";
+            const rows = historyData.map(item => `${item.date},${item.temp},${item.condition},${item.humidity},${item.wind}`).join("\n");
+            const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", csvContent);
+            downloadAnchorNode.setAttribute("download", "weather_history.csv");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+    }
+
     // --- Tab Switching Logic (Preserved) ---
     const tabToday = document.getElementById('tab-today');
     const tabWeek = document.getElementById('tab-week');
@@ -459,6 +593,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateDailyForecast(cachedData.forecast, cachedData.current.timezone);
         updateAQI(cachedData.pollution);
         updateDisplayUnits();
+
+        // Also fetch history for cached location
+        if (cachedData.current.coord) {
+            fetchHistory(cachedData.current.coord.lat, cachedData.current.coord.lon);
+        }
     }
 
     // Listen for global location grant (faster and unified)
