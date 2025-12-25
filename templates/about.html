@@ -69,6 +69,85 @@
                         </div>
                     </div>
 
+                    <div class="mb-5">
+                        <h2 class="h3 fw-bold mb-4 text-center">Frequently Asked Questions</h2>
+                        <div class="accordion accordion-flush" id="faqAccordion">
+                            <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        How accurate are SynoCast's weather forecasts?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        SynoCast uses high-fidelity data from OpenWeatherMap and other global
+                                        meteorological networks, combined with AI processing to provide highly accurate,
+                                        real-time weather updates.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        How does the AI storytelling feature work?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        We use Google Gemini AI to analyze raw meteorological data and transform it into
+                                        understandable narratives, helping you understand how the weather will actually
+                                        impact your day.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Can I get severe weather alerts for my specific location?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        Yes! By subscribing with your email, you can receive real-time severe weather
+                                        alerts tailored to your exact location detected via your browser or IP.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "FAQPage",
+                      "mainEntity": [{
+                        "@type": "Question",
+                        "name": "How accurate are SynoCast's weather forecasts?",
+                        "acceptedAnswer": {
+                          "@type": "Answer",
+                          "text": "SynoCast uses high-fidelity data from OpenWeatherMap and other global meteorological networks, combined with AI processing to provide highly accurate, real-time weather updates."
+                        }
+                      }, {
+                        "@type": "Question",
+                        "name": "How does the AI storytelling feature work?",
+                        "acceptedAnswer": {
+                          "@type": "Answer",
+                          "text": "We use Google Gemini AI to analyze raw meteorological data and transform it into understandable narratives, helping you understand how the weather will actually impact your day."
+                        }
+                      }, {
+                        "@type": "Question",
+                        "name": "Can I get severe weather alerts for my specific location?",
+                        "acceptedAnswer": {
+                          "@type": "Answer",
+                          "text": "Yes! By subscribing with your email, you can receive real-time severe weather alerts tailored to your exact location detected via your browser or IP."
+                        }
+                      }]
+                    }
+                    </script>
+
                     <div class="bg-primary bg-opacity-10 p-5 rounded-4 text-center">
                         <h2 class="h3 fw-bold mb-3">Join Our Community</h2>
                         <p class="mb-4 text-muted">Stay ahead of the weather. Subscribe to our newsletter for daily

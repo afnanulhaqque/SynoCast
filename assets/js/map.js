@@ -132,11 +132,26 @@ document.addEventListener("DOMContentLoaded", function () {
     updateWeather(33.6844, 73.0479);
   }
 
+  // --- Map Controls ---
+
+  // Debounce helper
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  const debouncedUpdateWeather = debounce((lat, lon) => {
+    updateWeather(lat, lon);
+  }, 500);
+
   // Update weather on map move
   map.on("moveend", function () {
     const center = map.getCenter();
     marker.setLatLng(center); // Move marker to center
-    updateWeather(center.lat, center.lng);
+    debouncedUpdateWeather(center.lat, center.lng);
   });
 
   // --- Map Controls ---

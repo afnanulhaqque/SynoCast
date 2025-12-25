@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // Convert offset string ("+0500" or "-0300") to hours/minutes
-            const hours = parseInt(utcOffset.substring(0, 3));
-            const minutes = parseInt(utcOffset.substring(3));
+            const sign = utcOffset.startsWith('-') ? -1 : 1;
+            const hours = parseInt(utcOffset.substring(1, 3)) * sign;
+            const minutes = parseInt(utcOffset.substring(3)) * sign;
             
             // Get current UTC time
             const now = new Date();

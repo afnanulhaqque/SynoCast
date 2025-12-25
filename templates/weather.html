@@ -84,7 +84,7 @@
         <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Weekly</h4>
       </div>
       <div class="btn-group shadow-sm rounded-pill overflow-hidden">
-        <button id="btn-celsius" class="btn btn-primary px-3 py-2 fw-bold">°C</button>
+        <button id="btn-celsius" class="btn btn-outline-theme px-3 py-2 fw-bold active">°C</button>
         <button id="btn-fahrenheit" class="btn btn-light px-3 py-2 fw-bold text-muted">°F</button>
       </div>
     </div>
@@ -103,14 +103,14 @@
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 rounded-4 shadow-sm p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
           <h4 class="fw-bold mb-0">Historical Weather Trends</h4>
           <div class="d-flex gap-2">
-            <button id="export-json" class="btn btn-outline-primary btn-sm rounded-pill px-3">Export JSON</button>
-            <button id="export-csv" class="btn btn-outline-primary btn-sm rounded-pill px-3">Export CSV</button>
+            <button id="export-json" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export JSON</button>
+            <button id="export-csv" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export CSV</button>
           </div>
         </div>
-        <div style="height: 400px; position: relative;">
+        <div class="historical-chart-container" style="position: relative;">
           <canvas id="historicalChart"></canvas>
         </div>
       </div>

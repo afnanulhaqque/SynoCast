@@ -245,6 +245,18 @@ main {
   color: rgba(105, 55, 245, 1);
 }
 
+.btn-outline-theme {
+  border: 2px solid rgba(105, 55, 245, 1);
+  color: rgba(105, 55, 245, 1);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-theme:hover {
+  background-color: rgba(105, 55, 245, 1);
+  color: white !important;
+}
+
 .home_banner_2 img {
   align-self: flex-end;
 }
@@ -2724,4 +2736,21 @@ textarea:focus {
 .synocast-toast-close:hover {
   opacity: 1;
   color: #f5365c;
+}
+
+/* Historical Chart Responsiveness */
+.historical-chart-container {
+  height: 400px;
+}
+
+@media (max-width: 768px) {
+  .historical-chart-container {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .historical-chart-container {
+    height: 250px;
+  }
 }

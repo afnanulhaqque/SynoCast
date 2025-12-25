@@ -37,9 +37,27 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // No valid cache. We show our custom modal INSTEAD of calling any browser API
             // to avoid the native prompt on page load.
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (!window.synocast_current_loc) {
-                    modal.show();
+                    // Try IP-based location first if no local permission
+                    const hasPermissionHint = localStorage.getItem('synocast_permission_hint') === 'true';
+                    if (!hasPermissionHint) {
+                        try {
+                            const ipRes = await fetch('/api/ip-location');
+                            const ipData = await ipRes.json();
+                            if (ipData.status === 'success') {
+                                console.log("Using IP-based location fallback:", ipData.city);
+                                dispatchLocationEvent(ipData.lat, ipData.lon, true);
+                            } else {
+                                modal.show();
+                            }
+                        } catch (err) {
+                            console.warn("IP-based fallback failed:", err);
+                            modal.show();
+                        }
+                    } else {
+                        modal.show();
+                    }
                 }
             }, 1500);
         }

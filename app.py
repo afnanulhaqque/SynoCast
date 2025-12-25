@@ -77,7 +77,7 @@ csrf = SeaSurf(app)
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["1000 per day", "200 per hour"],
     storage_uri="memory://",
 )
 
@@ -200,6 +200,14 @@ except Exception as e:
 def service_worker():
     return app.send_static_file('sw.js')
 
+@app.route('/robots.txt')
+def robots_txt():
+    return app.send_static_file('robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    return app.send_static_file('sitemap.xml')
+
 @app.route("/")
 def home():
     dt_info = utils.get_local_time_string()
@@ -214,6 +222,11 @@ def home():
         location_parts.append(dt_info.get('country'))
     
     local_query = f"weather {' '.join(location_parts)}" if location_parts else "weather extreme events"
+    
+    seo_meta = {
+        "description": "SynoCast provides AI-enhanced weather storytelling, hyper-local forecasts, and curated weather news using Gemini AI.",
+        "keywords": "weather, AI weather, weather news, local forecast, SynoCast, climate events, severe weather alerts"
+    }
     
     # Latest Headlines
     raw_latest = utils.fetch_weather_news(query=local_query, page_size=15, api_key=news_key)
@@ -232,7 +245,8 @@ def home():
         active_page="home", 
         date_time_info=dt_info,
         latest_news=latest_news,
-        world_news=world_news
+        world_news=world_news,
+        meta=seo_meta
     )
 
 
@@ -240,6 +254,11 @@ def home():
 def news():
     dt_info = utils.get_local_time_string()
     gemini_key = os.environ.get("GEMINI_API_KEY")
+    
+    seo_meta = {
+        "description": "Stay updated with SynoCast's AI-curated weather headlines, breaking alerts, and featured climate stories from around the globe.",
+        "keywords": "breaking news, weather alerts, climate change stories, storm warnings, weather news today"
+    }
     
     # Fetch a larger pool of news to categorize and filter
     raw_news = utils.fetch_weather_news(query="extreme weather climate impact", page_size=20, api_key=NEWS_API_KEY)
@@ -262,7 +281,8 @@ def news():
         active_page="news", 
         date_time_info=dt_info,
         breaking_news=breaking_news,
-        featured_news=featured_news
+        featured_news=featured_news,
+        meta=seo_meta
     )
 
 
@@ -270,6 +290,11 @@ def news():
 def weather():
     dt_info = utils.get_local_time_string()
     gemini_key = os.environ.get("GEMINI_API_KEY")
+    
+    seo_meta = {
+        "description": "Get detailed local weather forecasts, interactive maps, and AI-driven weather insights with SynoCast.",
+        "keywords": "local weather, hourly forecast, weather map, AI weather recommendations, humidity, wind speed"
+    }
     
     # Weather News Section: Categorized by relevance
     raw_weather = utils.fetch_weather_news(query="local weather forecast updates", country=dt_info.get('country'), page_size=10, api_key=NEWS_API_KEY)
@@ -279,23 +304,36 @@ def weather():
         "weather.html", 
         active_page="weather", 
         date_time_info=dt_info,
-        weather_news=weather_news
+        weather_news=weather_news,
+        meta=seo_meta
     )
 
 
 @app.route("/subscribe")
 def subscribe():
-    return render_template("subscribe.html", active_page="subscribe", date_time_info=utils.get_local_time_string())
+    seo_meta = {
+        "description": "Subscribe to SynoCast for hyper-local weather alerts and daily AI weather news delivered directly to your inbox.",
+        "keywords": "subscribe, weather alerts, email notifications, SynoCast subscription"
+    }
+    return render_template("subscribe.html", active_page="subscribe", date_time_info=utils.get_local_time_string(), meta=seo_meta)
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", active_page="about", date_time_info=utils.get_local_time_string())
+    seo_meta = {
+        "description": "Learn more about SynoCast, our mission to provide AI-enhanced weather storytelling, and how we use technology to keep you ahead of the storm.",
+        "keywords": "about SynoCast, weather company, AI weather technology, mission"
+    }
+    return render_template("about.html", active_page="about", date_time_info=utils.get_local_time_string(), meta=seo_meta)
 
 
 @app.route("/terms")
 def terms():
-    return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string())
+    seo_meta = {
+        "description": "Terms of Use and Privacy Policy for SynoCast weather services.",
+        "keywords": "terms of use, privacy policy, legal"
+    }
+    return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string(), meta=seo_meta)
 
 @app.route("/api/update-session-location", methods=["POST"])
 def update_session_location():
@@ -348,6 +386,7 @@ def api_ip_location():
         return jsonify({"status": "fail", "message": str(e)}), 500
 
 @app.route("/api/weather")
+@limiter.limit("30 per minute")
 def api_weather():
     """
     Proxy endpoint for OpenWeatherMap API.
@@ -474,6 +513,7 @@ def api_weather_history():
 
 
 @app.route("/api/geocode/search")
+@limiter.limit("20 per minute")
 def geocode_search():
     """Proxy endpoint for Nominatim forward geocoding (search)."""
     query = request.args.get('q', '')
@@ -492,6 +532,7 @@ def geocode_search():
 
 
 @app.route("/api/geocode/reverse")
+@limiter.limit("60 per minute")
 def geocode_reverse():
     """Proxy endpoint for Nominatim reverse geocoding."""
     lat = request.args.get('lat', '')
@@ -769,6 +810,13 @@ def syntax_error(e):
 @app.errorhandler(Exception)
 def unhandled_exception(e):
     app.logger.error(f"Unhandled Exception: {e}")
+    
+    # Handle Rate Limit errors specifically
+    if "Too Many Requests" in str(e) or (hasattr(e, 'code') and e.code == 429):
+        if request.path.startswith('/api/'):
+            return jsonify({"error": "Rate limit exceeded. Please slow down."}), 429
+        return render_template("500.html", message="Too many requests. Please try again later.", date_time_info=utils.get_local_time_string(), active_page="404"), 429
+
     if request.path.startswith('/api/'):
         # Check if it's a known error from Gemini or other APIs
         error_msg = str(e)

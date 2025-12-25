@@ -304,30 +304,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Default to IP-based location if no local/cached location after 4.5s
-    setTimeout(async () => {
-        const hasLoc = sessionStorage.getItem('synocast_location_fixed');
-        const hasCachedLoc = localStorage.getItem('synocast_cached_location');
-        const initialCache = JSON.parse(localStorage.getItem('synocast_cached_weather'));
-        const isLondon = initialCache && initialCache.current && Math.abs(initialCache.current.coord.lat - 51.505) < 0.01;
-
-        if (!hasLoc && !hasCachedLoc && (!initialCache || isLondon) && !window.synocast_current_loc) {
-            try {
-                const ipRes = await fetch('/api/ip-location');
-                const ipData = await ipRes.json();
-                
-                if (ipData.status === 'success') {
-                    console.log("Using IP-based location fallback:", ipData.city);
-                    fetchWeather(ipData.lat, ipData.lon, ipData.city, true);
-                } else {
-                    throw new Error("IP Geolocation failed");
-                }
-            } catch (err) {
-                if (!initialCache) {
-                    console.warn("Falling back to Islamabad (Ultimate Fallback)");
-                    fetchWeather(33.6844, 73.0479, "Islamabad");
-                }
-            }
-        }
-    }, 4500);
+    // No explicit initialization needed here as location_handler.js
+    // handles the synocast_location_granted event.
 });
