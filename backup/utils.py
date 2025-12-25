@@ -140,8 +140,7 @@ def fetch_weather_news(query="weather", country=None, page_size=10, api_key=None
     try:
         # Refine query: Just use the query + weather keywords
         # If query already has 'weather', don't repeat it too much
-        # Refined keywords integrated from test_news_api.py
-        essential_weather = "(weather OR climate OR storm OR forecast OR temperature OR rainfall OR snowfall OR earthquake OR flood OR drought OR hurricane OR cyclone OR typhoon OR wildfire OR heatwave OR coldwave OR meteorology OR blizzard OR tornado)"
+        essential_weather = "weather OR climate OR storm OR forecast OR natural disaster"
         
         # NewsAPI 'everything' endpoint accepts Boolean operators
         if query and "weather" not in query.lower():

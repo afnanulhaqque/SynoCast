@@ -1,0 +1,79 @@
+{% macro news_card(article, index, type='breaking') %}
+<div class="col-md-{{ '4' if type == 'breaking' else '6' }}">
+    <div class="card border-0 h-100 {{ 'hover-lift' if type == 'breaking' else '' }}">
+        {% set img_height = '200px' if type == 'breaking' else '350px' %}
+        <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/' ~ type ~ '-news-' ~ index ~ '.png' }}"
+            class="card-img-top {{ 'rounded-3 mb-3' if type == 'breaking' else '' }}" alt="{{ article.title }}"
+            style="height: {{ img_height }}; object-fit: cover;">
+        <div class="card-body {{ 'p-0' if type == 'breaking' else '' }}">
+            <div class="d-flex justify-content-between small mb-2">
+                <span class="text-muted">{{ article.publishedAt[:10] if article.publishedAt else 'Recently' }}</span>
+                <span class="fw-bold">{{ article.source.name[:15] if article.source and article.source.name else 'News'
+                    }}</span>
+            </div>
+            <h6 class="fw-bold mb-2">{{ article.title[:60] }}{% if article.title|length > 60 %}...{% endif %}</h6>
+            <p class="card-text small text-muted">
+                {{ article.description[:120] if article.description else 'No description available.' }}{% if
+                article.description and article.description|length > 120 %}...{% endif %}
+            </p>
+            <div class="d-flex justify-content-between small mt-3 align-items-center">
+                <span class="text-muted">{{ article.author[:15] if article.author else 'News Desk' }}</span>
+                <a href="{{ article.url }}" target="_blank" class="text-primary text-decoration-none fw-bold">Access
+                    article</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro weather_news_card(article) %}
+<div class="col-lg-4 col-md-6 mb-4">
+    <div class="card border-0 h-100 shadow-sm hover-lift overflow-hidden rounded-4">
+        <div class="position-relative">
+            <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/sub-banner-news.png' }}"
+                class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
+            <div class="position-absolute top-0 start-0 m-3">
+                <span class="badge rounded-pill bg-{{ 'danger' if article.urgency == 'Critical' else 'warning' if article.urgency == 'High' else 'info' if article.urgency == 'Medium' else 'secondary' }} px-3 shadow-sm">
+                    {{ article.urgency }}
+                </span>
+            </div>
+            <div class="position-absolute bottom-0 start-0 m-3">
+                <span class="badge rounded-pill bg-dark text-white px-3 opacity-75">
+                    {{ article.category }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex justify-content-between x-small text-muted mb-2">
+                <span><i class="fas fa-map-marker-alt me-1"></i> {{ article.location }}</span>
+                <span><i class="far fa-clock me-1"></i> {{ article.publishedAt[:10] }}</span>
+            </div>
+            <h5 class="fw-bold mb-3">{{ article.title }}</h5>
+            <p class="text-muted small mb-4">{{ article.summary }}</p>
+            <div class="mt-auto">
+                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-4 fw-bold">Read Full Story</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro forecast_skeleton(count=8) %}
+{% for i in range(count) %}
+<div class="card border-0 rounded-4 p-3 flex-shrink-0 skeleton-card shadow-sm"
+    style="width: 160px; border: 1px solid #eee;">
+    <div class="card-body p-0 d-flex flex-column justify-content-between h-100">
+        <div class="skeleton-text w-75 mb-2" style="height: 15px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+        </div>
+        <div class="skeleton-text w-50 mb-3" style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+        </div>
+        <div class="d-flex justify-content-between align-items-end mt-auto">
+            <div class="skeleton-text w-25" style="height: 15px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+            </div>
+            <div class="skeleton-icon"
+                style="width: 35px; height: 35px; background: rgba(0,0,0,0.05); border-radius: 50%;"></div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endmacro %}
