@@ -73,15 +73,7 @@
     <link rel="icon" href="/assets/logo/logo-small.svg" type="image/x-icon">
     <link rel="manifest" href="/assets/manifest.json">
     <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
-    <script>
-        // Inline script to prevent theme flash
-        (function () {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-    </script>
+
 </head>
 
 <body>
@@ -136,11 +128,7 @@
                             <li><a class="dropdown-item" href="#" onclick="switchLanguage('ur')">اردو</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item d-flex align-items-center ms-lg-3">
-                        <button type="button" id="theme-toggle" class="btn nav-link nav_text" title="Toggle Theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </li>
+
                     <li class="nav-item d-flex align-items-center ms-lg-3">
                         <button type="button" id="navbarSubscribeBtn"
                             class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
@@ -345,7 +333,7 @@
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/autocomplete_utils.js"></script>
     <script src="/assets/js/i18n.js"></script>
-    <script src="/assets/js/theme_toggle.js"></script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

@@ -3,7 +3,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/static/styles/style.css',
   '/assets/js/weather.js',
-  '/assets/logo/logo.png'
+  '/assets/logo/logo-small.png'
 ];
 
 self.addEventListener('install', (event) => {

@@ -20,22 +20,6 @@
     border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-[data-theme="dark"] {
-  /* Dark Mode Palette */
-  --primary-color: #1e1e1e; /* Deep Charcoal */
-  --bg-color: #121212; /* Near Black */
-  --surface-color: #1a1a1a; /* Dark Slate */
-  --accent-weather: #7fb9e3; /* Soft Blue */
-  --accent-news: #e38b2d; /* Warm Amber */
-  --text-primary: #ededed; /* Off White */
-  --text-secondary: #a1a1a1; /* Cool Gray */
-  --divider-color: #2a2a2a; /* Charcoal Line */
-  --icon-color: #cfcfcf; /* Light Gray */
-
-  /* Update legacy/refactored mappings for dark mode */
-  --weather-shadow: rgba(127, 185, 227, 0.15);
-}
-
 /* Bootstrap Overrides */
 .text-primary {
   color: var(--primary-color) !important;
@@ -530,11 +514,6 @@ a.footer-text-link:hover {
   filter: brightness(0) invert(1); /* Default is white-ish */
 }
 
-[data-theme="dark"] .synocast_logo,
-[data-theme="dark"] .icon-link img {
-  filter: brightness(0) invert(0.9);
-}
-
 /* Chatbot Widget Styles */
 #chatbot_modal {
   pointer-events: none; /* Allow clicking outside */
@@ -721,10 +700,6 @@ a.footer-text-link:hover {
 
 .btn-close {
   filter: var(--icon-filter, none);
-}
-
-[data-theme="dark"] .btn-close {
-  filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 .form-control,
