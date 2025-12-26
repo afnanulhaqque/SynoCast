@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            resultEl.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Gemini is planning your trip...</p></div>';
+            resultEl.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">SynoBot is planning your trip...</p></div>';
 
             try {
                 const res = await fetch(`/api/trip_plan?destination=${encodeURIComponent(dest)}&dates=${encodeURIComponent(dates)}&purpose=${encodeURIComponent(purpose)}`);
