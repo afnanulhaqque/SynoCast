@@ -1,0 +1,6 @@
+Primary: Soft Charcoal #2F2F2F
+Background: Warm White #FAFAF8
+Accent Weather: Muted Blue #6FAED9
+Accent News: Burnt Orange #D97706
+Text Primary: Almost Black #1A1A1A
+Text Secondary: Stone Gray #6B6B6B
