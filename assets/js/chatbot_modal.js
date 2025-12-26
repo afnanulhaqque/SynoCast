@@ -5,6 +5,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('chatbot_input');
     const typingIndicator = document.getElementById('modal-typing-indicator');
     const chips = document.querySelectorAll('#modal-example-questions .suggestion-chip');
+    const voiceBtn = document.getElementById('chatbot_voice_btn');
+
+    let recognition = null;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            input.value = transcript;
+            voiceBtn.classList.remove('btn-danger', 'text-white');
+            sendMessage(transcript);
+        };
+
+        recognition.onerror = () => {
+            voiceBtn.classList.remove('btn-danger', 'text-white');
+        };
+
+        recognition.onend = () => {
+            voiceBtn.classList.remove('btn-danger', 'text-white');
+        };
+    }
 
     // Helper: append message
     function appendMessage(sender, text) {
@@ -22,6 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         wrapper.appendChild(bubble);
+        
+        if (sender === 'bot') {
+            speakText(text);
+        }
         
         // Insert before typing indicator if it exists and is visible, otherwise append
         if (typingIndicator && typingIndicator.parentNode === messagesEl) {
@@ -126,4 +155,21 @@ document.addEventListener('DOMContentLoaded', function () {
             sendMessage(question);
         });
     });
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.pitch = 1;
+            utterance.rate = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    if (voiceBtn && recognition) {
+        voiceBtn.onclick = () => {
+            voiceBtn.classList.add('btn-danger', 'text-white');
+            recognition.start();
+        };
+    }
 });

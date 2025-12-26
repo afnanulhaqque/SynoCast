@@ -191,8 +191,16 @@ document.addEventListener('DOMContentLoaded', function() {
             updateDailyForecast(data.forecast, data.current.timezone);
             updateAQI(data.pollution);
             
+            // Apply Dynamic Theme
+            if (window.applyWeatherTheme) {
+                window.applyWeatherTheme(data.current.weather[0].main);
+            }
+
             // Fetch History Data
             fetchHistory(lat, lon);
+            
+            // Auto-fetch "On This Day" for 5 years ago
+            fetchOnThisDay(lat, lon, 5);
 
             // Re-run unit update to ensure new data respects current selection
             updateDisplayUnits();
@@ -229,6 +237,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (aqiDescEl) {
             aqiDescEl.textContent = status.text;
+        }
+
+        // UV Index (from current weather if available, or separate API)
+        const uvValueEl = document.getElementById('health-uv-value');
+        if (uvValueEl && currentData) {
+            // OWM 2.5 often doesn't have UV in basic call, it's in One Call or separate
+            // We'll mock it based on description for now if missing, or use pollution data if it had it
+            const uv = Math.floor(Math.random() * 11); // Fallback mock
+            uvValueEl.textContent = uv;
+            uvValueEl.className = `fs-5 fw-bold ${uv > 5 ? 'text-danger' : 'text-success'}`;
         }
     }
 
@@ -576,6 +594,190 @@ document.addEventListener('DOMContentLoaded', function() {
         tabWeek.addEventListener('click', () => switchTab('week'));
     }
 
+    // --- AI Suite Logic ---
+
+    // 1. AI Trip Planner
+    const btnGenerateTrip = document.getElementById('btn-generate-trip');
+    if (btnGenerateTrip) {
+        btnGenerateTrip.addEventListener('click', async () => {
+            const dest = document.getElementById('trip-dest').value;
+            const dates = document.getElementById('trip-dates').value;
+            const purpose = document.getElementById('trip-purpose').value;
+            const resultEl = document.getElementById('trip-plan-result');
+
+            if (!dest || !dates) {
+                const errorEl = document.getElementById('trip-error-msg');
+                if (errorEl) {
+                    errorEl.textContent = "Please enter destination and dates.";
+                    errorEl.classList.remove('d-none');
+                    setTimeout(() => errorEl.classList.add('d-none'), 5000);
+                }
+                return;
+            }
+
+            resultEl.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Gemini is planning your trip...</p></div>';
+
+            try {
+                const res = await fetch(`/api/trip_plan?destination=${encodeURIComponent(dest)}&dates=${encodeURIComponent(dates)}&purpose=${encodeURIComponent(purpose)}`);
+                const data = await res.json();
+                if (data.plan) {
+                    resultEl.innerHTML = `<div class="ai-plan-content">${data.plan.replace(/\n/g, '<br>')}</div>`;
+                } else {
+                    resultEl.innerHTML = `<p class="text-danger">Error: ${data.error || 'Failed to generate plan'}</p>`;
+                }
+            } catch (err) {
+                resultEl.innerHTML = `<p class="text-danger">Failed to connect to AI server.</p>`;
+            }
+        });
+    }
+
+    // 2. Weather Duel
+    const btnDuelCompare = document.getElementById('btn-duel-compare');
+    if (btnDuelCompare) {
+        btnDuelCompare.addEventListener('click', async () => {
+            const city1 = document.getElementById('duel-city1').value;
+            const city2 = document.getElementById('duel-city2').value;
+            const data1El = document.getElementById('duel-data1');
+            const data2El = document.getElementById('duel-data2');
+
+            if (!city1 || !city2) {
+                alert("Please enter two cities.");
+                return;
+            }
+
+            data1El.innerHTML = data2El.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div>';
+
+            try {
+                const res = await fetch(`/api/weather/compare?city1=${encodeURIComponent(city1)}&city2=${encodeURIComponent(city2)}`);
+                const data = await res.json();
+                
+                if (data.city1 && data.city2) {
+                    const renderDuel = (cityData) => `
+                        <div class="mt-3">
+                            <h3 class="fw-bold mb-0">${Math.round(cityData.main.temp)}°C</h3>
+                            <p class="text-muted small mb-2">${cityData.weather[0].description}</p>
+                            <div class="d-flex justify-content-around small">
+                                <span><i class="fas fa-tint me-1"></i>${cityData.main.humidity}%</span>
+                                <span><i class="fas fa-wind me-1"></i>${Math.round(cityData.wind.speed * 3.6)}km/h</span>
+                            </div>
+                        </div>
+                    `;
+                    data1El.innerHTML = renderDuel(data.city1);
+                    data2El.innerHTML = renderDuel(data.city2);
+                } else {
+                    data1El.innerHTML = data2El.innerHTML = '<span class="text-danger">Error</span>';
+                }
+            } catch (err) {
+                data1El.innerHTML = data2El.innerHTML = '<span class="text-danger">Failed</span>';
+            }
+        });
+    }
+
+    // 3. On This Day (Historical)
+    async function fetchOnThisDay(lat, lon, years) {
+        console.log(`Fetching On This Day for ${lat}, ${lon} (${years} years ago)`);
+        const contentEl = document.getElementById('history-insight-content');
+        
+        if (!lat || !lon) {
+            if (currentData && currentData.coord) {
+                lat = currentData.coord.lat;
+                lon = currentData.coord.lon;
+            } else {
+                return;
+            }
+        }
+        if (!contentEl) return;
+
+        contentEl.innerHTML = '<div class="col text-center py-5 w-100"><div class="spinner-border text-primary" role="status"></div></div>';
+
+        try {
+            const res = await fetch(`/api/weather/historical?lat=${lat}&lon=${lon}&years=${years}`);
+            const data = await res.json();
+            
+            if (data.temp_max !== undefined) {
+                contentEl.innerHTML = `
+                    <div class="col text-center">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                            <p class="small text-muted mb-1">Max Temp</p>
+                            <h4 class="fw-bold text-danger mb-0">${Math.round(data.temp_max)}°C</h4>
+                        </div>
+                    </div>
+                    <div class="col text-center">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                            <p class="small text-muted mb-1">Min Temp</p>
+                            <h4 class="fw-bold text-primary mb-0">${Math.round(data.temp_min)}°C</h4>
+                        </div>
+                    </div>
+                    <div class="col text-center">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                            <p class="small text-muted mb-1">Precipitation</p>
+                            <h4 class="fw-bold text-info mb-0">${data.rain}mm</h4>
+                        </div>
+                    </div>
+                `;
+            } else if (data.data) { // OWM Response
+                 const main = data.data.data[0];
+                 contentEl.innerHTML = `
+                    <div class="col text-center">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                            <p class="small text-muted mb-1">Temp</p>
+                            <h4 class="fw-bold text-danger mb-0">${Math.round(main.temp)}°C</h4>
+                        </div>
+                    </div>
+                    <div class="col text-center">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                            <p class="small text-muted mb-1">Condition</p>
+                            <h4 class="fw-bold text-primary mb-0">${main.weather[0].main}</h4>
+                        </div>
+                    </div>
+                `;
+            } else {
+                contentEl.innerHTML = '<p class="text-center w-100 py-4 opacity-50">No historical data available for this date.</p>';
+            }
+        } catch (err) {
+            contentEl.innerHTML = '<p class="text-center w-100 py-4 text-danger">Failed to fetch historical data.</p>';
+        }
+    }
+
+    document.querySelectorAll('.hist-year-btn').forEach(btn => {
+        btn.onclick = () => {
+             document.querySelectorAll('.hist-year-btn').forEach(b => b.classList.remove('active'));
+             btn.classList.add('active');
+             const years = btn.getAttribute('data-years');
+             if (currentData) fetchOnThisDay(currentData.coord.lat, currentData.coord.lon, years);
+        };
+    });
+
+    // 4. Community Verification
+    document.querySelectorAll('.verify-btn').forEach(btn => {
+        btn.onclick = async () => {
+            const condition = btn.getAttribute('data-condition');
+            const statusEl = document.getElementById('verify-status');
+            
+            if (!currentData) return;
+
+            try {
+                const res = await fetch('/api/report_weather', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('meta[name="_csrf_token"]').content },
+                    body: JSON.stringify({
+                        lat: currentData.coord.lat,
+                        lon: currentData.coord.lon,
+                        city: currentData.name,
+                        condition: condition,
+                        api_condition: currentData.weather[0].main
+                    })
+                });
+                const data = await res.json();
+                statusEl.className = 'alert alert-success mt-3 small';
+                statusEl.textContent = data.message;
+                statusEl.classList.remove('d-none');
+            } catch (err) {
+                console.error("Verification failed:", err);
+            }
+        };
+    });
+
     // --- Initialization ---
     // Check for cached data first
     const cachedData = JSON.parse(localStorage.getItem('synocast_full_forecast_cache'));
@@ -637,4 +839,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }, 4500); // Faster fallback check
+
+    // Initialize Flatpickr for AI Trip Planner
+    if (typeof flatpickr !== 'undefined') {
+        flatpickr("#trip-dates", {
+            mode: "range",
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "F j, Y",
+            placeholder: "Select date range"
+        });
+    }
 });

@@ -7,8 +7,9 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <div class="container weather-page mt-5 mb-5">
   <div class="row align-items-center mb-4 g-3">
@@ -83,9 +84,9 @@
           Today</h4>
         <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Weekly</h4>
       </div>
-      <div class="btn-group shadow-sm rounded-pill overflow-hidden">
-        <button id="btn-celsius" class="btn btn-outline-theme px-3 py-2 fw-bold active">°C</button>
-        <button id="btn-fahrenheit" class="btn btn-light px-3 py-2 fw-bold text-muted">°F</button>
+      <div class="btn-group shadow-sm rounded-pill overflow-hidden unit-toggle-group">
+        <button id="btn-celsius" class="btn btn-unit active">°C</button>
+        <button id="btn-fahrenheit" class="btn btn-unit text-muted">°F</button>
       </div>
     </div>
 
@@ -98,8 +99,174 @@
     </div>
   </div>
 
-  <!-- Highlights & Map -->
-  <!-- Historical Trends Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 rounded-4 shadow-sm p-4 overflow-hidden position-relative">
+        <div class="position-absolute top-0 end-0 p-3 opacity-25">
+          <i class="fas fa-robot fa-4x text-primary"></i>
+        </div>
+        <h3 class="fw-bold mb-4">SynoCast AI Suite</h3>
+
+        <ul class="nav nav-pills mb-4 bg-light p-2 rounded-pill d-inline-flex" id="ai-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-4" id="trip-tab" data-bs-toggle="pill"
+              data-bs-target="#ai-trip" type="button" role="tab" aria-selected="true">
+              <i class="fas fa-plane-departure me-2"></i>Trip Planner
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="duel-tab" data-bs-toggle="pill" data-bs-target="#ai-duel"
+              type="button" role="tab" aria-selected="false">
+              <i class="fas fa-bolt me-2"></i>Weather Duel
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="history-tab" data-bs-toggle="pill"
+              data-bs-target="#ai-history" type="button" role="tab" aria-selected="false">
+              <i class="fas fa-clock-rotate-left me-2"></i>On This Day
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="community-tab" data-bs-toggle="pill"
+              data-bs-target="#community-hub" type="button" role="tab" aria-selected="false">
+              <i class="fas fa-users me-2"></i>Community
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="ai-tabs-content">
+          <!-- AI Trip Planner -->
+          <div class="tab-pane fade show active" id="ai-trip" role="tabpanel">
+            <div class="row g-4">
+              <div class="col-md-5">
+                <div class="p-3 bg-light rounded-4 h-100">
+                  <h5 class="fw-bold mb-3">AI Weather Trip Planner</h5>
+                  <div id="trip-error-msg" class="alert alert-danger d-none small p-2 rounded-3 mb-3"></div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Destination</label>
+                    <input type="text" id="trip-dest" class="form-control rounded-pill" placeholder="e.g. London, UK">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Dates</label>
+                    <input type="text" id="trip-dates" class="form-control rounded-pill bg-white"
+                      placeholder="Select dates" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Purpose</label>
+                    <select id="trip-purpose" class="form-select rounded-pill">
+                      <option value="leisure">Leisure / Vacation</option>
+                      <option value="business">Business Trip</option>
+                      <option value="adventure">Adventure / Hiking</option>
+                      <option value="event">Outdoor Event</option>
+                    </select>
+                  </div>
+                  <button id="btn-generate-trip" class="btn modal_primary_btn w-100 rounded-pill py-2">
+                    Generate AI Plan
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div id="trip-plan-result" class="p-4 rounded-4 border h-100 bg-white shadow-sm"
+                  style="min-height: 300px;">
+                  <div class="text-center py-5 text-muted">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3 opacity-25"></i>
+                    <p>Enter details and let Gemini plan your trip weather-ready!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weather Duel -->
+          <div class="tab-pane fade" id="ai-duel" role="tabpanel">
+            <div class="row g-4 align-items-center">
+              <div class="col-md-5 text-center">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                  <h5 class="fw-bold mb-4">City One</h5>
+                  <input type="text" id="duel-city1" class="form-control rounded-pill mb-3" placeholder="Search City 1">
+                  <div id="duel-data1" class="py-3">
+                    <span class="text-muted">No data</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2 text-center">
+                <div class="duel-vs-circle shadow-lg">VS</div>
+                <button id="btn-duel-compare" class="btn modal_primary_btn rounded-pill mt-4 px-4">Compare</button>
+              </div>
+              <div class="col-md-5 text-center">
+                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
+                  <h5 class="fw-bold mb-4">City Two</h5>
+                  <input type="text" id="duel-city2" class="form-control rounded-pill mb-3" placeholder="Search City 2">
+                  <div id="duel-data2" class="py-3">
+                    <span class="text-muted">No data</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historical On This Day -->
+          <div class="tab-pane fade" id="ai-history" role="tabpanel">
+            <div class="p-4 bg-light rounded-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h5 class="fw-bold mb-1">"On This Day" Historical Insights</h5>
+                  <p class="small text-muted mb-0">Compare today's weather with the past decade.</p>
+                </div>
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary btn-sm active hist-year-btn" data-years="5">5 Years
+                    Ago</button>
+                  <button class="btn btn-outline-secondary btn-sm hist-year-btn" data-years="10">10 Years Ago</button>
+                </div>
+              </div>
+              <div id="history-insight-content" class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col text-center py-5 w-100">
+                  <div class="spinner-border text-primary" role="status"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Community Hub -->
+          <div class="tab-pane fade" id="community-hub" role="tabpanel">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="p-4 bg-light rounded-4">
+                  <h5 class="fw-bold mb-3">Verify Local Weather</h5>
+                  <p class="small text-muted">Help optimize our AI by reporting actual conditions at your location.</p>
+                  <div class="d-flex flex-wrap gap-2 mb-4">
+                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Clear"><i
+                        class="fas fa-sun me-1 shadow-sm"></i> Sunny</button>
+                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Clouds"><i
+                        class="fas fa-cloud me-1 shadow-sm"></i> Cloudy</button>
+                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Rain"><i
+                        class="fas fa-cloud-showers-heavy me-1 shadow-sm"></i> Rainy</button>
+                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Snow"><i
+                        class="fas fa-snowflake me-1 shadow-sm"></i> Snowy</button>
+                  </div>
+                  <div id="verify-status" class="alert d-none small"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+                  <h5 class="fw-bold mb-3">Reliability Metrics</h5>
+                  <div id="accuracy-gauge" class="accuracy-gauge-container mb-2">
+                    <div class="progress rounded-pill" style="height: 12px;">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85"
+                        aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </div>
+                  <p class="small text-muted mt-2">OpenWeatherMap data has been <span class="fw-bold text-success">85%
+                      accurate</span> in your region today based on 42 community reports.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 rounded-4 shadow-sm p-4">
@@ -148,6 +315,28 @@
           </div>
           <h3 id="weather-aqi-value" class="fw-bold mb-0">--</h3>
           <small id="weather-aqi-description" class="text-muted">Loading air quality...</small>
+        </div>
+
+        <!-- Health Insights Section -->
+        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3"
+          style="background: #fff9f0; border-left: 5px solid #ff9800 !important;">
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-hand-holding-medical text-warning me-2"></i>
+            <p class="fw-bold small text-muted mb-0">Health & Skincare</p>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="small fw-bold">UV Index</div>
+              <div id="health-uv-value" class="fs-5 fw-bold">--</div>
+            </div>
+            <div class="col-6">
+              <div class="small fw-bold">Pollen</div>
+              <div id="health-pollen-value" class="fs-5 fw-bold text-success">Low</div>
+            </div>
+          </div>
+          <div id="health-ai-advice" class="mt-3 p-2 bg-white rounded-3 small border border-warning-subtle text-muted">
+            <i class="fas fa-sparkles text-warning me-1"></i> AI Advice: Wear SPF 30+ if going out today.
+          </div>
         </div>
       </div>
     </div>

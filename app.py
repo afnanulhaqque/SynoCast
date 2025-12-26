@@ -28,12 +28,33 @@ def check_weather_alerts():
                     if res.ok:
                         alerts = res.json().get('alerts', [])
                         for alert in alerts:
+                            # Use Gemini for advice
+                            advice = "Stay safe and follow local authorities."
+                            gemini_key = os.environ.get("GEMINI_API_KEY")
+                            if gemini_key:
+                                try:
+                                    genai.configure(api_key=gemini_key.strip())
+                                    model = genai.GenerativeModel("gemini-flash-latest")
+                                    prompt = f"Serious weather alert: {alert['event']}. Description: {alert['description']}. Provide 1-2 sentences of actionable, specific advice for someone in this area (e.g., 'consider parking your car in a covered area')."
+                                    response = model.generate_content(prompt)
+                                    advice = response.text if response.text else advice
+                                except:
+                                    pass
+
                             # Send via Resend (Email)
                             resend.Emails.send({
                                 "from": "SynoCast Alerts <onboarding@resend.dev>",
                                 "to": email,
                                 "subject": f"SEVERE WEATHER ALERT: {alert['event']}",
-                                "html": f"<p><strong>{alert['event']}</strong></p><p>{alert['description']}</p>"
+                                "html": f"""
+                                    <div style="font-family: sans-serif; padding: 20px; border: 2px solid #dc3545; border-radius: 10px;">
+                                        <h2 style="color: #dc3545; margin-top: 0;">{alert['event']}</h2>
+                                        <p>{alert['description']}</p>
+                                        <div style="background: #f8d7da; padding: 15px; border-radius: 5px; color: #721c24; font-weight: bold;">
+                                            <i class="fas fa-robot"></i> SynoCast AI Advice: {advice}
+                                        </div>
+                                    </div>
+                                """
                             })
                 
                 time.sleep(3600)  # Check every hour
@@ -156,6 +177,22 @@ def init_db():
                     lon REAL,
                     subscription_type TEXT DEFAULT 'email',
                     created_at TEXT NOT NULL
+                )
+                """
+            )
+            
+            # Weather reports for community verification
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS weather_reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    lat REAL,
+                    lon REAL,
+                    city TEXT,
+                    reported_condition TEXT,
+                    api_condition TEXT,
+                    reported_at TEXT,
+                    is_accurate INTEGER
                 )
                 """
             )
@@ -789,6 +826,175 @@ def api_recommendations():
     except Exception as e:
         app.logger.error(f"Recommendations error: {e}")
         return jsonify({"recommendation": "Stay safe and check local updates."})
+
+@app.route("/api/trip_plan")
+@limiter.limit("5 per minute")
+def api_trip_plan():
+    """AI Weather Trip Planner with Gemini."""
+    destination = request.args.get("destination")
+    dates = request.args.get("dates") # e.g., "Dec 28 - Jan 5"
+    purpose = request.args.get("purpose", "general travel")
+
+    if not destination or not dates:
+        return jsonify({"error": "Destination and dates are required"}), 400
+
+    try:
+        # 1. Geocode destination
+        geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={destination}&limit=1"
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        geo_res = requests.get(geo_url, headers=headers, timeout=5)
+        if not geo_res.ok or not geo_res.json():
+             return jsonify({"error": "Could not find location"}), 404
+        
+        loc = geo_res.json()[0]
+        lat, lon = loc['lat'], loc['lon']
+
+        # 2. Get forecast/climatology context
+        # For trip planning, usually 5-day forecast is enough if trip is soon, 
+        # otherwise we'd need climatology. We'll fetch current & forecast as proxy.
+        forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        resp = requests.get(forecast_url, timeout=5)
+        forecast_context = ""
+        if resp.ok:
+            f_data = resp.json()
+            # Summarize forecast for AI
+            summary = []
+            for i in range(0, min(len(f_data.get('list', [])), 40), 8): # Every 24h
+                try:
+                    day = f_data['list'][i]
+                    temp = day.get('main', {}).get('temp', 'N/A')
+                    desc = day.get('weather', [{}])[0].get('description', 'N/A')
+                    date_str = datetime.fromtimestamp(day['dt']).strftime('%b %d')
+                    summary.append(f"{date_str}: {temp}°C, {desc}")
+                except Exception as e:
+                    app.logger.warning(f"Error parsing forecast day {i}: {e}")
+            forecast_context = "\n".join(summary)
+
+        # 3. Ask Gemini for advice
+        prompt = (
+            f"Plan a trip to {destination} for {dates}. Purpose: {purpose}.\n"
+            f"Weather Context (Next 5 days):\n{forecast_context}\n\n"
+            "Provide:\n1. Detailed packing suggestions (clothing, gear).\n"
+            "2. Travel recommendations based on expected weather.\n"
+            "3. One specific 'SynoTip' for this trip.\n"
+            "Keep it engaging and helpful."
+        )
+
+        gemini_api_key = os.environ.get("GEMINI_API_KEY")
+        if not gemini_api_key:
+            return jsonify({"plan": "Gemini API key missing. Please configure it to see your AI trip plan!"})
+
+        genai.configure(api_key=gemini_api_key.strip())
+        model = genai.GenerativeModel("gemini-flash-latest")
+        response = model.generate_content(prompt)
+
+        return jsonify({"plan": response.text})
+    except Exception as e:
+        app.logger.error(f"Trip Planner error: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Failed to generate trip plan: {str(e)}"}), 500
+
+@app.route("/api/weather/compare")
+def api_weather_compare():
+    """Weather Duel Comparison Tool."""
+    city1 = request.args.get("city1")
+    city2 = request.args.get("city2")
+
+    if not city1 or not city2:
+        return jsonify({"error": "Two cities are required"}), 400
+
+    def get_weather(city):
+        geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1"
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        geo_res = requests.get(geo_url, headers=headers, timeout=5)
+        if not geo_res.ok or not geo_res.json(): return None
+        loc = geo_res.json()[0]
+        w_url = f"https://api.openweathermap.org/data/2.5/weather?lat={loc['lat']}&lon={loc['lon']}&units=metric&appid={OPENWEATHER_API_KEY}"
+        w_res = requests.get(w_url, timeout=5)
+        return w_res.json() if w_res.ok else None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        f1 = executor.submit(get_weather, city1)
+        f2 = executor.submit(get_weather, city2)
+        w1, w2 = f1.result(), f2.result()
+
+    if not w1 or not w2:
+        return jsonify({"error": "Failed to fetch weather for one or both cities"}), 404
+
+    return jsonify({"city1": w1, "city2": w2})
+
+@app.route("/api/weather/historical")
+def api_weather_historical():
+    """Historical Weather Insights: On This Day."""
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    years_ago = int(request.args.get('years', 5))
+
+    if not lat or not lon:
+        return jsonify({"error": "lat and lon required"}), 400
+
+    try:
+        # Calculate target timestamp
+        target_date = datetime.now() - timedelta(days=365 * years_ago)
+        target_ts = int(target_date.timestamp())
+
+        # Try OWM Time Machine (Version 3.0)
+        # Note: This might fail on 2.5 keys, we'll provide a fallback.
+        hist_url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={target_ts}&units=metric&appid={OPENWEATHER_API_KEY}"
+        res = requests.get(hist_url, timeout=5)
+        
+        if res.ok:
+            return jsonify({
+                "source": "OWM Time Machine",
+                "years_ago": years_ago,
+                "data": res.json()
+            })
+        
+        # Fallback: Pseudo-historical data based on climatology or patterns
+        # In a real app, we might use a free historical API like Open-Meteo
+        app.logger.warning(f"OWM Historical API failed: {res.text}. Using fallback.")
+        
+        # Let's try Open-Meteo for more reliable free historical data
+        om_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={target_date.strftime('%Y-%m-%d')}&end_date={target_date.strftime('%Y-%m-%d')}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto"
+        om_res = requests.get(om_url, timeout=5)
+        
+        if om_res.ok:
+            om_data = om_res.json()
+            return jsonify({
+                "source": "Open-Meteo Archive",
+                "years_ago": years_ago,
+                "date": target_date.strftime('%Y-%m-%d'),
+                "temp_max": om_data['daily']['temperature_2m_max'][0],
+                "temp_min": om_data['daily']['temperature_2m_min'][0],
+                "rain": om_data['daily']['precipitation_sum'][0]
+            })
+
+        return jsonify({"error": "Failed to fetch historical data"}), 500
+
+    except Exception as e:
+        app.logger.error(f"Historical API error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/report_weather", methods=["POST"])
+def api_report_weather():
+    """Community Verification System."""
+    data = request.json
+    lat = data.get('lat')
+    lon = data.get('lon')
+    city = data.get('city')
+    reported_condition = data.get('condition')
+    api_condition = data.get('api_condition')
+    is_accurate = 1 if reported_condition.lower() == api_condition.lower() else 0
+
+    try:
+        with get_db() as conn:
+            conn.execute(
+                "INSERT INTO weather_reports (lat, lon, city, reported_condition, api_condition, reported_at, is_accurate) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (lat, lon, city, reported_condition, api_condition, datetime.utcnow().isoformat(), is_accurate)
+            )
+            conn.commit()
+        return jsonify({"success": True, "message": "Report submitted. Thanks for verifying!"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):

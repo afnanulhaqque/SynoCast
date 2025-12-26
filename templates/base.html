@@ -257,6 +257,10 @@
                         <form id="chatbot_form" class="chatbot_form d-flex mt-3" role="search">
                             <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..."
                                 aria-label="Chat message" autocomplete="off">
+                            <button class="btn btn-light ms-2 mt-0 rounded-pill" id="chatbot_voice_btn" type="button"
+                                title="Voice Search">
+                                <i class="fas fa-microphone"></i>
+                            </button>
                             <button class="btn modal_primary_btn ms-2 mt-0" id="chatbot_send"
                                 type="submit">Send</button>
                         </form>
@@ -325,6 +329,7 @@
     <script src="{{ url_for('static', filename='js/scroll_to_top.js') }}"></script>
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/i18n.js"></script>
+    <script src="/assets/js/theme_manager.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
