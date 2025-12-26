@@ -1,8 +1,0 @@
-flask
-requests
-resend
-google-generativeai
-python-dotenv
-flask-talisman
-flask-limiter
-flask-seasurf

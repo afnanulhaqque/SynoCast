@@ -75,21 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         if (currentUnit === 'F') {
-            btnFahrenheit?.classList.remove('bg-light', 'text-dark');
-            btnFahrenheit?.classList.add('text-white');
-            if(btnFahrenheit) btnFahrenheit.style.backgroundColor = '#6937F5';
-
-            btnCelsius?.classList.remove('text-white');
-            btnCelsius?.classList.add('bg-light', 'text-dark');
-            if(btnCelsius) btnCelsius.style.backgroundColor = ''; 
+            btnFahrenheit?.classList.add('active');
+            btnCelsius?.classList.remove('active');
         } else {
-            btnCelsius?.classList.remove('bg-light', 'text-dark');
-            btnCelsius?.classList.add('text-white');
-            if(btnCelsius) btnCelsius.style.backgroundColor = '#6937F5';
-
-            btnFahrenheit?.classList.remove('text-white');
-            btnFahrenheit?.classList.add('bg-light', 'text-dark');
-            if(btnFahrenheit) btnFahrenheit.style.backgroundColor = '';
+            btnCelsius?.classList.add('active');
+            btnFahrenheit?.classList.remove('active');
         }
         
         // Update History Chart if it exists
@@ -167,11 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const aqiDescEl = document.getElementById('weather-aqi-description');
         
         const aqiMap = {
-            1: { label: "Good", color: "#2dce89", text: "Air is clean and healthy." },
-            2: { label: "Fair", color: "#fb6340", text: "Acceptable air quality." },
-            3: { label: "Moderate", color: "#ffd600", text: "Sensitive groups should take care." },
-            4: { label: "Poor", color: "#f5365c", text: "Unhealthy for many people." },
-            5: { label: "Very Poor", color: "#825ee4", text: "Health warning of emergency conditions." }
+            1: { label: "Good", color: "#6FAED9", text: "Air is clean and healthy." }, // Muted Blue
+            2: { label: "Fair", color: "#D97706", text: "Acceptable air quality." }, // Burnt Orange
+            3: { label: "Moderate", color: "#6B6B6B", text: "Sensitive groups should take care." }, // Stone Gray
+            4: { label: "Poor", color: "#2F2F2F", text: "Unhealthy for many people." }, // Soft Charcoal
+            5: { label: "Very Poor", color: "#1A1A1A", text: "Health warning of emergency conditions." } // Almost Black
         };
         
         const status = aqiMap[aqi] || { label: "Unknown", color: "#adb5bd", text: "Data unavailable" };
@@ -293,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const iconClass = WeatherUtils.getIconClass(item.weather[0].id, item.weather[0].icon);
 
             const activeClass = index === 0 ? 'active-forecast' : '';
-            const borderStyle = index === 0 ? 'border: 2px solid #6937F5;' : 'border: 1px solid #eee;';
+            const borderStyle = index === 0 ? 'border: 2px solid var(--primary-color);' : 'border: 1px solid #eee;';
 
             const card = document.createElement('div');
             card.className = `card border-0 rounded-4 p-3 flex-shrink-0 ${activeClass}`;
@@ -420,13 +410,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: `Avg Temperature (${currentUnit})`,
                     data: temps,
-                    borderColor: '#6937F5',
-                    backgroundColor: 'rgba(105, 55, 245, 0.1)',
+                    borderColor: '#2F2F2F',
+                    backgroundColor: 'rgba(47, 47, 47, 0.1)',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: '#6937F5',
+                    pointBorderColor: '#2F2F2F',
                     pointBorderWidth: 2,
                     pointRadius: 5,
                     pointHoverRadius: 7

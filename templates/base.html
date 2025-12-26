@@ -73,6 +73,15 @@
     <link rel="icon" href="/assets/logo/logo-small.svg" type="image/x-icon">
     <link rel="manifest" href="/assets/manifest.json">
     <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
+    <script>
+        // Inline script to prevent theme flash
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 
 <body>
@@ -128,6 +137,11 @@
                         </ul>
                     </li>
                     <li class="nav-item d-flex align-items-center ms-lg-3">
+                        <button type="button" id="theme-toggle" class="btn nav-link nav_text" title="Toggle Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item d-flex align-items-center ms-lg-3">
                         <button type="button" id="navbarSubscribeBtn"
                             class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
                             data-bs-target="#subscribe_modal" data-i18n="subscribe">
@@ -151,11 +165,11 @@
                         </a>
                     </div>
                     <div class="footer_icon_div footer_item">
-                        <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/">
-                            <img src="/assets/icons/linkedin.png" alt="LinkedIn" class="footer_icon ">
+                        <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/" target="_blank">
+                            <i class="fab fa-linkedin-in footer_icon"></i>
                         </a>
-                        <a class="icon-link" href="https://www.instagram.com/afn6n_x/">
-                            <img src="/assets/icons/instagram.png" alt="Instagram" class="footer_icon ">
+                        <a class="icon-link" href="https://www.instagram.com/afn6n_x/" target="_blank">
+                            <i class="fab fa-instagram footer_icon"></i>
                         </a>
                     </div>
                     <div class="footer_item mb-2">
@@ -286,7 +300,8 @@
                     <div class="mb-3">
                         <div class="bg-light-purple rounded-circle d-inline-flex align-items-center justify-content-center"
                             style="width: 70px; height: 70px;">
-                            <span class="material-icons text-primary" style="font-size: 2.5rem;">&#xe0c8;</span>
+                            <span class="material-icons text-primary"
+                                style="font-size: 2.5rem; color: var(--primary-color) !important;">&#xe0c8;</span>
                         </div>
                     </div>
                     <h4 class="modal-title mb-2 fw-bold" id="locationPermissionModalLabel">Enable Location</h4>
@@ -330,6 +345,7 @@
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/autocomplete_utils.js"></script>
     <script src="/assets/js/i18n.js"></script>
+    <script src="/assets/js/theme_toggle.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

@@ -18,7 +18,8 @@
             </p>
             <div class="d-flex justify-content-between small mt-3 align-items-center">
                 <span class="text-muted">{{ article.author[:15] if article.author else 'News Desk' }}</span>
-                <a href="{{ article.url }}" target="_blank" class="text-primary text-decoration-none fw-bold">Access
+                <a href="{{ article.url }}" target="_blank" class="text-primary text-decoration-none fw-bold"
+                    style="color: var(--primary-color) !important;">Access
                     article</a>
             </div>
         </div>
@@ -33,7 +34,8 @@
             <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/sub-banner-news.png' }}"
                 class="card-img-top" alt="{{ article.title }}" style="height: 200px; object-fit: cover;">
             <div class="position-absolute top-0 start-0 m-3">
-                <span class="badge rounded-pill bg-{{ 'danger' if article.urgency == 'Critical' else 'warning' if article.urgency == 'High' else 'info' if article.urgency == 'Medium' else 'secondary' }} px-3 shadow-sm">
+                <span
+                    class="badge rounded-pill bg-{{ 'danger' if article.urgency == 'Critical' else 'warning' if article.urgency == 'High' else 'info' if article.urgency == 'Medium' else 'secondary' }} px-3 shadow-sm">
                     {{ article.urgency }}
                 </span>
             </div>
@@ -51,7 +53,8 @@
             <h5 class="fw-bold mb-3">{{ article.title }}</h5>
             <p class="text-muted small mb-4">{{ article.summary }}</p>
             <div class="mt-auto">
-                <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-4 fw-bold">Read Full Story</a>
+                <a href="{{ article.url }}" target="_blank"
+                    class="btn btn-sm btn-outline-theme rounded-pill px-4 fw-bold">Read Full Story</a>
             </div>
         </div>
     </div>
