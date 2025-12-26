@@ -191,11 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateDailyForecast(data.forecast, data.current.timezone);
             updateAQI(data.pollution);
             
-            // Apply Dynamic Theme
-            if (window.applyWeatherTheme) {
-                window.applyWeatherTheme(data.current.weather[0].main);
-            }
-
             // Fetch History Data
             fetchHistory(lat, lon);
             

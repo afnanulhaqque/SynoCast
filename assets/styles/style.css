@@ -1,3 +1,9 @@
+:root {
+  --weather-text: #2d3436;
+  --weather-accent: #6937f5;
+  --weather-shadow: rgba(105, 55, 245, 0.1);
+}
+
 body {
   display: flex;
   flex-direction: column;

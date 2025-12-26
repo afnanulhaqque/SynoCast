@@ -1,4 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // --- Safety Check ---
+  if (typeof L === "undefined") {
+    console.error("Leaflet (L) is not defined. Map cannot initialize.");
+    const mapEl = document.getElementById("map");
+    if (mapEl) {
+      mapEl.innerHTML = `
+        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted p-4 text-center">
+          <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+          <p>Failed to load the map library. Please check your internet connection or try refreshing the page.</p>
+        </div>
+      `;
+    }
+    return;
+  }
+
   // --- Map Initialization ---
   // --- Map Initialization ---
 
@@ -57,6 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   layerControl.addTo(map);
+  
+  // Ensure map fills stretched container
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 100);
 
   const container = layerControl.getContainer();
 
