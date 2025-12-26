@@ -2640,16 +2640,14 @@ textarea:focus {
   gap: 12px;
 }
 
+.search-result-item.active,
 .search-result-item:hover {
-  background-color: #f8f7ff;
-  padding-left: 25px;
+  background-color: #f0edff;
   color: #6937f5;
+  padding-left: 25px;
 }
 
-.search-result-item i {
-  color: #adb5bd;
-}
-
+.search-result-item.active i,
 .search-result-item:hover i {
   color: #6937f5;
 }

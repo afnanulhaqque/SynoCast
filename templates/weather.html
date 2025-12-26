@@ -145,7 +145,13 @@
                   <div id="trip-error-msg" class="alert alert-danger d-none small p-2 rounded-3 mb-3"></div>
                   <div class="mb-3">
                     <label class="form-label small fw-bold">Destination</label>
-                    <input type="text" id="trip-dest" class="form-control rounded-pill" placeholder="e.g. London, UK">
+                    <div class="position-relative">
+                      <input type="text" id="trip-dest" class="form-control rounded-pill" placeholder="e.g. London, UK"
+                        autocomplete="off">
+                      <div id="trip-dest-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
+                        style="z-index: 1050; background: white; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px;">
+                      </div>
+                    </div>
                   </div>
                   <div class="mb-3">
                     <label class="form-label small fw-bold">Dates</label>
@@ -346,10 +352,15 @@
       <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
         <div class="card-body p-0 position-relative h-100">
           <div class="map-controls">
-            <form class="animated-search-form" onsubmit="return false;">
-              <input id="location-search" type="search" placeholder="Search a city..." required>
-              <i class="fas fa-magnifying-glass search-icon"></i>
-            </form>
+            <div class="position-relative w-100">
+              <form class="animated-search-form" onsubmit="return false;">
+                <input id="location-search" type="search" placeholder="Search a city..." required autocomplete="off">
+                <i class="fas fa-magnifying-glass search-icon"></i>
+              </form>
+              <div id="location-search-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
+                style="z-index: 1050; background: white; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px; bottom: 100%; margin-bottom: 50px;">
+              </div>
+            </div>
             <button class="btn btn-white shadow-sm locate-btn border ms-2" id="locate-btn" title="Locate Me">
               <i class="fas fa-crosshairs"></i>
             </button>

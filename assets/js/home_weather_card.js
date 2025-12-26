@@ -58,60 +58,20 @@ document.addEventListener('DOMContentLoaded', function() {
         renderFavorites();
     }
 
-    async function addFavorite() {
-        const query = newCityInput.value.trim();
-        if (!query) return;
-
-        // Show loading state on button
-        let originalBtnHtml = '';
-        if (addCityBtn) {
-            originalBtnHtml = addCityBtn.innerHTML;
-            addCityBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            addCityBtn.disabled = true;
-        }
-
-        try {
-            const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (data && data.length > 0) {
-                const city = {
-                    name: data[0].display_name.split(',')[0], // Simple name
-                    lat: data[0].lat,
-                    lon: data[0].lon
-                };
-                
-                // Check if already exists
-                if (!favorites.some(f => f.name === city.name)) {
-                    favorites.push(city);
-                    localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
-                    renderFavorites();
-                    newCityInput.value = '';
-                } else {
-                    ToastUtils.show("Favorites", "City already in your favorites list.", "warning");
-                }
+    if (newCityInput) {
+        const newCityResults = document.getElementById('new-city-results');
+        AutocompleteUtils.initAutocomplete(newCityInput, newCityResults, (city) => {
+            // Check if already exists
+            if (!favorites.some(f => f.name === city.name)) {
+                favorites.push(city);
+                localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
+                renderFavorites();
+                newCityInput.value = '';
             } else {
-                ToastUtils.show("Not Found", "We couldn't find that city. Please check the spelling.", "error");
+                ToastUtils.show("Favorites", "City already in your favorites list.", "warning");
             }
-        } catch (error) {
-            ToastUtils.show("Search Error", "Something went wrong while searching for the city.", "error");
-        } finally {
-            if (addCityBtn) {
-                addCityBtn.innerHTML = originalBtnHtml;
-                addCityBtn.disabled = false;
-            }
-        }
-    }
-
-    if(addCityBtn) {
-        addCityBtn.addEventListener('click', addFavorite);
-    }
-    
-    if(newCityInput) {
-        newCityInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addFavorite();
         });
+
         // Prevent dropdown from closing when clicking input
         newCityInput.addEventListener('click', (e) => e.stopPropagation());
     }

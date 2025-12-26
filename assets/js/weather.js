@@ -40,70 +40,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let historyData = null; // Store for export
 
     // --- Search Functionality ---
-    let searchTimeout = null;
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            const query = searchInput.value.trim();
-            
-            if (query.length < 2) {
-                searchResults.classList.add('d-none');
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
-                    const data = await res.json();
-                    renderSearchResults(data);
-                } catch (err) {
-                    console.error("Search failed:", err);
-                }
-            }, 300);
-        });
-
-        // Close results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.add('d-none');
-            }
+    if (searchInput && searchResults) {
+        AutocompleteUtils.initAutocomplete(searchInput, searchResults, (city) => {
+            // Fetch weather for selected city
+            fetchFullForecast(city.lat, city.lon);
         });
     }
 
-    function renderSearchResults(data) {
-        if (!searchResults) return;
-        
-        if (!data || data.length === 0) {
-            searchResults.innerHTML = '<div class="p-3 text-muted small">No results found</div>';
-        } else {
-            searchResults.innerHTML = data.map(item => `
-                <div class="search-result-item" data-lat="${item.lat}" data-lon="${item.lon}" data-name="${item.display_name.split(',')[0]}">
-                    <i class="fas fa-location-dot"></i>
-                    <div class="d-flex flex-column">
-                        <span class="fw-bold">${item.display_name.split(',')[0]}</span>
-                        <small class="text-muted" style="font-size: 0.75rem;">${item.display_name}</small>
-                    </div>
-                </div>
-            `).join('');
-
-            // Add click events to items
-            searchResults.querySelectorAll('.search-result-item').forEach(item => {
-                item.onclick = () => {
-                    const lat = item.getAttribute('data-lat');
-                    const lon = item.getAttribute('data-lon');
-                    const name = item.getAttribute('data-name');
-                    
-                    searchInput.value = name;
-                    searchResults.classList.add('d-none');
-                    
-                    // Fetch weather for selected city
-                    fetchFullForecast(lat, lon);
-                };
-            });
-        }
-        
-        searchResults.classList.remove('d-none');
+    // --- AI Trip Planner Autocomplete ---
+    const tripInput = document.getElementById('trip-dest');
+    const tripResults = document.getElementById('trip-dest-results');
+    if (tripInput && tripResults) {
+        AutocompleteUtils.initAutocomplete(tripInput, tripResults, (city) => {
+            // Just fills the input, the form handles the rest
+        });
     }
 
     function celsiusToFahrenheit(celsius) {

@@ -177,41 +177,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Map Controls ---
 
   // Search Functionality
-  const searchBtn = document.getElementById("search-btn");
-  const searchInput = document.getElementById("location-search");
-
-  async function searchLocation() {
-    const query = searchInput.value;
-    if (!query) return;
-
-    const url = `/api/geocode/search?q=${encodeURIComponent(query)}`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        map.setView([lat, lon], 16); // Zoom in on result
-        marker.setLatLng([lat, lon]);
-        updateWeather(lat, lon);
-      } else {
-        ToastUtils.show("Not Found", "Location not found on the map.", "error");
-      }
-    } catch (error) {
-      ToastUtils.show("Search Error", "Error searching for location.", "error");
-    }
+  const searchResults = document.getElementById("location-search-results");
+  if (searchInput && searchResults) {
+    AutocompleteUtils.initAutocomplete(searchInput, searchResults, (city) => {
+      const lat = parseFloat(city.lat);
+      const lon = parseFloat(city.lon);
+      map.setView([lat, lon], 16); // Zoom in on result
+      marker.setLatLng([lat, lon]);
+      updateWeather(lat, lon);
+    });
   }
-
-  if (searchBtn) {
-    searchBtn.addEventListener("click", searchLocation);
-  }
-  searchInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      searchLocation();
-    }
-  });
 
   // Locate Me Functionality
   document.getElementById("locate-btn").addEventListener("click", function () {
