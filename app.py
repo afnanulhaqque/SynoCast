@@ -12,8 +12,7 @@ from google import genai
 import threading
 import time
 from contextlib import contextmanager
-import weather_impacts
-import weather_recipes
+
 
 def check_weather_alerts():
     """Background task to check for severe weather alerts for all subscribers."""
@@ -1890,7 +1889,7 @@ def api_weather_impacts():
         weather_condition = w_data['weather'][0]
         
         # Calculate all impacts
-        impacts = weather_impacts.get_all_impacts(
+        impacts = utils.get_all_impacts(
             weather_condition,
             temperature,
             humidity,
@@ -1991,7 +1990,7 @@ def api_weather_recipes():
         condition = w_data['weather'][0]['main']
         
         # Get recipe suggestions
-        recipes = weather_recipes.get_recipe_suggestions(
+        recipes = utils.get_recipe_suggestions(
             temperature,
             condition,
             meal_type,
@@ -1999,7 +1998,7 @@ def api_weather_recipes():
         )
         
         # Format recipes for frontend
-        formatted_recipes = [weather_recipes.format_recipe_for_display(r) for r in recipes]
+        formatted_recipes = [utils.format_recipe_for_display(r) for r in recipes]
         
         return jsonify({
             "recipes": formatted_recipes,

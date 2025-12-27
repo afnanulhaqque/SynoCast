@@ -3,6 +3,8 @@ import requests
 import logging
 import json
 import time
+import math
+import random
 from google import genai
 from datetime import datetime, timedelta, timezone
 from flask import request, session
@@ -1137,3 +1139,617 @@ def get_travel_cost_insights(lat, lon, currency_pref="USD"):
     
     return converted_prices
 
+def calculate_traffic_impact(weather_data, temperature):
+    """
+    Calculate traffic impact based on weather conditions.
+    
+    Args:
+        weather_data: Dict containing weather condition info
+        temperature: Current temperature in Celsius
+    
+    Returns:
+        Dict with traffic impact score (1-10), description, and advice
+    """
+    condition = weather_data.get('main', 'Clear').lower()
+    description = weather_data.get('description', '').lower()
+    
+    # Base impact score
+    impact_score = 1
+    impact_level = "Minimal"
+    advice = "Normal traffic conditions expected."
+    
+    # Weather condition impacts
+    if 'thunderstorm' in condition or 'thunderstorm' in description:
+        impact_score = 9
+        impact_level = "Severe"
+        advice = "Heavy delays expected. Avoid travel if possible. Allow extra 40-60 minutes."
+    elif 'snow' in condition or 'snow' in description:
+        if 'heavy' in description:
+            impact_score = 10
+            impact_level = "Extreme"
+            advice = "Roads may be impassable. Avoid all non-essential travel."
+        else:
+            impact_score = 7
+            impact_level = "High"
+            advice = "Significant delays likely. Drive carefully and allow extra 30-45 minutes."
+    elif 'rain' in condition or 'rain' in description:
+        if 'heavy' in description or 'extreme' in description:
+            impact_score = 8
+            impact_level = "Very High"
+            advice = "Major delays expected. Allow extra 35-50 minutes for your commute."
+        elif 'moderate' in description:
+            impact_score = 5
+            impact_level = "Moderate"
+            advice = "Moderate delays possible. Allow extra 15-20 minutes."
+        else:
+            impact_score = 3
+            impact_level = "Low"
+            advice = "Minor delays possible. Allow extra 5-10 minutes."
+    elif 'fog' in condition or 'mist' in condition or 'fog' in description:
+        impact_score = 6
+        impact_level = "Moderate-High"
+        advice = "Reduced visibility. Drive slowly and allow extra 20-30 minutes."
+    elif 'wind' in description or condition == 'squall':
+        impact_score = 4
+        impact_level = "Low-Moderate"
+        advice = "Strong winds may affect high-profile vehicles. Allow extra 10-15 minutes."
+    
+    # Temperature adjustments
+    if temperature < -10:
+        impact_score = min(10, impact_score + 2)
+        advice += " Icy conditions likely."
+    elif temperature > 35:
+        impact_score = min(10, impact_score + 1)
+        advice += " Heat may affect vehicle performance."
+    
+    return {
+        "score": impact_score,
+        "level": impact_level,
+        "advice": advice,
+        "icon": get_traffic_icon(impact_score)
+    }
+
+
+def calculate_air_quality_prediction(weather_data, temperature, humidity, wind_speed, current_aqi=None):
+    """
+    Predict air quality trends based on weather conditions.
+    
+    Args:
+        weather_data: Dict containing weather condition info
+        temperature: Temperature in Celsius
+        humidity: Humidity percentage
+        wind_speed: Wind speed in m/s
+        current_aqi: Current AQI value (optional)
+    
+    Returns:
+        Dict with AQI prediction, trend, and health advice
+    """
+    condition = weather_data.get('main', 'Clear').lower()
+    
+    # Base AQI (if not provided, estimate based on conditions)
+    if current_aqi is None:
+        current_aqi = 50  # Default moderate value
+    
+    # Calculate trend modifiers
+    trend_modifier = 0
+    
+    # Wind disperses pollutants
+    if wind_speed > 5:
+        trend_modifier -= 15
+        trend_direction = "improving"
+    elif wind_speed < 2:
+        trend_modifier += 10
+        trend_direction = "worsening"
+    else:
+        trend_direction = "stable"
+    
+    # Rain clears air
+    if 'rain' in condition:
+        trend_modifier -= 20
+        trend_direction = "improving significantly"
+    
+    # High humidity can trap pollutants
+    if humidity > 80 and wind_speed < 3:
+        trend_modifier += 10
+    
+    # Temperature inversions (cold air trapped under warm)
+    if temperature < 5 and wind_speed < 2:
+        trend_modifier += 15
+        trend_direction = "worsening"
+    
+    # High temperatures can increase ground-level ozone
+    if temperature > 30:
+        trend_modifier += 10
+    
+    # Calculate predicted AQI
+    predicted_aqi = max(0, min(500, current_aqi + trend_modifier))
+    
+    # Determine category and advice
+    if predicted_aqi <= 50:
+        category = "Good"
+        advice = "Air quality is excellent. Perfect for outdoor activities!"
+        color = "#00e400"
+    elif predicted_aqi <= 100:
+        category = "Moderate"
+        advice = "Air quality is acceptable. Sensitive individuals should limit prolonged outdoor exertion."
+        color = "#ffff00"
+    elif predicted_aqi <= 150:
+        category = "Unhealthy for Sensitive Groups"
+        advice = "People with respiratory conditions should reduce outdoor activities."
+        color = "#ff7e00"
+    elif predicted_aqi <= 200:
+        category = "Unhealthy"
+        advice = "Everyone should reduce prolonged outdoor exertion."
+        color = "#ff0000"
+    elif predicted_aqi <= 300:
+        category = "Very Unhealthy"
+        advice = "Avoid outdoor activities. Health alert for everyone."
+        color = "#8f3f97"
+    else:
+        category = "Hazardous"
+        advice = "Stay indoors. Emergency conditions for all."
+        color = "#7e0023"
+    
+    return {
+        "current_aqi": current_aqi,
+        "predicted_aqi": round(predicted_aqi),
+        "trend": trend_direction,
+        "category": category,
+        "advice": advice,
+        "color": color
+    }
+
+
+def calculate_pollen_count(temperature, humidity, wind_speed, weather_condition, month=None):
+    """
+    Estimate pollen count based on weather conditions.
+    
+    Args:
+        temperature: Temperature in Celsius
+        humidity: Humidity percentage
+        wind_speed: Wind speed in m/s
+        weather_condition: Main weather condition
+        month: Current month (1-12), defaults to current month
+    
+    Returns:
+        Dict with pollen level, count estimate, and advice
+    """
+    if month is None:
+        month = datetime.now().month
+    
+    # Base pollen count
+    pollen_score = 0
+    
+    # Seasonal factors (Northern Hemisphere)
+    if month in [3, 4, 5]:  # Spring - Tree pollen
+        pollen_score = 7
+        pollen_type = "tree pollen"
+    elif month in [6, 7, 8]:  # Summer - Grass pollen
+        pollen_score = 6
+        pollen_type = "grass pollen"
+    elif month in [9, 10]:  # Fall - Ragweed
+        pollen_score = 5
+        pollen_type = "ragweed"
+    else:  # Winter - Low pollen
+        pollen_score = 1
+        pollen_type = "general allergens"
+    
+    # Temperature effects (optimal pollen release: 15-25Â°C)
+    if 15 <= temperature <= 25:
+        pollen_score += 2
+    elif temperature < 10 or temperature > 30:
+        pollen_score -= 2
+    
+    # Humidity effects (high humidity reduces airborne pollen)
+    if humidity > 70:
+        pollen_score -= 2
+    elif humidity < 40:
+        pollen_score += 1
+    
+    # Wind effects (moderate wind spreads pollen)
+    if 2 <= wind_speed <= 5:
+        pollen_score += 2
+    elif wind_speed > 8:
+        pollen_score -= 1
+    
+    # Weather condition effects
+    condition_lower = weather_condition.lower()
+    if 'rain' in condition_lower:
+        pollen_score -= 3  # Rain washes away pollen
+    elif 'clear' in condition_lower or 'sun' in condition_lower:
+        pollen_score += 1
+    
+    # Normalize score
+    pollen_score = max(0, min(10, pollen_score))
+    
+    # Determine level and advice
+    if pollen_score <= 2:
+        level = "Low"
+        advice = "Great day for allergy sufferers! Minimal pollen in the air."
+        color = "#00e400"
+    elif pollen_score <= 4:
+        level = "Low-Moderate"
+        advice = "Pollen levels are manageable. Sensitive individuals may experience mild symptoms."
+        color = "#92d050"
+    elif pollen_score <= 6:
+        level = "Moderate"
+        advice = "Moderate pollen levels. Consider taking allergy medication if needed."
+        color = "#ffff00"
+    elif pollen_score <= 8:
+        level = "High"
+        advice = "High pollen count. Allergy sufferers should take precautions and limit outdoor time."
+        color = "#ff7e00"
+    else:
+        level = "Very High"
+        advice = "Very high pollen levels. Keep windows closed and avoid outdoor activities if allergic."
+        color = "#ff0000"
+    
+    return {
+        "score": pollen_score,
+        "level": level,
+        "type": pollen_type,
+        "advice": advice,
+        "color": color
+    }
+
+
+def get_traffic_icon(score):
+    """Get appropriate icon for traffic impact score."""
+    if score >= 8:
+        return "fa-circle-exclamation"
+    elif score >= 5:
+        return "fa-triangle-exclamation"
+    elif score >= 3:
+        return "fa-circle-info"
+    else:
+        return "fa-circle-check"
+
+
+def get_all_impacts(weather_data, temperature, humidity, wind_speed, current_aqi=None):
+    """
+    Get all impact predictions in a single call.
+    
+    Args:
+        weather_data: Dict containing weather condition info
+        temperature: Temperature in Celsius
+        humidity: Humidity percentage
+        wind_speed: Wind speed in m/s
+        current_aqi: Current AQI value (optional)
+    
+    Returns:
+        Dict with traffic, air_quality, and pollen predictions
+    """
+    return {
+        "traffic": calculate_traffic_impact(weather_data, temperature),
+        "air_quality": calculate_air_quality_prediction(
+            weather_data, temperature, humidity, wind_speed, current_aqi
+        ),
+        "pollen": calculate_pollen_count(
+            temperature, humidity, wind_speed, weather_data.get('main', 'Clear')
+        )
+    }
+# Recipe database categorized by weather conditions
+RECIPE_DATABASE = {
+    "cold": [
+        {
+            "name": "Classic Chicken Noodle Soup",
+            "description": "Warm, comforting soup perfect for cold weather. A timeless remedy for chilly days.",
+            "prep_time": "45 min",
+            "servings": 6,
+            "difficulty": "Easy",
+            "ingredients": ["chicken", "noodles", "carrots", "celery", "onion", "chicken broth"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "A steaming bowl of chicken noodle soup with vegetables, warm lighting, cozy atmosphere"
+        },
+        {
+            "name": "Beef Stew with Root Vegetables",
+            "description": "Hearty and filling stew that warms you from the inside out.",
+            "prep_time": "2 hours",
+            "servings": 8,
+            "difficulty": "Medium",
+            "ingredients": ["beef", "potatoes", "carrots", "onions", "beef broth", "herbs"],
+            "meal_type": ["dinner"],
+            "image_prompt": "Rich beef stew in a rustic bowl with chunks of vegetables, steam rising"
+        },
+        {
+            "name": "Hot Chocolate with Marshmallows",
+            "description": "Rich, creamy hot chocolate topped with fluffy marshmallows.",
+            "prep_time": "10 min",
+            "servings": 2,
+            "difficulty": "Easy",
+            "ingredients": ["milk", "cocoa powder", "sugar", "marshmallows", "vanilla"],
+            "meal_type": ["snack", "breakfast"],
+            "image_prompt": "Mug of hot chocolate with marshmallows, whipped cream, cozy winter setting"
+        },
+        {
+            "name": "Baked Mac and Cheese",
+            "description": "Creamy, cheesy comfort food with a crispy golden top.",
+            "prep_time": "40 min",
+            "servings": 6,
+            "difficulty": "Easy",
+            "ingredients": ["pasta", "cheddar cheese", "milk", "butter", "breadcrumbs"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Baked mac and cheese with golden crispy top, cheese bubbling, comfort food"
+        },
+        {
+            "name": "Chili Con Carne",
+            "description": "Spicy, warming chili packed with beans and ground beef.",
+            "prep_time": "1 hour",
+            "servings": 8,
+            "difficulty": "Easy",
+            "ingredients": ["ground beef", "kidney beans", "tomatoes", "chili peppers", "onions"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Bowl of spicy chili con carne with beans, topped with cheese and sour cream"
+        }
+    ],
+    "hot": [
+        {
+            "name": "Greek Salad with Grilled Chicken",
+            "description": "Light, refreshing salad perfect for hot summer days.",
+            "prep_time": "20 min",
+            "servings": 4,
+            "difficulty": "Easy",
+            "ingredients": ["lettuce", "tomatoes", "cucumber", "feta cheese", "olives", "chicken"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Fresh Greek salad with grilled chicken, colorful vegetables, bright summer lighting"
+        },
+        {
+            "name": "Watermelon Mint Cooler",
+            "description": "Refreshing drink to beat the heat. Hydrating and delicious.",
+            "prep_time": "10 min",
+            "servings": 4,
+            "difficulty": "Easy",
+            "ingredients": ["watermelon", "mint", "lime", "ice", "honey"],
+            "meal_type": ["snack", "breakfast"],
+            "image_prompt": "Glass of watermelon mint cooler with ice, fresh mint leaves, summer vibes"
+        },
+        {
+            "name": "Gazpacho (Cold Tomato Soup)",
+            "description": "Chilled Spanish soup bursting with fresh vegetable flavors.",
+            "prep_time": "15 min + chill time",
+            "servings": 6,
+            "difficulty": "Easy",
+            "ingredients": ["tomatoes", "cucumber", "bell peppers", "onion", "garlic", "olive oil"],
+            "meal_type": ["lunch", "snack"],
+            "image_prompt": "Bowl of cold gazpacho soup, vibrant red color, garnished with vegetables"
+        },
+        {
+            "name": "Caprese Salad",
+            "description": "Simple Italian salad with fresh mozzarella, tomatoes, and basil.",
+            "prep_time": "10 min",
+            "servings": 4,
+            "difficulty": "Easy",
+            "ingredients": ["mozzarella", "tomatoes", "basil", "olive oil", "balsamic vinegar"],
+            "meal_type": ["lunch", "snack"],
+            "image_prompt": "Caprese salad with fresh mozzarella and tomatoes, drizzled with balsamic glaze"
+        },
+        {
+            "name": "Grilled Fish Tacos",
+            "description": "Light and flavorful tacos with grilled fish and fresh toppings.",
+            "prep_time": "30 min",
+            "servings": 4,
+            "difficulty": "Medium",
+            "ingredients": ["white fish", "tortillas", "cabbage", "lime", "avocado", "cilantro"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Grilled fish tacos with fresh toppings, colorful presentation, summer meal"
+        }
+    ],
+    "rainy": [
+        {
+            "name": "Tomato Basil Soup with Grilled Cheese",
+            "description": "Classic comfort combo perfect for rainy days.",
+            "prep_time": "30 min",
+            "servings": 4,
+            "difficulty": "Easy",
+            "ingredients": ["tomatoes", "basil", "cream", "bread", "cheese", "butter"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Tomato soup in a bowl with grilled cheese sandwich, rainy day comfort food"
+        },
+        {
+            "name": "Creamy Mushroom Risotto",
+            "description": "Rich, creamy risotto that's perfect for cozy indoor dining.",
+            "prep_time": "45 min",
+            "servings": 4,
+            "difficulty": "Medium",
+            "ingredients": ["arborio rice", "mushrooms", "parmesan", "white wine", "butter", "broth"],
+            "meal_type": ["dinner"],
+            "image_prompt": "Creamy mushroom risotto in a bowl, garnished with parmesan, elegant presentation"
+        },
+        {
+            "name": "Chai Tea Latte",
+            "description": "Spiced tea latte to warm you up on a rainy afternoon.",
+            "prep_time": "15 min",
+            "servings": 2,
+            "difficulty": "Easy",
+            "ingredients": ["black tea", "milk", "cinnamon", "ginger", "cardamom", "honey"],
+            "meal_type": ["snack", "breakfast"],
+            "image_prompt": "Chai tea latte in a mug with cinnamon stick, cozy rainy day setting"
+        },
+        {
+            "name": "Chicken Pot Pie",
+            "description": "Flaky pastry filled with creamy chicken and vegetables.",
+            "prep_time": "1 hour",
+            "servings": 6,
+            "difficulty": "Medium",
+            "ingredients": ["chicken", "puff pastry", "carrots", "peas", "cream", "potatoes"],
+            "meal_type": ["dinner"],
+            "image_prompt": "Golden chicken pot pie with flaky crust, steam escaping, comfort food"
+        }
+    ],
+    "mild": [
+        {
+            "name": "Quinoa Buddha Bowl",
+            "description": "Nutritious bowl packed with colorful vegetables and protein.",
+            "prep_time": "30 min",
+            "servings": 2,
+            "difficulty": "Easy",
+            "ingredients": ["quinoa", "chickpeas", "avocado", "sweet potato", "kale", "tahini"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Colorful Buddha bowl with quinoa and vegetables, healthy and vibrant"
+        },
+        {
+            "name": "Margherita Pizza",
+            "description": "Classic pizza with fresh mozzarella, tomatoes, and basil.",
+            "prep_time": "45 min",
+            "servings": 4,
+            "difficulty": "Medium",
+            "ingredients": ["pizza dough", "mozzarella", "tomatoes", "basil", "olive oil"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Margherita pizza fresh from the oven, melted cheese, fresh basil leaves"
+        },
+        {
+            "name": "Chicken Caesar Wrap",
+            "description": "Portable and delicious wrap perfect for outdoor activities.",
+            "prep_time": "15 min",
+            "servings": 2,
+            "difficulty": "Easy",
+            "ingredients": ["tortilla", "chicken", "romaine lettuce", "caesar dressing", "parmesan"],
+            "meal_type": ["lunch"],
+            "image_prompt": "Chicken caesar wrap cut in half, showing fresh ingredients, casual meal"
+        },
+        {
+            "name": "Pasta Primavera",
+            "description": "Light pasta dish with seasonal vegetables.",
+            "prep_time": "25 min",
+            "servings": 4,
+            "difficulty": "Easy",
+            "ingredients": ["pasta", "zucchini", "bell peppers", "cherry tomatoes", "garlic", "olive oil"],
+            "meal_type": ["lunch", "dinner"],
+            "image_prompt": "Pasta primavera with colorful vegetables, light and fresh, spring meal"
+        }
+    ]
+}
+
+
+def get_weather_category(temperature, condition):
+    """
+    Categorize weather into recipe-friendly categories.
+    
+    Args:
+        temperature: Temperature in Celsius
+        condition: Weather condition string
+    
+    Returns:
+        String category: 'cold', 'hot', 'rainy', or 'mild'
+    """
+    condition_lower = condition.lower()
+    
+    # Rain takes precedence
+    if 'rain' in condition_lower or 'drizzle' in condition_lower or 'shower' in condition_lower:
+        return "rainy"
+    
+    # Temperature-based categories
+    if temperature < 10:
+        return "cold"
+    elif temperature > 28:
+        return "hot"
+    else:
+        return "mild"
+
+
+def get_recipe_suggestions(temperature, condition, meal_type=None, count=3):
+    """
+    Get recipe suggestions based on weather conditions.
+    
+    Args:
+        temperature: Temperature in Celsius
+        condition: Weather condition string
+        meal_type: Optional filter for meal type ('breakfast', 'lunch', 'dinner', 'snack')
+        count: Number of recipes to return (default 3)
+    
+    Returns:
+        List of recipe dictionaries with weather context
+    """
+    category = get_weather_category(temperature, condition)
+    recipes = RECIPE_DATABASE.get(category, RECIPE_DATABASE["mild"])
+    
+    # Filter by meal type if specified
+    if meal_type:
+        filtered_recipes = [r for r in recipes if meal_type.lower() in r["meal_type"]]
+        if filtered_recipes:
+            recipes = filtered_recipes
+    
+    # Randomly select recipes
+    selected_recipes = random.sample(recipes, min(count, len(recipes)))
+    
+    # Add weather context to each recipe
+    weather_context = get_weather_context(temperature, condition, category)
+    
+    for recipe in selected_recipes:
+        recipe["weather_context"] = weather_context
+        recipe["weather_category"] = category
+    
+    return selected_recipes
+
+
+def get_weather_context(temperature, condition, category):
+    """
+    Generate contextual message explaining why these recipes fit the weather.
+    
+    Args:
+        temperature: Temperature in Celsius
+        condition: Weather condition string
+        category: Weather category
+    
+    Returns:
+        String with weather context
+    """
+    contexts = {
+        "cold": f"It's a chilly {temperature}Â°C outside. Warm up with these comforting dishes!",
+        "hot": f"Beat the {temperature}Â°C heat with these refreshing, light meals!",
+        "rainy": f"Perfect weather for cozy comfort food. Stay dry and enjoy!",
+        "mild": f"Beautiful {temperature}Â°C weather! These balanced meals are perfect for today."
+    }
+    
+    return contexts.get(category, "Enjoy these delicious recipes!")
+
+
+def get_seasonal_recipes(month=None):
+    """
+    Get recipes appropriate for the current season.
+    
+    Args:
+        month: Month number (1-12), defaults to current month
+    
+    Returns:
+        List of seasonal recipe suggestions
+    """
+    if month is None:
+        month = datetime.now().month
+    
+    # Determine season (Northern Hemisphere)
+    if month in [12, 1, 2]:
+        season = "winter"
+        return RECIPE_DATABASE["cold"]
+    elif month in [3, 4, 5]:
+        season = "spring"
+        return RECIPE_DATABASE["mild"]
+    elif month in [6, 7, 8]:
+        season = "summer"
+        return RECIPE_DATABASE["hot"]
+    else:  # 9, 10, 11
+        season = "fall"
+        return RECIPE_DATABASE["mild"] + RECIPE_DATABASE["rainy"][:2]
+
+
+def format_recipe_for_display(recipe):
+    """
+    Format recipe data for frontend display.
+    
+    Args:
+        recipe: Recipe dictionary
+    
+    Returns:
+        Formatted recipe dictionary
+    """
+    return {
+        "name": recipe["name"],
+        "description": recipe["description"],
+        "prepTime": recipe["prep_time"],
+        "servings": recipe["servings"],
+        "difficulty": recipe["difficulty"],
+        "ingredients": recipe["ingredients"],
+        "mealType": recipe["meal_type"],
+        "weatherContext": recipe.get("weather_context", ""),
+        "imagePrompt": recipe.get("image_prompt", "")
+    }

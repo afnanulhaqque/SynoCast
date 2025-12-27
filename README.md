@@ -108,13 +108,6 @@
    ```
    The application will be accessible at `http://127.0.0.1:5000`.
 
-### 🔍 Diagnostics & Testing
-
-The project includes utility scripts to verify API connectivity and server stability:
-
-- **Rate Limit Check:** `python verify_fix.py` (Tests local rate limiting logic)
-- **OWM Connectivity:** `python diag_owm.py` (Verifies OpenWeatherMap API key and data format)
-
 ---
 
 ## 📡 API Documentation
