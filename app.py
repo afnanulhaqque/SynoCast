@@ -140,6 +140,94 @@ def check_weather_alerts():
                 app.logger.error(f"Weather alert background task error: {e}")
                 time.sleep(60)
 
+def trigger_daily_forecast_webhooks():
+    """Background task to trigger daily forecast webhooks."""
+    with app.app_context():
+        while True:
+            try:
+                # Check for daily forecasts that haven't been sent in the last 20 hours
+                with get_db() as conn:
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        SELECT id, webhook_url, event_types, lat, lon, secret_token, last_triggered
+                        FROM webhook_subscriptions
+                        WHERE is_active = 1
+                    """)
+                    subscriptions = cursor.fetchall()
+                
+                for sub in subscriptions:
+                    try:
+                        event_types = json.loads(sub['event_types'])
+                        if 'daily_forecast' not in event_types:
+                            continue
+                            
+                        # Check if triggered recently
+                        should_send = False
+                        if not sub['last_triggered']:
+                            should_send = True
+                        else:
+                            try:
+                                last_iso = sub['last_triggered'].replace('Z', '+00:00')
+                                last = datetime.fromisoformat(last_iso)
+                                if (datetime.utcnow().replace(tzinfo=timezone.utc) - last).total_seconds() > 72000: # 20 hours
+                                    should_send = True
+                            except:
+                                should_send = True # Fallback if date parsing fails
+                        
+                        if should_send:
+                            # Fetch forecast
+                            api_key = os.environ.get("OPENWEATHER_API_KEY")
+                            if not api_key:
+                                app.logger.error("OPENWEATHER_API_KEY not set")
+                                break
+                                
+                            weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={sub['lat']}&lon={sub['lon']}&units=metric&appid={api_key}"
+                            res = requests.get(weather_url, timeout=10)
+                            if not res.ok:
+                                continue
+                                
+                            data = res.json()
+                            
+                            payload = {
+                                "event_type": "daily_forecast",
+                                "location": {
+                                    "city": data.get("name"),
+                                    "lat": sub['lat'],
+                                    "lon": sub['lon']
+                                },
+                                "forecast": {
+                                    "temp": data["main"]["temp"],
+                                    "condition": data["weather"][0]["description"],
+                                    "high": data["main"]["temp_max"],
+                                    "low": data["main"]["temp_min"]
+                                },
+                                "timestamp": datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
+                            }
+                            
+                            success, error = utils.send_webhook(sub['webhook_url'], payload, sub['secret_token'])
+                            
+                            # Update last_triggered
+                            with get_db() as conn:
+                                if success:
+                                    conn.execute("UPDATE webhook_subscriptions SET last_triggered = ?, failure_count = 0 WHERE id = ?", 
+                                                (datetime.utcnow().isoformat() + "Z", sub['id']))
+                                else:
+                                    conn.execute("UPDATE webhook_subscriptions SET failure_count = failure_count + 1 WHERE id = ?", 
+                                                (sub['id'],))
+                                conn.commit()
+                                
+                    except Exception as sub_e:
+                        app.logger.error(f"Error processing subscription {sub['id']}: {sub_e}")
+                        continue
+
+                time.sleep(300) # Check every 5 minutes
+                
+            except Exception as e:
+                app.logger.error(f"Daily forecast webhook task error: {e}")
+                time.sleep(60)
+
+
 
 
 def send_push_notification(subscription_info, message_body):
