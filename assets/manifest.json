@@ -1,11 +1,13 @@
 {
   "name": "SynoCast - AI Weather Hub",
   "short_name": "SynoCast",
-  "description": "Location-aware weather storytelling and alerts.",
+  "description": "Location-aware weather storytelling and alerts with AI-powered insights.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2196f3",
+  "background_color": "#2F2F2F",
+  "theme_color": "#6FAED9",
+  "orientation": "portrait-primary",
+  "categories": ["weather", "news", "utilities"],
   "icons": [
     {
       "src": "/assets/logo/logo-small.png",
@@ -18,6 +20,44 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Check Weather",
+      "short_name": "Weather",
+      "description": "View current weather and forecast",
+      "url": "/weather",
+      "icons": [
+        {
+          "src": "/assets/logo/logo-small.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Weather Alerts",
+      "short_name": "Alerts",
+      "description": "View weather alerts and notifications",
+      "url": "/subscribe",
+      "icons": [
+        {
+          "src": "/assets/logo/logo-small.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "My Profile",
+      "short_name": "Profile",
+      "description": "Manage favorites and preferences",
+      "url": "/profile",
+      "icons": [
+        {
+          "src": "/assets/logo/logo-small.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

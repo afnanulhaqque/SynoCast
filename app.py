@@ -540,7 +540,10 @@ def about():
     return render_template("about.html", active_page="about", date_time_info=utils.get_local_time_string(), meta=seo_meta)
 
 
-    return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string(), meta=seo_meta)
+@app.route("/offline")
+def offline():
+    """Offline fallback page."""
+    return render_template("offline.html", active_page="offline", date_time_info=utils.get_local_time_string())
 
 @app.route("/profile")
 def profile():
@@ -810,6 +813,66 @@ def api_weather():
         app.logger.error(f"OpenWeatherMap API error: {e}")
         return jsonify({"error": "Failed to fetch weather data"}), 500
 
+
+@app.route("/api/widget-data")
+@limiter.limit("60 per minute")
+def api_widget_data():
+    """
+    Compact weather data endpoint optimized for widgets and push notifications.
+    Returns minimal data for display in notifications, periodic sync, and offline storage.
+    """
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat or lon parameters"}), 400
+
+    try:
+        # Fetch current weather only (lightweight request)
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        current_res = requests.get(current_url, timeout=5)
+        current_res.raise_for_status()
+        current_data = current_res.json()
+
+        # Extract only essential data for widget/notification display
+        widget_data = {
+            "location": {
+                "city": current_data.get("name", "Unknown"),
+                "country": current_data.get("sys", {}).get("country", ""),
+                "lat": lat,
+                "lon": lon
+            },
+            "current": {
+                "temp": round(current_data["main"]["temp"], 1),
+                "feels_like": round(current_data["main"]["feels_like"], 1),
+                "temp_min": round(current_data["main"]["temp_min"], 1),
+                "temp_max": round(current_data["main"]["temp_max"], 1),
+                "humidity": current_data["main"]["humidity"],
+                "pressure": current_data["main"]["pressure"],
+                "weather": {
+                    "main": current_data["weather"][0]["main"],
+                    "description": current_data["weather"][0]["description"],
+                    "icon": current_data["weather"][0]["icon"]
+                },
+                "wind_speed": round(current_data["wind"]["speed"], 1),
+                "clouds": current_data.get("clouds", {}).get("all", 0)
+            },
+            "timestamp": int(datetime.utcnow().timestamp()),
+            "sunrise": current_data.get("sys", {}).get("sunrise"),
+            "sunset": current_data.get("sys", {}).get("sunset")
+        }
+
+        # Add rain/snow data if available
+        if "rain" in current_data:
+            widget_data["current"]["rain_1h"] = current_data["rain"].get("1h", 0)
+        if "snow" in current_data:
+            widget_data["current"]["snow_1h"] = current_data["snow"].get("1h", 0)
+
+        return jsonify(widget_data)
+
+    except Exception as e:
+        app.logger.error(f"Widget data API error: {e}")
+        return jsonify({"error": "Failed to fetch widget data"}), 500
 
 
 @app.route("/api/weather/analytics")

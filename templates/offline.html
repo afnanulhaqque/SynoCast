@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Offline - SynoCast{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <!-- Offline Icon -->
+                    <div class="mb-4">
+                        <svg width="120" height="120" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                                fill="#6FAED9" />
+                            <path d="M1 21h22v2H1z" fill="#E74C3C" />
+                        </svg>
+                    </div>
+
+                    <!-- Offline Message -->
+                    <h2 class="mb-3">You're Offline</h2>
+                    <p class="text-muted mb-4">
+                        No internet connection detected. Don't worry, you can still view your cached weather data!
+                    </p>
+
+                    <!-- Retry Button -->
+                    <button id="retry-connection" class="btn btn-primary btn-lg mb-4">
+                        <i class="bi bi-arrow-clockwise me-2"></i>
+                        Retry Connection
+                    </button>
+
+                    <!-- Cached Data Section -->
+                    <div id="cached-weather-section" class="mt-5">
+                        <h4 class="mb-3">Cached Weather Data</h4>
+                        <div id="cached-weather-container">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favorites Section -->
+                    <div id="favorites-section" class="mt-4">
+                        <h5 class="mb-3">Your Favorite Locations</h5>
+                        <div id="favorites-container">
+                            <!-- Favorites will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>
+                        Offline Tips
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Cached data is available for up to 24 hours
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Your favorites are always accessible offline
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Changes will sync when you're back online
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/assets/js/offline_storage.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const retryBtn = document.getElementById('retry-connection');
+        const cachedWeatherContainer = document.getElementById('cached-weather-container');
+        const favoritesContainer = document.getElementById('favorites-container');
+
+        // Retry connection button
+        retryBtn.addEventListener('click', function () {
+            retryBtn.disabled = true;
+            retryBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Checking...';
+
+            fetch('/api/weather?lat=0&lon=0', { method: 'HEAD' })
+                .then(() => {
+                    window.location.href = '/';
+                })
+                .catch(() => {
+                    retryBtn.disabled = false;
+                    retryBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Retry Connection';
+                    ToastUtils.show('Still Offline', 'No internet connection available', 'warning');
+                });
+        });
+
+        // Load cached weather data
+        try {
+            const lastLocation = await offlineStorage.getSetting('lastLocation');
+
+            if (lastLocation && lastLocation.lat && lastLocation.lon) {
+                const cachedData = await offlineStorage.getWeatherData(
+                    lastLocation.lat,
+                    lastLocation.lon
+                );
+
+                if (cachedData) {
+                    displayCachedWeather(cachedData);
+                } else {
+                    cachedWeatherContainer.innerHTML = `
+                    <p class="text-muted">No cached weather data available</p>
+                `;
+                }
+            } else {
+                cachedWeatherContainer.innerHTML = `
+                <p class="text-muted">No location data found</p>
+            `;
+            }
+        } catch (error) {
+            console.error('Error loading cached weather:', error);
+            cachedWeatherContainer.innerHTML = `
+            <p class="text-danger">Error loading cached data</p>
+        `;
+        }
+
+        // Load favorites
+        try {
+            const favorites = await offlineStorage.getFavorites();
+
+            if (favorites && favorites.length > 0) {
+                displayFavorites(favorites);
+            } else {
+                favoritesContainer.innerHTML = `
+                <p class="text-muted">No favorite locations saved</p>
+            `;
+            }
+        } catch (error) {
+            console.error('Error loading favorites:', error);
+            favoritesContainer.innerHTML = `
+            <p class="text-danger">Error loading favorites</p>
+        `;
+        }
+
+        function displayCachedWeather(data) {
+            const cacheAge = Math.floor(data.cacheAge / 1000 / 60); // minutes
+            const ageText = cacheAge < 60
+                ? `${cacheAge} minutes ago`
+                : `${Math.floor(cacheAge / 60)} hours ago`;
+
+            cachedWeatherContainer.innerHTML = `
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">${data.location.city}</h3>
+                            <small class="text-muted">Cached ${ageText}</small>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="mb-0">${data.current.temp}°C</h2>
+                            <p class="mb-0 text-capitalize">${data.current.weather.description}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3 text-center">
+                        <div class="col-4">
+                            <small class="text-muted">Feels Like</small>
+                            <p class="mb-0 fw-bold">${data.current.feels_like}°C</p>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Humidity</small>
+                            <p class="mb-0 fw-bold">${data.current.humidity}%</p>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Wind</small>
+                            <p class="mb-0 fw-bold">${data.current.wind_speed} m/s</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+
+        function displayFavorites(favorites) {
+            favoritesContainer.innerHTML = favorites.map(fav => `
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${fav.city || 'Unknown'}</strong>
+                            <small class="text-muted ms-2">${fav.country || ''}</small>
+                        </div>
+                        <small class="text-muted">
+                            ${fav.lat.toFixed(2)}, ${fav.lon.toFixed(2)}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        }
+    });
+</script>
+{% endblock %}
