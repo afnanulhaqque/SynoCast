@@ -587,20 +587,17 @@
           style="background: #fffcf8; border-left: 5px solid var(--accent-news) !important;">
           <div class="d-flex align-items-center mb-2">
             <i class="fas fa-hand-holding-medical text-warning me-2"></i>
-            <p class="fw-bold small text-muted mb-0">Health & Skincare</p>
+            <p class="fw-bold small text-muted mb-0">Health & Wellness</p>
           </div>
-          <div class="row g-2">
-            <div class="col-6">
-              <div class="small fw-bold">UV Index</div>
-              <div id="health-uv-value" class="fs-5 fw-bold">--</div>
-            </div>
-            <div class="col-6">
-              <div class="small fw-bold">Pollen</div>
-              <div id="health-pollen-value" class="fs-5 fw-bold text-success">Low</div>
+
+          <div id="health-metrics-grid" class="row g-2 mb-3">
+            <div class="text-center w-100 py-3">
+              <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
             </div>
           </div>
-          <div id="health-ai-advice" class="mt-3 p-2 bg-white rounded-3 small border border-warning-subtle text-muted">
-            <i class="fas fa-sparkles text-news me-1"></i> AI Advice: Wear SPF 30+ if going out today.
+
+          <div id="health-ai-advice" class="p-2 bg-white rounded-3 small border border-warning-subtle text-muted">
+            <small class="text-muted">Loading AI insights...</small>
           </div>
         </div>
 

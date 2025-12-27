@@ -271,6 +271,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Auto-fetch "On This Day" for 5 years ago
             fetchOnThisDay(lat, lon, 5);
+            
+            // Fetch Health Data
+            loadHealthData(lat, lon);
 
             // Re-run unit update to ensure new data respects current selection
             updateDisplayUnits();
@@ -542,6 +545,57 @@ document.addEventListener('DOMContentLoaded', function() {
             renderHistoryChart(data);
         } catch (err) {
             console.error("Failed to fetch history:", err);
+        }
+    }
+
+    async function loadHealthData(lat, lon) {
+        const grid = document.getElementById('health-metrics-grid');
+        if(!grid) return;
+
+        try {
+            const res = await fetch(`/api/weather/health?lat=${lat}&lon=${lon}`);
+            if (!res.ok) throw new Error("Health API error");
+            const data = await res.json();
+            
+            // Render 4 items
+            const items = [
+                { key: 'migraine', label: 'Migraine', icon: 'fa-brain' },
+                { key: 'arthritis', label: 'Arthritis', icon: 'fa-bone' },
+                { key: 'respiratory', label: 'Respiratory', icon: 'fa-lungs' },
+                { key: 'uv_skin', label: 'UV & Skin', icon: 'fa-sun' }
+            ];
+            
+            let html = '';
+            items.forEach(item => {
+                const info = data[item.key] || { risk: 'Unknown', reason: '' };
+                let colorClass = 'text-muted';
+                if (info.risk === 'High') colorClass = 'text-danger';
+                else if (info.risk === 'Medium') colorClass = 'text-warning';
+                else if (info.risk === 'Low') colorClass = 'text-success';
+                
+                html += `
+                <div class="col-6">
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="fas ${item.icon} me-1 text-muted small"></i>
+                        <span class="small fw-bold">${item.label}</span>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                         <span class="fs-6 fw-bold ${colorClass} me-2">${info.risk}</span>
+                    </div>
+                    <p class="x-small text-muted mb-0 lh-1" style="font-size: 10px;">${info.reason || ''}</p>
+                </div>
+                `;
+            });
+            grid.innerHTML = html;
+            
+            const adviceEl = document.getElementById('health-ai-advice');
+            if(adviceEl && data.general_advice) {
+                adviceEl.innerHTML = `<i class="fas fa-sparkles text-news me-1"></i> AI Advice: ${data.general_advice}`;
+            }
+            
+        } catch (e) {
+            console.error("Health fetch error", e);
+            if(grid) grid.innerHTML = '<div class="text-center x-small text-muted">Health data unavailable</div>';
         }
     }
 

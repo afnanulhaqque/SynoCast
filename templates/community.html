@@ -24,6 +24,10 @@
             <button class="nav-link rounded-pill px-4" id="planner-tab" data-bs-toggle="tab" data-bs-target="#planner"
                 type="button" role="tab">Event Planner</button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="leaderboard-tab" data-bs-toggle="tab"
+                data-bs-target="#leaderboard" type="button" role="tab">Leaderboard</button>
+        </li>
     </ul>
 
     <div class="tab-content" id="communityTabContent">
@@ -110,6 +114,49 @@
                                 <button class="btn btn-primary px-4" type="button" id="planBtn">Plan It</button>
                             </div>
                             <div id="plannerResults" class="text-start mt-4 planner-response"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div class="tab-pane fade" id="leaderboard" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                            <h3 class="h5 mb-0"><i class="fas fa-trophy text-warning me-2"></i>Top Contributors</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush" id="leaderboard-list">
+                                <div class="text-center p-4">
+                                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <!-- My Stats -->
+                    <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+                        <div class="card-body text-center p-4">
+                            <h6 class="text-white-50">MY KARMA</h6>
+                            <h2 class="display-3 fw-bold mb-0" id="my-points">0</h2>
+                            <p class="small text-white-50">Points</p>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                            <h5 class="card-title h6 mb-0">My Badges</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="my-badges" class="d-flex flex-wrap gap-2 justify-content-center">
+                                <div class="text-center p-2">
+                                    <div class="spinner-border spinner-border-sm text-muted"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -228,7 +275,77 @@
                     }
                 });
         });
+        // Leaderboard Tab Click
+        document.getElementById('leaderboard-tab').addEventListener('shown.bs.tab', function () {
+            loadLeaderboard();
+            loadMyStats();
+        });
     });
+
+    function loadLeaderboard() {
+        fetch('/api/community/leaderboard')
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('leaderboard-list');
+                if (!data.length) {
+                    list.innerHTML = '<div class="p-4 text-center text-muted">No records yet.</div>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach((u, i) => {
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+                    html += `
+                        <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-3" style="width: 30px; font-size: 1.2rem;">${medal}</span>
+                                <span class="fw-medium">${u.display_name}</span>
+                            </div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 fs-6">
+                                ${u.total_score} pts
+                            </span>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            });
+    }
+
+    function loadMyStats() {
+        fetch('/api/user/badges')
+            .then(r => r.json())
+            .then(data => {
+                // Points
+                document.getElementById('my-points').textContent = data.total_points || 0;
+
+                // Badges
+                const container = document.getElementById('my-badges');
+                if (!data.all.length) {
+                    container.innerHTML = '<small class="text-muted">No badges available</small>';
+                    return;
+                }
+
+                let html = '';
+                // Create map of earned badges
+                const earnedMap = new Map((data.earned || []).map(b => [b.name, b]));
+
+                data.all.forEach(badge => {
+                    const isEarned = earnedMap.has(badge.name);
+                    const opacity = isEarned ? '1' : '0.3';
+                    const tooltip = isEarned ? `Earned: ${new Date(earnedMap.get(badge.name).awarded_at).toLocaleDateString()}` : `Locked: ${badge.description}`;
+
+                    html += `
+                        <div class="text-center p-2" title="${tooltip}" style="opacity: ${opacity}; width: 80px;">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
+                                <i class="fas ${badge.icon_class} fa-lg text-primary"></i>
+                            </div>
+                            <small class="d-block lh-1 text-muted" style="font-size: 10px;">${badge.name}</small>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+    }
 
     function loadFeed() {
         fetch('/api/community/feed?limit=30')

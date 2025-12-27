@@ -449,6 +449,8 @@ def init_db():
             wr_columns = [column[1] for column in cursor.fetchall()]
             if "comment" not in wr_columns:
                 conn.execute("ALTER TABLE weather_reports ADD COLUMN comment TEXT")
+            if "email" not in wr_columns:
+                conn.execute("ALTER TABLE weather_reports ADD COLUMN email TEXT")
 
             # Weather Photos Table
             conn.execute(
@@ -490,6 +492,8 @@ def init_db():
                 conn.execute("ALTER TABLE user_preferences ADD COLUMN activities TEXT")
             if "dashboard_config" not in up_columns:
                 conn.execute("ALTER TABLE user_preferences ADD COLUMN dashboard_config TEXT")
+            if "health_config" not in up_columns:
+                conn.execute("ALTER TABLE user_preferences ADD COLUMN health_config TEXT")
             if "language" not in up_columns:
                 conn.execute("ALTER TABLE user_preferences ADD COLUMN language TEXT DEFAULT 'en'")
             if "timezone" not in up_columns:
@@ -524,6 +528,56 @@ def init_db():
                 )
                 """
             )
+
+            # Gamification Tables
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_points (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    points INTEGER DEFAULT 0,
+                    event_type TEXT,
+                    description TEXT,
+                    created_at TEXT
+                )
+                """
+            )
+
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS badges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE,
+                    description TEXT,
+                    icon_class TEXT,
+                    threshold INTEGER
+                )
+                """
+            )
+
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_badges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    badge_id INTEGER,
+                    awarded_at TEXT,
+                    UNIQUE(email, badge_id)
+                )
+                """
+            )
+            
+            # Pre-seed basic badges if empty
+            cursor.execute("SELECT COUNT(*) FROM badges")
+            if cursor.fetchone()[0] == 0:
+                badges_data = [
+                    ("Novice Reporter", "Submit your first weather report", "fa-seedling", 1),
+                    ("Reliable Source", "Submit 5 accurate weather reports", "fa-check-double", 5),
+                    ("Storm Chaser", "Report severe weather accurately", "fa-bolt", 0), # Special condition
+                    ("Community Pillar", "Reach 500 karma points", "fa-crown", 500)
+                ]
+                cursor.executemany("INSERT INTO badges (name, description, icon_class, threshold) VALUES (?, ?, ?, ?)", badges_data)
+
 
 
             
@@ -1144,6 +1198,104 @@ def api_weather_analytics():
     except KeyError as e:
         app.logger.error(f"Analytics data parse error: {e}")
         return jsonify({"error": "Invalid weather data format"}), 500
+
+
+@app.route("/api/weather/health")
+@limiter.limit("20 per minute")
+def api_weather_health():
+    """
+    Returns AI-generated health insights based on current weather.
+    Cached for 1 hour to save API credits.
+    """
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    
+    if not lat or not lon:
+        return jsonify({"error": "Missing coordinates"}), 400
+        
+    cache_key = f"health_{round(float(lat), 1)}_{round(float(lon), 1)}"
+    now_ts = datetime.utcnow().timestamp()
+    
+    if cache_key in WEATHER_CACHE:
+        entry = WEATHER_CACHE[cache_key]
+        if now_ts - entry['timestamp'] < 3600: # 1 hour cache
+            return jsonify(entry['data'])
+
+    try:
+        # 1. Fetch current weather (fast)
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        w_res = requests.get(url, timeout=5)
+        if not w_res.ok:
+            return jsonify({"error": "Weather data unavailable"}), 502
+        w_data = w_res.json()
+        
+        # 2. Get AI Analysis
+        # Construct lean prompt
+        weather_summary = (
+            f"Temp: {w_data['main']['temp']}C, Humidity: {w_data['main']['humidity']}%, "
+            f"Pressure: {w_data['main']['pressure']}hPa, Window: {w_data['wind']['speed']}m/s, "
+            f"Condition: {w_data['weather'][0]['description']}"
+        )
+        
+        prompt = f"""
+        Analyze this weather for health impacts: "{weather_summary}".
+        Return ONLY valid JSON (no markdown) with this structure:
+        {{
+            "migraine": {{"risk": "Low/Medium/High", "reason": "short explanation"}},
+            "arthritis": {{"risk": "Low/Medium/High", "reason": "short explanation"}},
+            "respiratory": {{"risk": "Low/Medium/High", "reason": "short explanation"}},
+            "uv_skin": {{"risk": "Low/Medium/High", "reason": "short explanation"}},
+            "general_advice": "One sentence summary."
+        }}
+        """
+        
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if not gemini_key:
+             # Fallback if no AI key
+             return jsonify({
+                 "migraine": {"risk": "Unknown", "reason": "AI unavailable"},
+                 "general_advice": "Stay safe!"
+             })
+
+        client = genai.Client(api_key=gemini_key.strip())
+        
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-exp",
+                contents=prompt,
+                config={'response_mime_type': 'application/json'}
+            )
+            analysis = json.loads(response.text)
+        except Exception as e:
+            app.logger.warning(f"Gemini 2.0 error: {e}. Trying fallback.")
+            try:
+                response = client.models.generate_content(
+                    model="gemini-1.5-flash",
+                    contents=prompt,
+                    config={'response_mime_type': 'application/json'}
+                )
+                analysis = json.loads(response.text)
+            except Exception as e2:
+                 app.logger.error(f"All Gemini models failed: {e2}")
+                 return jsonify({
+                     "migraine": {"risk": "Unknown", "reason": "Service busy"},
+                     "arthritis": {"risk": "Unknown", "reason": "Service busy"},
+                     "respiratory": {"risk": "Unknown", "reason": "Service busy"},
+                     "uv_skin": {"risk": "Unknown", "reason": "Service busy"},
+                     "general_advice": "Health insights currently unavailable due to high demand. Please try again later."
+                 })
+        
+        # Cache it
+        WEATHER_CACHE[cache_key] = {
+            "timestamp": now_ts,
+            "data": analysis
+        }
+        
+        return jsonify(analysis)
+
+    except Exception as e:
+        app.logger.error(f"Health API error: {e}")
+        return jsonify({"error": "Health analysis failed"}), 500
 
 
 @app.route("/api/weather/extended")
@@ -3098,6 +3250,170 @@ def api_voice_google():
         return jsonify({
             "fulfillmentText": "Sorry, I'm having trouble right now. Please try again later."
         })
+
+# --- Gamification and Community APIs ---
+
+def check_report_accuracy(reported_condition, lat, lon):
+    """
+    Verifies user report against OpenWeatherMap current data.
+    Returns: (is_accurate, score_bonus)
+    """
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+        res = requests.get(url, timeout=5)
+        if not res.ok: 
+            return False, 0
+        
+        data = res.json()
+        api_main = data['weather'][0]['main'].lower()
+        api_desc = data['weather'][0]['description'].lower()
+        reported = reported_condition.lower()
+
+        # Simple mapping for matching
+        match = False
+        if reported in api_desc or reported in api_main:
+            match = True
+        elif reported == "clear" and "clear" in api_main:
+            match = True
+        elif reported == "cloudy" and "cloud" in api_main:
+            match = True
+        elif reported in ["rain", "drizzle"] and ("rain" in api_main or "drizzle" in api_main):
+            match = True
+        
+        return match, (50 if match else 0)
+    except Exception as e:
+        app.logger.error(f"Accuracy check failed: {e}")
+        return False, 0
+
+def award_points(email, points, event_type, description):
+    """Helper to add points and check for badges."""
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO user_points (email, points, event_type, description, created_at) VALUES (?, ?, ?, ?, ?)",
+            (email, points, event_type, description, datetime.utcnow().isoformat())
+        )
+        conn.commit()
+    
+    # Check for point-based badges (e.g. Community Pillar > 500)
+    # This logic can be expanded.
+
+@app.route("/api/community/report", methods=["POST"])
+def api_submit_report():
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    email = session['user_email']
+    data = request.json
+    lat = data.get('lat')
+    lon = data.get('lon')
+    condition = data.get('condition')
+    
+    if not lat or not lon or not condition:
+        return jsonify({"error": "Missing data"}), 400
+
+    # 1. Verify Accuracy
+    is_accurate, bonus_points = check_report_accuracy(condition, lat, lon)
+    
+    # 2. Save Report
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO weather_reports (lat, lon, city, reported_condition, reported_at, is_accurate, api_condition, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (lat, lon, "Unknown", condition, datetime.utcnow().isoformat(), 1 if is_accurate else 0, "verified_api", email)
+        )
+        conn.commit()
+    
+    # 3. Award Points
+    base_points = 10
+    total_points = base_points + bonus_points
+    desc = f"Weather Report: {condition} ({'Accurate' if is_accurate else 'Unverified'})"
+    award_points(email, total_points, 'report_submission', desc)
+    
+    # 4. Check & Award Badges (Reliable Source)
+    new_badge = None
+    if is_accurate:
+        with get_db() as conn:
+            # Count accurate reports
+            c = conn.cursor()
+            c.execute("SELECT COUNT(*) FROM weather_reports WHERE is_accurate=1 AND email=?", (email,)) 
+            count = c.fetchone()[0]
+            
+            if count >= 5:
+                # Check if already has badge
+                c.execute("SELECT id FROM badges WHERE name='Reliable Source'")
+                badge_row = c.fetchone()
+                if badge_row:
+                    badge_id = badge_row[0]
+                    try:
+                        conn.execute("INSERT INTO user_badges (email, badge_id, awarded_at) VALUES (?, ?, ?)", (email, badge_id, datetime.utcnow().isoformat()))
+                        conn.commit()
+                        new_badge = "Reliable Source"
+                    except sqlite3.IntegrityError:
+                        pass # Already has it
+
+    return jsonify({
+        "success": True, 
+        "points_earned": total_points, 
+        "verified": is_accurate,
+        "new_badge": new_badge,
+        "message": f"Report submitted! {total_points} points earned." + (f" New Badge: {new_badge}!" if new_badge else "")
+    })
+
+@app.route("/api/community/leaderboard")
+def api_leaderboard():
+    with get_db() as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        # Sum points by user
+        c.execute("""
+            SELECT email, SUM(points) as total_score 
+            FROM user_points 
+            GROUP BY email 
+            ORDER BY total_score DESC 
+            LIMIT 10
+        """)
+        leaders = [dict(row) for row in c.fetchall()]
+        
+        # Mask emails for privacy (e.g. "afn... @gmail.com")
+        for l in leaders:
+            parts = l['email'].split('@')
+            if len(parts) == 2:
+                l['display_name'] = f"{parts[0][:3]}...@{parts[1]}"
+            else:
+                l['display_name'] = "User"
+            del l['email']
+            
+    return jsonify(leaders)
+
+@app.route("/api/user/badges")
+def api_user_badges():
+    if 'user_email' not in session:
+        return jsonify({"earned": [], "all": [], "total_points": 0})
+    
+    email = session['user_email']
+    with get_db() as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        
+        # Get Badges
+        c.execute("""
+            SELECT b.name, b.description, b.icon_class, ub.awarded_at 
+            FROM user_badges ub
+            JOIN badges b ON ub.badge_id = b.id
+            WHERE ub.email = ?
+        """, (email,))
+        earned = [dict(row) for row in c.fetchall()]
+        
+        # Get All Badges
+        c.execute("SELECT name, description, icon_class, threshold FROM badges")
+        all_badges = [dict(row) for row in c.fetchall()]
+        
+        # Get Total Points
+        c.execute("SELECT SUM(points) FROM user_points WHERE email = ?", (email,))
+        res = c.fetchone()
+        total = res[0] if res and res[0] else 0
+        
+    return jsonify({"earned": earned, "all": all_badges, "total_points": total})
+
 
 @app.errorhandler(404)
 def page_not_found(e):
