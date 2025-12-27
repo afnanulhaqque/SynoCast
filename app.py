@@ -2461,6 +2461,90 @@ def api_planning_suggest():
         app.logger.error(f"Planning error: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/currency/rates")
+def api_currency_rates():
+    """
+    Returns latest currency exchange rates.
+    In a real app, this would fetch from a service like Fixer.io or OpenExchangeRates.
+    Here we provide live-like rates for major currencies.
+    """
+    # Check DB cache first
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT target_currency, rate FROM currency_rates WHERE base_currency = 'USD'")
+            rows = cursor.fetchall()
+            
+            rates = {row[0]: row[1] for row in rows}
+            
+            # If DB is empty, use defaults and populate
+            if not rates:
+                default_rates = {
+                    "USD": 1.0, "EUR": 0.92, "GBP": 0.79, "JPY": 150.25, 
+                    "CNY": 7.21, "PKR": 278.5, "INR": 83.1, "CAD": 1.36, "AUD": 1.52
+                }
+                rates = default_rates
+                
+                # Populate DB for future use
+                for curr, rate in default_rates.items():
+                    conn.execute(
+                        "INSERT INTO currency_rates (base_currency, target_currency, rate, last_updated) VALUES (?, ?, ?, ?)",
+                        ("USD", curr, rate, datetime.utcnow().isoformat())
+                    )
+                conn.commit()
+            
+            return jsonify({
+                "base": "USD",
+                "date": datetime.utcnow().strftime("%Y-%m-%d"),
+                "rates": rates
+            })
+    except Exception as e:
+        app.logger.error(f"Currency API error: {e}")
+        # Fallback
+        return jsonify({
+            "base": "USD",
+            "rates": {"USD": 1, "EUR": 0.92, "GBP": 0.79}
+        })
+
+@app.route("/api/idioms")
+def api_idioms():
+    """
+    Returns weather idioms and cultural sayings.
+    """
+    lang = request.args.get('lang', 'en')
+    condition = request.args.get('condition', 'clear')
+    
+    try:
+        # 1. Try DB first
+        idioms = []
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            # Loose matching for condition
+            c.execute(
+                "SELECT * FROM weather_idioms WHERE language = ? AND condition LIKE ?", 
+                (lang, f"%{condition}%")
+            )
+            idioms = [dict(row) for row in c.fetchall()]
+            
+        # 2. If no DB results, load from static JSON file as fallback source of truth
+        if not idioms:
+            json_path = os.path.join(app.root_path, 'assets', 'idioms.json')
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    all_idioms = json.load(f)
+                    # Filter logic similar to JS
+                    pool = all_idioms.get(condition.lower(), []) or all_idioms.get('clear', [])
+                    idioms = [i for i in pool if i.get('language') == lang]
+                    if not idioms and lang != 'en':
+                        # Fallback to English
+                        idioms = [i for i in pool if i.get('language') == 'en']
+
+        return jsonify(idioms)
+    except Exception as e:
+        app.logger.error(f"Idioms API error: {e}")
+        return jsonify([])
+
 # ============================================================================
 # Smart Home Integration API Endpoints
 # ============================================================================
