@@ -390,9 +390,31 @@ a.footer-text-link:hover {
   color: var(--primary-color);
   background: transparent;
   transition: all 0.3s ease;
+  border-radius: 6px;
 }
 
-.btn-outline-theme:hover {
+.btn-outline-theme:hover,
+.btn-outline-theme.active,
+.btn-outline-theme:active {
+  background-color: var(--primary-color);
+  color: white !important;
+}
+
+.btn-group .btn-outline-theme + .btn-outline-theme {
+  margin-left: -2px;
+}
+
+.btn-unit {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  background: transparent;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.btn-unit:hover,
+.btn-unit.active {
   background-color: var(--primary-color);
   color: white !important;
 }
@@ -992,7 +1014,8 @@ a.footer-text-link:hover {
 
 /* Map Styles */
 #map {
-  height: 450px; /* Reduced height */
+  height: 100%;
+  min-height: 800px;
   width: 100%;
   border-radius: 0 0 12px 12px;
   z-index: 1;
@@ -1402,8 +1425,54 @@ a.footer-text-link:hover {
 .weather-details {
   display: flex;
   gap: 12px; /* Reduced gap */
-  color: var(--text-secondary);
-  font-size: 0.8rem; /* Reduced font size */
+}
+
+/* Forecast Tabs Mobile Responsiveness */
+@media (max-width: 768px) {
+  .forecast-header-controls {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  /* Make the tab list scrollable horizontally */
+  .forecast-header-controls > div[role="tablist"] {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    gap: 0.8rem !important; /* Tighter gap */
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
+    align-items: center; /* Vertically align items */
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .forecast-header-controls > div[role="tablist"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  .forecast-header-controls > div[role="tablist"] h4 {
+    font-size: 0.95rem; /* Smaller font to fit more items */
+    flex-shrink: 0;
+    margin-bottom: 0 !important; /* Remove bottom margin interference */
+    padding-bottom: 4px; /* Space for border */
+  }
+
+  .unit-toggle-group {
+    align-self: flex-end; /* Move units to the right or keep distinct */
+    margin-top: -10px; /* Adjust spacing to fit tighter layouts */
+  }
+
+  /* Center Map Controls (Search) on Mobile */
+  .map-controls {
+    left: 50% !important;
+    transform: translateX(-50%);
+    top: 80px !important; /* Move below zoom/overlay */
+    width: 90%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 .detail-item i {

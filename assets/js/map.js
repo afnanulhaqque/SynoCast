@@ -107,6 +107,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   layerControl.addTo(map);
   
+  // Robust resizing: Watch for container size changes
+  const mapContainer = document.getElementById("map");
+  const resizeObserver = new ResizeObserver(() => {
+    map.invalidateSize();
+  });
+  resizeObserver.observe(mapContainer);
+
+  // Initial invalidation in case of race conditions
   setTimeout(() => {
     map.invalidateSize();
   }, 100);
@@ -193,20 +201,18 @@ document.addEventListener("DOMContentLoaded", function () {
       
       // A. "Add to Favorites" Button (Heart)
       const addFavBtn = document.createElement('button');
-      addFavBtn.className = 'btn btn-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center';
-      addFavBtn.style.width = '42px';
-      addFavBtn.style.height = '42px';
+      addFavBtn.className = 'locate-btn ms-2'; // Use themed class
+      addFavBtn.style.padding = '0'; // Reset padding if needed
       addFavBtn.title = "Save this location";
-      addFavBtn.innerHTML = '<i class="far fa-heart text-danger"></i>';
+      addFavBtn.innerHTML = '<i class="far fa-heart"></i>'; // Removed text-danger
       addFavBtn.onclick = () => saveCurrentLocation();
       
       // B. "View Favorites" Button (Star) -> Replaces top-right control
       const viewFavBtn = document.createElement('button');
-      viewFavBtn.className = 'btn btn-white shadow-sm border rounded-circle ms-2 d-flex align-items-center justify-content-center';
-      viewFavBtn.style.width = '42px';
-      viewFavBtn.style.height = '42px';
+      viewFavBtn.className = 'locate-btn ms-2'; // Use themed class
+      viewFavBtn.style.padding = '0';
       viewFavBtn.title = "View Saved Locations";
-      viewFavBtn.innerHTML = '<i class="fas fa-star text-warning"></i>';
+      viewFavBtn.innerHTML = '<i class="fas fa-star"></i>'; // Removed text-warning
       
       // Favorites Dropdown (Attached to View Button)
       const dropdown = document.createElement('div');
@@ -304,9 +310,9 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if(btnIcon) {
           if(isFav) {
-              btnIcon.className = 'fas fa-heart text-danger';
+              btnIcon.className = 'fas fa-heart';
           } else {
-              btnIcon.className = 'far fa-heart text-danger';
+              btnIcon.className = 'far fa-heart';
           }
       }
   }
