@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, session, jsonify, abort
 from pywebpush import webpush, WebPushException
 import json
 from datetime import datetime, timedelta, timezone
-import google.generativeai as genai
+from google import genai
 import threading
 import time
 from contextlib import contextmanager
@@ -97,10 +97,12 @@ def check_weather_alerts():
                         gemini_key = os.environ.get("GEMINI_API_KEY")
                         if gemini_key:
                             try:
-                                genai.configure(api_key=gemini_key.strip())
-                                model = genai.GenerativeModel("gemini-flash-latest")
+                                client = genai.Client(api_key=gemini_key.strip())
                                 prompt = f"Serious weather alert: {alert['event']}. Description: {alert['description']}. Provide 1-2 sentences of actionable, specific advice for someone in this area (e.g., 'consider parking your car in a covered area')."
-                                response = model.generate_content(prompt)
+                                response = client.models.generate_content(
+                                    model="gemini-2.0-flash-exp",
+                                    contents=prompt
+                                )
                                 advice = response.text if response.text else advice
                             except:
                                 pass
@@ -1969,9 +1971,11 @@ def api_planning_suggest():
         if not gemini_key:
              return jsonify({"html": "<p>Configure Gemini API for suggestions.</p>"})
              
-        genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel("gemini-flash-latest")
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=gemini_key)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",
+            contents=prompt
+        )
         
         return jsonify({"html": response.text})
         
