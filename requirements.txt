@@ -6,3 +6,4 @@ python-dotenv
 flask-talisman
 flask-limiter
 flask-seasurf
+pywebpush
