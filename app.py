@@ -421,6 +421,10 @@ def robots_txt():
 def sitemap_xml():
     return app.send_static_file('sitemap.xml')
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('logo/logo-small.svg')
+
 @app.route("/")
 def home():
     dt_info = utils.get_local_time_string()
