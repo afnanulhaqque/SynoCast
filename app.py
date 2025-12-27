@@ -396,9 +396,14 @@ def init_db():
 
             conn.commit()
             
-            # Ensure upload directory exists
-            if not os.path.exists(UPLOAD_FOLDER):
-                os.makedirs(UPLOAD_FOLDER)
+            # Ensure upload directory exists (skip on Vercel - read-only filesystem)
+            if not os.environ.get("VERCEL"):
+                try:
+                    if not os.path.exists(UPLOAD_FOLDER):
+                        os.makedirs(UPLOAD_FOLDER)
+                except Exception as dir_error:
+                    app.logger.warning(f"Could not create upload folder: {dir_error}")
+
                 
         except Exception as e:
             app.logger.error(f"Database initialization error: {e}")
@@ -411,15 +416,18 @@ except Exception as e:
 
 @app.route('/sw.js')
 def service_worker():
-    return app.send_static_file('sw.js')
+    from flask import send_from_directory
+    return send_from_directory('.', 'sw.js', mimetype='application/javascript')
 
 @app.route('/robots.txt')
 def robots_txt():
-    return app.send_static_file('robots.txt')
+    from flask import send_from_directory
+    return send_from_directory('.', 'robots.txt')
 
 @app.route('/sitemap.xml')
 def sitemap_xml():
-    return app.send_static_file('sitemap.xml')
+    from flask import send_from_directory
+    return send_from_directory('.', 'sitemap.xml')
 
 @app.route('/favicon.ico')
 def favicon():
@@ -1989,7 +1997,9 @@ def unhandled_exception(e):
     return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
 
 if __name__ == "__main__":
-    # Start weather alert background task
-    alert_thread = threading.Thread(target=check_weather_alerts, daemon=True)
-    alert_thread.start()
+    # Start weather alert background task (only in local development)
+    # Note: Background threads don't work on Vercel's serverless platform
+    if not os.environ.get("VERCEL"):
+        alert_thread = threading.Thread(target=check_weather_alerts, daemon=True)
+        alert_thread.start()
     app.run(debug=True)

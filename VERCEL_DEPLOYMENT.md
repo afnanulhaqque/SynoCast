@@ -58,12 +58,27 @@ vercel --prod
 
 **Solution**: Check Vercel build logs for missing dependencies or syntax errors
 
-### Issue: "Internal Server Error (500)"
+### Issue: "Internal Server Error (500)" or "FUNCTION_INVOCATION_FAILED"
 
 **Solution**:
 
-- Check that all environment variables are set correctly in Vercel
-- Review Vercel function logs for specific error messages
+- **Check Vercel Function Logs**: Go to your Vercel project → Deployments → Click on your deployment → Functions tab → Click on any failed function to see detailed error logs
+- Check that all environment variables are set correctly in Vercel (Settings → Environment Variables)
+- Common causes:
+  - Missing environment variables (FLASK_SECRET_KEY, API keys, etc.)
+  - Import errors (missing dependencies in requirements.txt)
+  - File path issues (use absolute paths, not relative)
+  - Database initialization errors on read-only filesystem
+
+**How to check logs**:
+
+```bash
+# Using Vercel CLI
+vercel logs <deployment-url>
+
+# Or check in Vercel Dashboard:
+# Project → Deployments → [Your Deployment] → Functions → View Logs
+```
 
 ### Issue: "Database errors"
 
@@ -71,6 +86,7 @@ vercel --prod
 
 - The app uses SQLite which works on Vercel but data is ephemeral
 - Consider migrating to a persistent database like PostgreSQL for production
+- Database file is stored in `/tmp` on Vercel and will be cleared periodically
 
 ### Issue: "Static files not loading"
 
@@ -78,6 +94,14 @@ vercel --prod
 
 - Ensure `assets` folder structure is correct
 - Check that paths in templates use `url_for('static', filename='...')`
+- Verify files exist in the correct directories
+
+### Issue: "Background tasks not running"
+
+**Solution**:
+
+- Background threads (like weather alerts) are disabled on Vercel
+- Use Vercel Cron Jobs or external services like Upstash QStash for scheduled tasks
 
 ## Testing Your Deployment
 
