@@ -433,6 +433,25 @@ def sitemap_xml():
 def favicon():
     return app.send_static_file('logo/logo-small.svg')
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for debugging deployment issues."""
+    import sys
+    return jsonify({
+        "status": "ok",
+        "python_version": sys.version,
+        "environment": "vercel" if os.environ.get("VERCEL") else "local",
+        "env_vars_set": {
+            "FLASK_SECRET_KEY": bool(os.environ.get("FLASK_SECRET_KEY")),
+            "OPENWEATHER_API_KEY": bool(os.environ.get("OPENWEATHER_API_KEY")),
+            "RESEND_API_KEY": bool(os.environ.get("RESEND_API_KEY")),
+            "GEMINI_API_KEY": bool(os.environ.get("GEMINI_API_KEY")),
+            "NEWS_API_KEY": bool(os.environ.get("NEWS_API_KEY")),
+            "VAPID_PRIVATE_KEY": bool(os.environ.get("VAPID_PRIVATE_KEY")),
+            "VAPID_PUBLIC_KEY": bool(os.environ.get("VAPID_PUBLIC_KEY"))
+        }
+    })
+
 @app.route("/")
 def home():
     dt_info = utils.get_local_time_string()
