@@ -344,7 +344,6 @@ a.footer-text-link:hover {
   }
 }
 
-.btn_explore,
 .btn_get_started,
 .btn_subscribe,
 .modal_primary_btn {
@@ -354,6 +353,16 @@ a.footer-text-link:hover {
   border-width: 2px;
   padding: 8px 70px;
   border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  margin-top: 1.5rem;
+}
+
+.btn_explore {
+  border-radius: 100px;
+  gap: 10px;
+  opacity: 1;
+  padding: 8px 70px;
+  border: 2px solid var(--primary-color) !important;
   color: var(--primary-color);
   margin-top: 1.5rem;
 }
