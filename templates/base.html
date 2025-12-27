@@ -64,6 +64,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/styles/style.css">
+    <link rel="stylesheet" href="/assets/styles/weather-animations.css">
+    <link rel="stylesheet" href="/assets/styles/weather-backgrounds.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="_csrf_token" content="{{ csrf_token() }}">
     <title>
@@ -77,7 +79,7 @@
 </head>
 
 <body>
-    <main>
+    <main id="main-content">
         <div class="date_time_info pb-1 pt-1">
             <span id="dynamic_time_display" data-city="{{ date_time_info.city }}"
                 data-region="{{ date_time_info.region }}" data-offset="{{ date_time_info.utc_offset }}"
@@ -106,30 +108,27 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page"
-                            href="/" data-i18n="home">Home</a>
+                            href="/" data-t="home">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text" href="/news"
-                            data-i18n="news">News</a>
+                            data-t="news">News</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather"
-                            data-i18n="weather">Weather</a>
+                            data-t="weather">Weather</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'community' %}active{% endif %} nav_text"
-                            href="/community" data-i18n="community">Community</a>
+                            href="/community" data-t="community">Community</a>
                     </li>
 
-                    {% if session.get('user_email') %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'profile' %}active{% endif %} nav_text"
-                            href="/profile">Profile</a>
-                    </li>
-                    {% endif %}
+
+
 
                     <li class="nav-item dropdown d-flex align-items-center ms-lg-3">
-                        <a class="nav-link dropdown-toggle nav_text" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle nav_text" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-label="Switch Language">
                             <i class="fas fa-globe"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -137,25 +136,21 @@
                             <li><a class="dropdown-item" href="#" onclick="switchLanguage('es')">Español</a></li>
                             <li><a class="dropdown-item" href="#" onclick="switchLanguage('fr')">Français</a></li>
                             <li><a class="dropdown-item" href="#" onclick="switchLanguage('de')">Deutsch</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('zh')">中文 (简体)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('ar')">العربية</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('hi')">हिन्दी</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('ja')">日本語</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('pt')">Português</a></li>
                             <li><a class="dropdown-item" href="#" onclick="switchLanguage('ur')">اردو</a></li>
                         </ul>
                     </li>
 
                     <li class="nav-item d-flex align-items-center ms-lg-3">
-                        {% if session.get('user_email') %}
-                        <a href="/profile"
-                            class="btn btn-outline-primary rounded-pill fw-medium d-flex align-items-center gap-2"
-                            style="border-width: 2px;">
-                            <i class="fas fa-user-circle"></i>
-                            <span>My Account</span>
-                        </a>
-                        {% else %}
                         <button type="button" id="navbarSubscribeBtn"
                             class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
                             data-bs-target="#subscribe_modal" data-i18n="subscribe">
-                            Log In
+                            Subscribe
                         </button>
-                        {% endif %}
                     </li>
                 </ul>
             </div>
@@ -201,7 +196,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="subscribe_modalLabel">Log In or Subscribe</h5>
+                    <h5 class="modal-title" id="subscribe_modalLabel">Subscribe</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -354,8 +349,17 @@
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/autocomplete_utils.js"></script>
     <script src="/assets/js/i18n.js"></script>
+    <script src="/assets/js/timezone.js"></script>
+    <script src="/assets/js/currency.js"></script>
+    <script src="/assets/js/idioms.js"></script>
 
     <script>
+        function switchLanguage(lang) {
+            if (window.i18n) {
+                window.i18n.setLanguage(lang);
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')

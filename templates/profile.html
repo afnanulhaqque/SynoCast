@@ -98,6 +98,68 @@
                         </div>
                     </div>
 
+                    <hr class="mb-4">
+                    <h6 class="fw-bold mb-3 text-muted small uppercase">Global Settings</h6>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-muted">Language</label>
+                            <select class="form-select rounded-pill" id="pref-lang">
+                                <option value="en" {% if user.preferences.language=='en' %}selected{% endif %}>English
+                                </option>
+                                <option value="es" {% if user.preferences.language=='es' %}selected{% endif %}>Español
+                                </option>
+                                <option value="fr" {% if user.preferences.language=='fr' %}selected{% endif %}>Français
+                                </option>
+                                <option value="de" {% if user.preferences.language=='de' %}selected{% endif %}>Deutsch
+                                </option>
+                                <option value="zh" {% if user.preferences.language=='zh' %}selected{% endif %}>中文 (简体)
+                                </option>
+                                <option value="ar" {% if user.preferences.language=='ar' %}selected{% endif %}>العربية
+                                </option>
+                                <option value="hi" {% if user.preferences.language=='hi' %}selected{% endif %}>हिन्दी
+                                </option>
+                                <option value="ja" {% if user.preferences.language=='ja' %}selected{% endif %}>日本語
+                                </option>
+                                <option value="pt" {% if user.preferences.language=='pt' %}selected{% endif %}>Português
+                                </option>
+                                <option value="ur" {% if user.preferences.language=='ur' %}selected{% endif %}>اردو
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-muted">Timezone</label>
+                            <select class="form-select rounded-pill" id="pref-timezone">
+                                <option value="auto">Auto-detect</option>
+                                <option value="UTC" {% if user.preferences.timezone=='UTC' %}selected{% endif %}>UTC
+                                </option>
+                                <option value="America/New_York" {% if user.preferences.timezone=='America/New_York'
+                                    %}selected{% endif %}>EST (NY)</option>
+                                <option value="Europe/London" {% if user.preferences.timezone=='Europe/London'
+                                    %}selected{% endif %}>GMT (London)</option>
+                                <option value="Asia/Dubai" {% if user.preferences.timezone=='Asia/Dubai' %}selected{%
+                                    endif %}>GST (Dubai)</option>
+                                <option value="Asia/Karachi" {% if user.preferences.timezone=='Asia/Karachi'
+                                    %}selected{% endif %}>PKT (Karachi)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-muted">Currency</label>
+                            <select class="form-select rounded-pill" id="pref-currency">
+                                <option value="USD" {% if user.preferences.currency=='USD' %}selected{% endif %}>USD ($)
+                                </option>
+                                <option value="EUR" {% if user.preferences.currency=='EUR' %}selected{% endif %}>EUR (€)
+                                </option>
+                                <option value="GBP" {% if user.preferences.currency=='GBP' %}selected{% endif %}>GBP (£)
+                                </option>
+                                <option value="JPY" {% if user.preferences.currency=='JPY' %}selected{% endif %}>JPY (¥)
+                                </option>
+                                <option value="PKR" {% if user.preferences.currency=='PKR' %}selected{% endif %}>PKR
+                                    (Rs)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn modal_primary_btn rounded-pill px-4">
                         <span id="save-spinner" class="spinner-border spinner-border-sm d-none me-2"
                             role="status"></span>
@@ -142,6 +204,20 @@
                     <a href="/weather" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">Go to Weather</a>
                 </div>
                 {% endif %}
+            </div>
+
+            <!-- Smart Home Section -->
+            <div class="card border-0 rounded-4 shadow-sm p-4 mt-4 bg-primary text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-2"><i class="fas fa-home me-2"></i> Smart Home</h5>
+                        <p class="small mb-0 opacity-75">Connect your devices, set up webhooks for automation, and
+                            enable voice assistant integrations.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="/smarthome" class="btn btn-light rounded-pill px-4">Manage</a>
+                    </div>
+                </div>
             </div>
             {% else %}
             <!-- Logged Out State Content -->

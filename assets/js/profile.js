@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 show_map: document.getElementById('widget-map').checked
             };
 
+            // Global Settings
+            const language = document.getElementById('pref-lang').value;
+            const timezone = document.getElementById('pref-timezone').value;
+            const currency = document.getElementById('pref-currency').value;
+
             // UI Feedback
             const submitBtn = profileForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
@@ -65,11 +70,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({
                         temperature_unit: tempUnit,
                         activities: activities,
-                        dashboard_config: dashboardConfig
+                        dashboard_config: dashboardConfig,
+                        language: language,
+                        timezone: timezone,
+                        currency: currency
                     })
                 });
 
                 if (response.ok) {
+                    // Update local managers
+                    if (window.i18n) window.i18n.setLanguage(language);
+                    if (window.tzManager) window.tzManager.setTimezone(timezone);
+                    if (window.currencyManager) window.currencyManager.setCurrency(currency);
+
                     // Show success
                     saveMessage.classList.remove('opacity-0');
                     setTimeout(() => saveMessage.classList.add('opacity-0'), 2000);

@@ -4,7 +4,7 @@ import requests
 import random
 import resend
 import concurrent.futures
-from flask import Flask, render_template, request, session, jsonify, abort
+from flask import Flask, render_template, request, session, jsonify, abort, redirect, url_for
 from pywebpush import webpush, WebPushException
 import json
 from datetime import datetime, timedelta, timezone
@@ -12,6 +12,8 @@ from google import genai
 import threading
 import time
 from contextlib import contextmanager
+import weather_impacts
+import weather_recipes
 
 def check_weather_alerts():
     """Background task to check for severe weather alerts for all subscribers."""
@@ -130,12 +132,15 @@ def check_weather_alerts():
                             app.logger.info(f"Sent alert '{alert['event']}' to {email}")
                         except Exception as e:
                              app.logger.error(f"Failed to send alert email: {e}")
+
+
                 
-                time.sleep(3600)  # Check every hour
                 time.sleep(3600)  # Check every hour
             except Exception as e:
                 app.logger.error(f"Weather alert background task error: {e}")
                 time.sleep(60)
+
+
 
 def send_push_notification(subscription_info, message_body):
     """Helper to send web push"""
@@ -306,7 +311,7 @@ def init_db():
                 """
             )
             
-            # User preferences for alerts
+            # User preferences for alerts and global settings
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_preferences (
@@ -314,7 +319,10 @@ def init_db():
                     email TEXT UNIQUE,
                     alert_thresholds TEXT, -- JSON string
                     notification_channels TEXT, -- JSON string
-                    phone_number TEXT
+                    phone_number TEXT,
+                    language TEXT DEFAULT 'en',
+                    timezone TEXT,
+                    currency TEXT DEFAULT 'USD'
                 )
                 """
             )
@@ -395,6 +403,96 @@ def init_db():
                 conn.execute("ALTER TABLE user_preferences ADD COLUMN activities TEXT")
             if "dashboard_config" not in up_columns:
                 conn.execute("ALTER TABLE user_preferences ADD COLUMN dashboard_config TEXT")
+            if "language" not in up_columns:
+                conn.execute("ALTER TABLE user_preferences ADD COLUMN language TEXT DEFAULT 'en'")
+            if "timezone" not in up_columns:
+                conn.execute("ALTER TABLE user_preferences ADD COLUMN timezone TEXT")
+            if "currency" not in up_columns:
+                conn.execute("ALTER TABLE user_preferences ADD COLUMN currency TEXT DEFAULT 'USD'")
+
+            # Weather Idioms Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS weather_idioms (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    condition TEXT NOT NULL,
+                    idiom TEXT NOT NULL,
+                    language TEXT NOT NULL,
+                    meaning TEXT,
+                    cultural_context TEXT,
+                    created_at TEXT NOT NULL
+                )
+                """
+            )
+
+            # Currency Rates Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS currency_rates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    base_currency TEXT NOT NULL,
+                    target_currency TEXT NOT NULL,
+                    rate REAL NOT NULL,
+                    last_updated TEXT NOT NULL
+                )
+                """
+            )
+
+
+            
+            # Historical Weather Cache Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS historical_weather_cache (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    lat REAL NOT NULL,
+                    lon REAL NOT NULL,
+                    date TEXT NOT NULL,
+                    temp_max REAL,
+                    temp_min REAL,
+                    temp_mean REAL,
+                    precipitation REAL,
+                    wind_speed REAL,
+                    weather_code INTEGER,
+                    source TEXT,
+                    cached_at TEXT NOT NULL,
+                    UNIQUE(lat, lon, date)
+                )
+                """
+            )
+            
+            # Create index for faster historical queries
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_historical_location_date 
+                ON historical_weather_cache(lat, lon, date)
+                """
+            )
+            
+            # Climate Records Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS climate_records (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    lat REAL NOT NULL,
+                    lon REAL NOT NULL,
+                    record_type TEXT NOT NULL,
+                    value REAL NOT NULL,
+                    date TEXT NOT NULL,
+                    year INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(lat, lon, record_type)
+                )
+                """
+            )
+            
+            # Create index for faster record queries
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_records_location 
+                ON climate_records(lat, lon, record_type)
+                """
+            )
 
             conn.commit()
             
@@ -624,9 +722,9 @@ def profile():
         # Get Favorites
         c.execute("SELECT * FROM favorite_locations WHERE email = ? ORDER BY created_at DESC", (email,))
         favs = [dict(row) for row in c.fetchall()]
-        user_data['favorites'] = favs
-
     return render_template("profile.html", active_page="profile", date_time_info=utils.get_local_time_string(), user=user_data)
+
+
 
 
 @app.route("/api/user/logout", methods=["POST"])
@@ -650,14 +748,12 @@ def api_user_profile():
         temp_unit = data.get("temperature_unit")
         activities = data.get("activities") # List
         dashboard_config = data.get("dashboard_config") # Dict
+        language = data.get("language", "en")
+        timezone_pref = data.get("timezone")
+        currency = data.get("currency", "USD")
         
         try:
             with get_db() as conn:
-                # Upsert preferences
-                # First check if exists to avoid replacing other fields if we only update some
-                # But here we assume the form sends meaningful data.
-                
-                # Check exist
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1 FROM user_preferences WHERE email = ?", (email,))
                 exists = cursor.fetchone()
@@ -665,14 +761,17 @@ def api_user_profile():
                 if exists:
                     conn.execute("""
                         UPDATE user_preferences 
-                        SET temperature_unit = ?, activities = ?, dashboard_config = ?
+                        SET temperature_unit = ?, activities = ?, dashboard_config = ?, 
+                            language = ?, timezone = ?, currency = ?
                         WHERE email = ?
-                    """, (temp_unit, json.dumps(activities), json.dumps(dashboard_config), email))
+                    """, (temp_unit, json.dumps(activities), json.dumps(dashboard_config), 
+                          language, timezone_pref, currency, email))
                 else:
                     conn.execute("""
-                        INSERT INTO user_preferences (email, temperature_unit, activities, dashboard_config)
-                        VALUES (?, ?, ?, ?)
-                    """, (email, temp_unit, json.dumps(activities), json.dumps(dashboard_config)))
+                        INSERT INTO user_preferences (email, temperature_unit, activities, dashboard_config, language, timezone, currency)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (email, temp_unit, json.dumps(activities), json.dumps(dashboard_config), 
+                          language, timezone_pref, currency))
                 
                 conn.commit()
             return jsonify({"success": True})
@@ -1612,10 +1711,15 @@ def api_ai_chat():
     system_prompt = (
         "You are SynoBot, a powerful AI weather assistant for the SynoCast website. "
         "Your goal is to provide immediate, context-aware answers. "
+        "You can discuss current weather, long-term forecasts, daily life impacts (traffic, air quality, pollen), "
+        "personal outfit suggestions, and weather-based recipe ideas. "
         "If CURRENT WEATHER CONTEXT is provided below, use it to answer directly. "
         "NEVER ask for the user's city, zip code, or location if the context is already provided. "
-        "For example, if asked 'Should I carry an umbrella?' and it's raining in the context, say 'Yes, it is raining in [City] right now'. "
-        "Only if context is completely missing should you ask for their location."
+        "Examples: "
+        "- For 'Should I carry an umbrella?', mention the rain and city name. "
+        "- For 'What should I wear?', give clothing advice based on temperature. "
+        "- For 'What's for dinner?', suggest a recipe fitting the current conditions. "
+        "Keep responses friendly, concise, and helpful."
     )
 
     # Use environment variable for Gemini API key
@@ -1655,6 +1759,172 @@ def api_ai_chat():
         if "API_KEY_INVALID" in error_msg:
             return jsonify({"reply": "It looks like the Gemini API Key is invalid. Please check your .env file."})
         return jsonify({"reply": "I'm experiencing some technical difficulties. My AI engine is taking a break!"})
+
+# ============================================================================
+# AI Enhancements - New Endpoints
+# ============================================================================
+
+@app.route("/api/weather/impacts")
+@limiter.limit("20 per minute")
+def api_weather_impacts():
+    """
+    Returns weather impact predictions for traffic, air quality, and pollen.
+    Query params: lat, lon
+    """
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+    
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat/lon parameters"}), 400
+    
+    try:
+        # Fetch current weather data
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        resp = requests.get(current_url, timeout=5)
+        resp.raise_for_status()
+        w_data = resp.json()
+        
+        # Get air quality data
+        aqi_url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+        aqi_resp = requests.get(aqi_url, timeout=5)
+        current_aqi = None
+        if aqi_resp.ok:
+            aqi_data = aqi_resp.json()
+            if aqi_data.get('list'):
+                # OWM API index is 1-5. 1=Good, 5=Very Poor.
+                # We'll map this roughly to the AQI scale (0-500) for our logic
+                current_aqi = aqi_data['list'][0]['main']['aqi'] * 50 
+        
+        # Extract weather parameters
+        temperature = w_data['main']['temp']
+        humidity = w_data['main']['humidity']
+        wind_speed = w_data['wind']['speed']
+        weather_condition = w_data['weather'][0]
+        
+        # Calculate all impacts
+        impacts = weather_impacts.get_all_impacts(
+            weather_condition,
+            temperature,
+            humidity,
+            wind_speed,
+            current_aqi
+        )
+        
+        return jsonify(impacts)
+        
+    except Exception as e:
+        app.logger.error(f"Weather impacts error: {e}")
+        return jsonify({"error": "Failed to calculate weather impacts"}), 500
+
+
+@app.route("/api/ai/outfit", methods=["POST"])
+@limiter.limit("10 per minute")
+def api_ai_outfit():
+    """
+    Returns personalized outfit suggestions with AI descriptions.
+    Payload: { "lat": float, "lon": float, "activity": string }
+    """
+    data = request.get_json(silent=True) or {}
+    lat = data.get("lat")
+    lon = data.get("lon")
+    activity = data.get("activity", "casual")
+    
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat/lon parameters"}), 400
+    
+    try:
+        # Fetch current weather data
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        resp = requests.get(current_url, timeout=5)
+        resp.raise_for_status()
+        w_data = resp.json()
+        
+        # Get forecast for precipitation probability
+        forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        forecast_resp = requests.get(forecast_url, timeout=5)
+        precip_prob = 0
+        if forecast_resp.ok:
+            f_data = forecast_resp.json()
+            if f_data.get('list'):
+                # Use current precipitation probability (pop)
+                precip_prob = f_data['list'][0].get('pop', 0) * 100
+        
+        # Extract weather parameters
+        temperature = w_data['main']['temp']
+        condition = w_data['weather'][0]['main']
+        wind_speed = w_data['wind']['speed']
+        
+        # Get outfit suggestion
+        outfit = utils.get_outfit_suggestion(
+            temperature,
+            condition,
+            precip_prob,
+            activity,
+            wind_speed
+        )
+        
+        return jsonify({
+            "outfit": outfit,
+            "weather": {
+                "temperature": temperature,
+                "condition": condition,
+                "city": w_data.get('name', 'your location')
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Outfit suggestion error: {e}")
+        return jsonify({"error": "Failed to generate outfit suggestion"}), 500
+
+
+@app.route("/api/weather/recipes")
+@limiter.limit("20 per minute")
+def api_weather_recipes():
+    """
+    Returns weather-based recipe suggestions.
+    Query params: lat, lon, meal_type (optional)
+    """
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+    meal_type = request.args.get("meal_type")
+    
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat/lon parameters"}), 400
+    
+    try:
+        # Fetch current weather data
+        current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        resp = requests.get(current_url, timeout=5)
+        resp.raise_for_status()
+        w_data = resp.json()
+        
+        # Extract weather parameters
+        temperature = w_data['main']['temp']
+        condition = w_data['weather'][0]['main']
+        
+        # Get recipe suggestions
+        recipes = weather_recipes.get_recipe_suggestions(
+            temperature,
+            condition,
+            meal_type,
+            count=3
+        )
+        
+        # Format recipes for frontend
+        formatted_recipes = [weather_recipes.format_recipe_for_display(r) for r in recipes]
+        
+        return jsonify({
+            "recipes": formatted_recipes,
+            "weather": {
+                "temperature": temperature,
+                "condition": condition,
+                "city": w_data.get('name', 'your location')
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Recipe suggestions error: {e}")
+        return jsonify({"error": "Failed to get recipe suggestions"}), 500
 
 
 
@@ -1790,8 +2060,12 @@ def api_weather_compare():
     return jsonify({"city1": w1, "city2": w2})
 
 @app.route("/api/weather/historical")
+@limiter.limit("20 per minute")
 def api_weather_historical():
-    """Historical Weather Insights: On This Day."""
+    """
+    Enhanced Historical Weather Insights: On This Day.
+    Fetches data from cache or Open-Meteo, calculates climate anomalies.
+    """
     lat = request.args.get('lat')
     lon = request.args.get('lon')
     years_ago = int(request.args.get('years', 5))
@@ -1800,46 +2074,163 @@ def api_weather_historical():
         return jsonify({"error": "lat and lon required"}), 400
 
     try:
-        # Calculate target timestamp
+        # Calculate target date
         target_date = datetime.now() - timedelta(days=365 * years_ago)
-        target_ts = int(target_date.timestamp())
+        date_str = target_date.strftime('%Y-%m-%d')
+        
+        historical_data = None
+        
+        # 1. Check database cache
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM historical_weather_cache WHERE lat = ? AND lon = ? AND date = ?", 
+                (round(float(lat), 4), round(float(lon), 4), date_str)
+            )
+            row = cursor.fetchone()
+            if row:
+                historical_data = dict(row)
+                app.logger.info(f"Serving historical data for {date_str} from DB cache")
 
-        # Try OWM Time Machine (Version 3.0)
-        # Note: This might fail on 2.5 keys, we'll provide a fallback.
-        hist_url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={target_ts}&units=metric&appid={OPENWEATHER_API_KEY}"
-        res = requests.get(hist_url, timeout=5)
-        
-        if res.ok:
-            return jsonify({
-                "source": "OWM Time Machine",
-                "years_ago": years_ago,
-                "data": res.json()
-            })
-        
-        # Fallback: Pseudo-historical data based on climatology or patterns
-        # In a real app, we might use a free historical API like Open-Meteo
-        app.logger.warning(f"OWM Historical API failed: {res.text}. Using fallback.")
-        
-        # Let's try Open-Meteo for more reliable free historical data
-        om_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={target_date.strftime('%Y-%m-%d')}&end_date={target_date.strftime('%Y-%m-%d')}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto"
-        om_res = requests.get(om_url, timeout=5)
-        
-        if om_res.ok:
-            om_data = om_res.json()
-            return jsonify({
-                "source": "Open-Meteo Archive",
-                "years_ago": years_ago,
-                "date": target_date.strftime('%Y-%m-%d'),
-                "temp_max": om_data['daily']['temperature_2m_max'][0],
-                "temp_min": om_data['daily']['temperature_2m_min'][0],
-                "rain": om_data['daily']['precipitation_sum'][0]
-            })
+        # 2. If not in cache, fetch from API
+        if not historical_data:
+            historical_data = utils.fetch_historical_weather(lat, lon, date_str)
+            if historical_data:
+                # Save to DB cache
+                try:
+                    with get_db() as conn:
+                        conn.execute(
+                            """
+                            INSERT OR REPLACE INTO historical_weather_cache 
+                            (lat, lon, date, temp_max, temp_min, temp_mean, precipitation, wind_speed, weather_code, source, cached_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            (
+                                round(float(lat), 4), round(float(lon), 4), date_str,
+                                historical_data['temp_max'], historical_data['temp_min'], 
+                                historical_data['temp_mean'], historical_data['precipitation'],
+                                historical_data['wind_speed'], historical_data['weather_code'],
+                                historical_data['source'], datetime.utcnow().isoformat()
+                            )
+                        )
+                        conn.commit()
+                except Exception as db_err:
+                    app.logger.error(f"Failed to cache historical data: {db_err}")
 
-        return jsonify({"error": "Failed to fetch historical data"}), 500
+        if not historical_data:
+            return jsonify({"error": "Failed to fetch historical data"}), 500
+
+        # 3. Fetch Climate Normals (30-year average) for this month
+        month = target_date.month
+        normals = utils.fetch_climate_normals(float(lat), float(lon), month)
+        
+        # 4. Calculate Anomaly
+        anomaly = None
+        if normals and historical_data.get('temp_mean') is not None:
+            anomaly = utils.calculate_climate_anomaly(historical_data['temp_mean'], normals['temp_mean_avg'])
+
+        return jsonify({
+            "status": "success",
+            "years_ago": years_ago,
+            "date": date_str,
+            "data": historical_data,
+            "climatology": normals,
+            "anomaly": anomaly
+        })
 
     except Exception as e:
         app.logger.error(f"Historical API error: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/weather/climate-trends")
+@limiter.limit("10 per minute")
+def api_weather_climate_trends():
+    """
+    Returns seasonal patterns and trends for a location.
+    """
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    years = int(request.args.get('years', 5))
+
+    if not lat or not lon:
+        return jsonify({"error": "lat and lon required"}), 400
+
+    try:
+        trends = utils.analyze_seasonal_trends(float(lat), float(lon), years_back=years)
+        if not trends:
+            return jsonify({"error": "Failed to analyze climate trends"}), 500
+            
+        return jsonify(trends)
+    except Exception as e:
+        app.logger.error(f"Climate trends API error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/weather/records")
+@limiter.limit("10 per minute")
+def api_weather_records():
+    """
+    Returns record-breaking temperatures for a location.
+    Checks cache first, then fetches from historical archive.
+    """
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+
+    if not lat or not lon:
+        return jsonify({"error": "lat and lon required"}), 400
+
+    try:
+        # Check database for records first
+        records = {}
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM climate_records WHERE lat = ? AND lon = ?", 
+                (round(float(lat), 4), round(float(lon), 4))
+            )
+            rows = cursor.fetchall()
+            for row in rows:
+                records[row['record_type']] = {
+                    "value": row['value'],
+                    "date": row['date'],
+                    "year": row['year']
+                }
+
+        # If no records or data is stale (older than 30 days), fetch from API
+        if not records:
+            api_records = utils.get_record_temperatures(float(lat), float(lon), years_back=10)
+            if api_records:
+                # Save to DB
+                try:
+                    with get_db() as conn:
+                        for r_type in ['record_high', 'record_low']:
+                            data = api_records[r_type]
+                            conn.execute(
+                                """
+                                INSERT OR REPLACE INTO climate_records 
+                                (lat, lon, record_type, value, date, year, updated_at)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
+                                """,
+                                (
+                                    round(float(lat), 4), round(float(lon), 4), r_type,
+                                    data['temperature'], data['date'], data['year'],
+                                    datetime.utcnow().isoformat()
+                                )
+                            )
+                        conn.commit()
+                except Exception as db_err:
+                    app.logger.error(f"Failed to cache climate records: {db_err}")
+                
+                records = api_records
+
+        return jsonify(records)
+    except Exception as e:
+        app.logger.error(f"Climate records API error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/report_weather", methods=["POST"])
 def api_report_weather():
@@ -1983,6 +2374,560 @@ def api_planning_suggest():
         app.logger.error(f"Planning error: {e}")
         return jsonify({"error": str(e)}), 500
 
+# ============================================================================
+# Smart Home Integration API Endpoints
+# ============================================================================
+
+@app.route("/api/smarthome/register", methods=["POST"])
+@limiter.limit("10 per hour")
+def api_smarthome_register():
+    """Register a new smart home device."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized. Please log in."}), 401
+    
+    data = request.get_json(silent=True) or {}
+    device_name = data.get("device_name")
+    device_type = data.get("device_type", "custom")
+    lat = data.get("lat")
+    lon = data.get("lon")
+    preferences = data.get("preferences", {})
+    
+    if not device_name:
+        return jsonify({"error": "Device name is required"}), 400
+    
+    try:
+        email = session['user_email']
+        api_key = utils.generate_api_key()
+        
+        with get_db() as conn:
+            conn.execute("""
+                INSERT INTO smart_devices 
+                (email, device_name, device_type, api_key, lat, lon, preferences, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                email,
+                device_name,
+                device_type,
+                api_key,
+                lat,
+                lon,
+                json.dumps(preferences),
+                datetime.utcnow().isoformat()
+            ))
+            conn.commit()
+            
+            device_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        
+        return jsonify({
+            "success": True,
+            "device_id": device_id,
+            "api_key": api_key,
+            "message": "Device registered successfully"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Device registration error: {e}")
+        return jsonify({"error": "Failed to register device"}), 500
+
+@app.route("/api/smarthome/devices", methods=["GET"])
+def api_smarthome_devices():
+    """List user's registered smart home devices."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        email = session['user_email']
+        
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, device_name, device_type, api_key, lat, lon, 
+                       created_at, last_accessed
+                FROM smart_devices
+                WHERE email = ?
+                ORDER BY created_at DESC
+            """, (email,))
+            
+            devices = []
+            for row in cursor.fetchall():
+                device = dict(row)
+                # Mask API key for security (show only last 8 chars)
+                device['api_key_masked'] = '...' + device['api_key'][-8:]
+                device['api_key_full'] = device['api_key']  # Include full key for copy
+                devices.append(device)
+        
+        return jsonify(devices)
+        
+    except Exception as e:
+        app.logger.error(f"Device list error: {e}")
+        return jsonify({"error": "Failed to fetch devices"}), 500
+
+@app.route("/api/smarthome/devices/<int:device_id>", methods=["DELETE"])
+def api_smarthome_delete_device(device_id):
+    """Delete a registered device."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        email = session['user_email']
+        
+        with get_db() as conn:
+            # Verify ownership before deleting
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM smart_devices WHERE id = ? AND email = ?", (device_id, email))
+            if not cursor.fetchone():
+                return jsonify({"error": "Device not found or unauthorized"}), 404
+            
+            conn.execute("DELETE FROM smart_devices WHERE id = ? AND email = ?", (device_id, email))
+            conn.commit()
+        
+        return jsonify({"success": True, "message": "Device deleted successfully"})
+        
+    except Exception as e:
+        app.logger.error(f"Device deletion error: {e}")
+        return jsonify({"error": "Failed to delete device"}), 500
+
+@app.route("/api/smarthome/weather", methods=["GET"])
+@limiter.limit("60 per hour")
+def api_smarthome_weather():
+    """Weather data endpoint for smart home devices (requires API key)."""
+    # Check for API key in header or query param
+    api_key = request.headers.get('X-API-Key') or request.args.get('api_key')
+    
+    if not api_key:
+        return jsonify({"error": "API key required"}), 401
+    
+    try:
+        with get_db() as conn:
+            device = utils.verify_api_key(api_key, conn)
+            
+            if not device:
+                return jsonify({"error": "Invalid API key"}), 401
+            
+            # Use device's registered location or provided lat/lon
+            lat = request.args.get('lat') or device.get('lat')
+            lon = request.args.get('lon') or device.get('lon')
+            
+            if not lat or not lon:
+                return jsonify({"error": "Location required"}), 400
+            
+            # Fetch weather data
+            current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+            resp = requests.get(current_url, timeout=5)
+            resp.raise_for_status()
+            weather_data = resp.json()
+            
+            # Return compact format optimized for devices
+            return jsonify({
+                "location": {
+                    "city": weather_data.get("name", "Unknown"),
+                    "country": weather_data.get("sys", {}).get("country", ""),
+                    "lat": lat,
+                    "lon": lon
+                },
+                "current": {
+                    "temp": round(weather_data["main"]["temp"], 1),
+                    "feels_like": round(weather_data["main"]["feels_like"], 1),
+                    "humidity": weather_data["main"]["humidity"],
+                    "pressure": weather_data["main"]["pressure"],
+                    "weather": {
+                        "main": weather_data["weather"][0]["main"],
+                        "description": weather_data["weather"][0]["description"],
+                        "icon": weather_data["weather"][0]["icon"]
+                    },
+                    "wind_speed": round(weather_data["wind"]["speed"], 1)
+                },
+                "timestamp": int(datetime.utcnow().timestamp()),
+                "device": {
+                    "name": device.get("device_name"),
+                    "type": device.get("device_type")
+                }
+            })
+            
+    except Exception as e:
+        app.logger.error(f"Smart home weather error: {e}")
+        return jsonify({"error": "Failed to fetch weather data"}), 500
+
+@app.route("/api/smarthome/alerts", methods=["GET"])
+@limiter.limit("30 per hour")
+def api_smarthome_alerts():
+    """Active weather alerts for smart home devices."""
+    api_key = request.headers.get('X-API-Key') or request.args.get('api_key')
+    
+    if not api_key:
+        return jsonify({"error": "API key required"}), 401
+    
+    try:
+        with get_db() as conn:
+            device = utils.verify_api_key(api_key, conn)
+            
+            if not device:
+                return jsonify({"error": "Invalid API key"}), 401
+            
+            lat = device.get('lat')
+            lon = device.get('lon')
+            
+            if not lat or not lon:
+                return jsonify({"error": "Device location not configured"}), 400
+            
+            # Fetch alerts from OpenWeatherMap
+            alert_url = f"https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=minutely,hourly,daily&appid={OPENWEATHER_API_KEY}"
+            resp = requests.get(alert_url, timeout=5)
+            
+            if resp.ok:
+                data = resp.json()
+                alerts = data.get('alerts', [])
+                
+                return jsonify({
+                    "alerts": alerts,
+                    "count": len(alerts),
+                    "location": {
+                        "lat": lat,
+                        "lon": lon
+                    }
+                })
+            else:
+                return jsonify({"alerts": [], "count": 0})
+                
+    except Exception as e:
+        app.logger.error(f"Smart home alerts error: {e}")
+        return jsonify({"error": "Failed to fetch alerts"}), 500
+
+# ============================================================================
+# Webhook Integration API Endpoints
+# ============================================================================
+
+@app.route("/api/webhooks/subscribe", methods=["POST"])
+@limiter.limit("10 per hour")
+def api_webhook_subscribe():
+    """Register a new webhook subscription."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    data = request.get_json(silent=True) or {}
+    webhook_url = data.get("webhook_url")
+    event_types = data.get("event_types", [])
+    lat = data.get("lat")
+    lon = data.get("lon")
+    secret_token = data.get("secret_token")
+    
+    if not webhook_url or not event_types:
+        return jsonify({"error": "Webhook URL and event types are required"}), 400
+    
+    if not lat or not lon:
+        return jsonify({"error": "Location (lat/lon) is required"}), 400
+    
+    # Validate event types
+    valid_events = ['weather_alert', 'daily_forecast', 'condition_change']
+    if not all(e in valid_events for e in event_types):
+        return jsonify({"error": f"Invalid event types. Valid: {valid_events}"}), 400
+    
+    try:
+        email = session['user_email']
+        
+        # Test webhook connectivity
+        test_payload = {
+            "event_type": "test",
+            "message": "SynoCast webhook subscription test",
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+        
+        success, error = utils.send_webhook(webhook_url, test_payload, secret_token, max_retries=1)
+        
+        if not success:
+            return jsonify({
+                "error": f"Webhook test failed: {error}",
+                "suggestion": "Please verify the URL is accessible and accepts POST requests"
+            }), 400
+        
+        with get_db() as conn:
+            conn.execute("""
+                INSERT INTO webhook_subscriptions
+                (email, webhook_url, event_types, lat, lon, secret_token, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                email,
+                webhook_url,
+                json.dumps(event_types),
+                lat,
+                lon,
+                secret_token,
+                datetime.utcnow().isoformat()
+            ))
+            conn.commit()
+            
+            subscription_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        
+        return jsonify({
+            "success": True,
+            "subscription_id": subscription_id,
+            "message": "Webhook subscribed successfully"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Webhook subscription error: {e}")
+        return jsonify({"error": "Failed to subscribe webhook"}), 500
+
+@app.route("/api/webhooks/subscriptions", methods=["GET"])
+def api_webhook_subscriptions():
+    """List user's webhook subscriptions."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        email = session['user_email']
+        
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, webhook_url, event_types, lat, lon, is_active,
+                       created_at, last_triggered, failure_count
+                FROM webhook_subscriptions
+                WHERE email = ?
+                ORDER BY created_at DESC
+            """, (email,))
+            
+            subscriptions = []
+            for row in cursor.fetchall():
+                sub = dict(row)
+                sub['event_types'] = json.loads(sub['event_types'])
+                subscriptions.append(sub)
+        
+        return jsonify(subscriptions)
+        
+    except Exception as e:
+        app.logger.error(f"Webhook list error: {e}")
+        return jsonify({"error": "Failed to fetch subscriptions"}), 500
+
+@app.route("/api/webhooks/subscriptions/<int:sub_id>", methods=["DELETE"])
+def api_webhook_delete(sub_id):
+    """Delete a webhook subscription."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        email = session['user_email']
+        
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM webhook_subscriptions WHERE id = ? AND email = ?", (sub_id, email))
+            if not cursor.fetchone():
+                return jsonify({"error": "Subscription not found"}), 404
+            
+            conn.execute("DELETE FROM webhook_subscriptions WHERE id = ? AND email = ?", (sub_id, email))
+            conn.commit()
+        
+        return jsonify({"success": True, "message": "Webhook deleted successfully"})
+        
+    except Exception as e:
+        app.logger.error(f"Webhook deletion error: {e}")
+        return jsonify({"error": "Failed to delete webhook"}), 500
+
+@app.route("/api/webhooks/test", methods=["POST"])
+@limiter.limit("5 per minute")
+def api_webhook_test():
+    """Test a webhook delivery."""
+    if 'user_email' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    data = request.get_json(silent=True) or {}
+    subscription_id = data.get("subscription_id")
+    
+    if not subscription_id:
+        return jsonify({"error": "Subscription ID required"}), 400
+    
+    try:
+        email = session['user_email']
+        
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT webhook_url, secret_token
+                FROM webhook_subscriptions
+                WHERE id = ? AND email = ?
+            """, (subscription_id, email))
+            
+            row = cursor.fetchone()
+            if not row:
+                return jsonify({"error": "Subscription not found"}), 404
+            
+            webhook_url, secret_token = row
+            
+            test_payload = {
+                "event_type": "test",
+                "message": "This is a test webhook from SynoCast",
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "subscription_id": subscription_id
+            }
+            
+            success, error = utils.send_webhook(webhook_url, test_payload, secret_token)
+            
+            if success:
+                return jsonify({
+                    "success": True,
+                    "message": "Test webhook delivered successfully"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": f"Webhook delivery failed: {error}"
+                }), 400
+                
+    except Exception as e:
+        app.logger.error(f"Webhook test error: {e}")
+        return jsonify({"error": "Failed to test webhook"}), 500
+
+# ============================================================================
+# Voice Assistant Integration API Endpoints
+# ============================================================================
+
+@app.route("/api/voice/alexa", methods=["POST"])
+@csrf.exempt  # Alexa requests won't have CSRF token
+@limiter.limit("100 per minute")
+def api_voice_alexa():
+    """Alexa Skill backend endpoint."""
+    try:
+        alexa_request = request.get_json()
+        
+        # Extract intent and slots
+        request_type = alexa_request.get('request', {}).get('type')
+        
+        if request_type == 'LaunchRequest':
+            return jsonify({
+                "version": "1.0",
+                "response": {
+                    "outputSpeech": {
+                        "type": "PlainText",
+                        "text": "Welcome to SynoCast! Ask me about the weather in any city."
+                    },
+                    "shouldEndSession": False
+                }
+            })
+        
+        if request_type == 'IntentRequest':
+            intent_name = alexa_request.get('request', {}).get('intent', {}).get('name')
+            slots = alexa_request.get('request', {}).get('intent', {}).get('slots', {})
+            
+            # Extract city from slot
+            city = slots.get('city', {}).get('value', 'London')
+            
+            # Geocode city
+            geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1"
+            headers = {'User-Agent': 'SynoCast/1.0'}
+            geo_res = requests.get(geo_url, headers=headers, timeout=5)
+            
+            if not geo_res.ok or not geo_res.json():
+                return jsonify({
+                    "version": "1.0",
+                    "response": {
+                        "outputSpeech": {
+                            "type": "PlainText",
+                            "text": f"Sorry, I couldn't find weather information for {city}."
+                        },
+                        "shouldEndSession": True
+                    }
+                })
+            
+            loc = geo_res.json()[0]
+            lat, lon = loc['lat'], loc['lon']
+            
+            # Fetch weather
+            weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+            weather_res = requests.get(weather_url, timeout=5)
+            weather_res.raise_for_status()
+            weather_data = weather_res.json()
+            
+            # Format response
+            formatted_data = {
+                "location": {"city": city},
+                "current": {
+                    "temp": weather_data["main"]["temp"],
+                    "weather": {
+                        "description": weather_data["weather"][0]["description"]
+                    }
+                }
+            }
+            
+            return jsonify(utils.format_alexa_response(formatted_data))
+        
+        # Default response
+        return jsonify({
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "I didn't understand that request."
+                },
+                "shouldEndSession": True
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Alexa endpoint error: {e}")
+        return jsonify({
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "Sorry, I'm having trouble right now. Please try again later."
+                },
+                "shouldEndSession": True
+            }
+        })
+
+@app.route("/api/voice/google", methods=["POST"])
+@csrf.exempt  # Google Actions requests won't have CSRF token
+@limiter.limit("100 per minute")
+def api_voice_google():
+    """Google Actions backend endpoint."""
+    try:
+        google_request = request.get_json()
+        
+        # Extract query parameters
+        query_result = google_request.get('queryResult', {})
+        parameters = query_result.get('parameters', {})
+        city = parameters.get('geo-city', 'London')
+        
+        # Geocode city
+        geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1"
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        geo_res = requests.get(geo_url, headers=headers, timeout=5)
+        
+        if not geo_res.ok or not geo_res.json():
+            return jsonify({
+                "fulfillmentText": f"Sorry, I couldn't find weather information for {city}."
+            })
+        
+        loc = geo_res.json()[0]
+        lat, lon = loc['lat'], loc['lon']
+        
+        # Fetch weather
+        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OPENWEATHER_API_KEY}"
+        weather_res = requests.get(weather_url, timeout=5)
+        weather_res.raise_for_status()
+        weather_data = weather_res.json()
+        
+        # Format response
+        formatted_data = {
+            "location": {"city": city},
+            "current": {
+                "temp": weather_data["main"]["temp"],
+                "weather": {
+                    "description": weather_data["weather"][0]["description"]
+                }
+            }
+        }
+        
+        return jsonify(utils.format_google_response(formatted_data))
+        
+    except Exception as e:
+        app.logger.error(f"Google Actions endpoint error: {e}")
+        return jsonify({
+            "fulfillmentText": "Sorry, I'm having trouble right now. Please try again later."
+        })
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html", date_time_info=utils.get_local_time_string(), active_page="404"), 404
@@ -2025,4 +2970,7 @@ if __name__ == "__main__":
     if not os.environ.get("VERCEL"):
         alert_thread = threading.Thread(target=check_weather_alerts, daemon=True)
         alert_thread.start()
+        
+        daily_thread = threading.Thread(target=trigger_daily_forecast_webhooks, daemon=True)
+        daily_thread.start()
     app.run(debug=True)

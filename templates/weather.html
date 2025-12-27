@@ -16,8 +16,9 @@
 <div class="container weather-page mt-5 mb-5">
   <div class="row align-items-center mb-4 g-3">
     <div class="col-md-7 col-lg-8">
-      <h2 class="fw-bold mb-1">Weather Forecast</h2>
-      <p id="weather-date-header" class="text-muted mb-0">Loading local time...</p>
+      <h2 class="fw-bold mb-1" data-t="weather_forecast">Weather Forecast</h2>
+      <p id="weather-date-header" class="text-muted mb-0" data-timestamp="" data-time-type="full">Loading local time...
+      </p>
     </div>
     <div class="col-md-5 col-lg-4">
       <div class="position-relative search-container">
@@ -35,17 +36,15 @@
     </div>
   </div>
 
-  <!-- Hero Section -->
-  <div class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card shadow-lg"
-    style="min-height: 350px;">
-    <img src="/assets/images/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover" alt="Weather"
-      style="filter: brightness(0.55);" fetchpriority="high">
+  <div id="weather-hero-card"
+    class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card weather-bg-transition shadow-lg"
+    style="min-height: 350px;" role="region" aria-label="Current Weather Summary">
+    <div id="weather-bg-overlay" class="weather-bg-overlay"></div>
+    <img id="weather-hero-img" src="/assets/images/banner-home.png"
+      class="position-absolute w-100 h-100 object-fit-cover" alt="" style="filter: brightness(0.55);"
+      fetchpriority="high">
     <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
-      <button id="share-snapshot"
-        class="btn btn-sm btn-light position-absolute top-0 end-0 m-4 rounded-circle shadow-sm"
-        style="width: 40px; height: 40px; z-index: 10;" title="Share Snapshot">
-        <i class="fas fa-share-nodes text-primary"></i>
-      </button>
+
       <div class="row h-100">
         <div class="col-md-6 d-flex flex-column justify-content-between">
           <div>
@@ -61,14 +60,16 @@
             <p id="weather-country" class="fs-5 fw-light skeleton w-50">---</p>
           </div>
           <div>
-            <span id="weather-hero-temp" class="display-1 fw-bold temp-display" data-celsius="">--°</span>
+            <span id="weather-hero-temp" class="display-1 fw-bold temp-display temp-pulse" data-celsius=""
+              aria-live="polite">--°</span>
           </div>
         </div>
 
         <div class="col-md-6 d-flex flex-column justify-content-between text-end">
           <div>
-            <i id="weather-hero-icon" class="fas fa-sun fa-4x mb-2 text-warning"></i>
-            <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto">Clear Sky</h3>
+            <i id="weather-hero-icon" class="fas fa-sun fa-4x mb-2 text-warning weather-icon-sun"
+              aria-hidden="true"></i>
+            <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto" aria-live="polite">Clear Sky</h3>
           </div>
           <div class="d-flex flex-column align-items-end gap-2 fs-6 fw-light">
             <div class="d-flex align-items-center gap-3">
@@ -94,12 +95,18 @@
   <!-- Forecast Tabs -->
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 forecast-header-controls">
-      <div class="d-flex gap-4 align-items-baseline">
-        <h4 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1">
+      <div class="d-flex gap-4 align-items-baseline" role="tablist">
+        <h4 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1"
+          role="tab" aria-selected="true" aria-controls="forecast-today" tabindex="0">
           Today</h4>
-        <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Weekly</h4>
-        <h4 id="tab-analytics" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Analytics</h4>
-        <h4 id="tab-extended" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Extended</h4>
+        <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-week" tabindex="0">Weekly</h4>
+        <h4 id="tab-analytics" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-analytics" tabindex="0">Analytics</h4>
+        <h4 id="tab-extended" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-extended" tabindex="0">Extended</h4>
+        <h4 id="tab-insights" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-insights" tabindex="0">AI Insights</h4>
       </div>
       <div class="unit-toggle-group">
         <button id="btn-celsius" class="btn btn-unit active">°C</button>
@@ -145,74 +152,153 @@
     </div>
   </div>
 
-<div class="mb-5">
+  <div class="mb-5">
     <div id="forecast-extended" class="d-none">
-        <!-- 8-Day Forecast Cards -->
-        <div class="row g-4 mb-5">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-calendar-week me-2 text-primary"></i>8-Day Forecast</h5>
-                    <span id="extended-note" class="badge bg-info-subtle text-info-emphasis small d-none">
-                        <i class="fas fa-info-circle me-1"></i>Simulated data
-                    </span>
-                </div>
-                <div id="extended-daily-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
-                    <!-- Loading skeleton -->
-                    <div class="text-center py-5 w-100">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="text-muted mt-2">Loading extended forecast...</p>
-                    </div>
-                </div>
+      <!-- 8-Day Forecast Cards -->
+      <div class="row g-4 mb-5">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fas fa-calendar-week me-2 text-primary"></i>8-Day Forecast</h5>
+            <span id="extended-note" class="badge bg-info-subtle text-info-emphasis small d-none">
+              <i class="fas fa-info-circle me-1"></i>Simulated data
+            </span>
+          </div>
+          <div id="extended-daily-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
+            <!-- Loading skeleton -->
+            <div class="text-center py-5 w-100">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted mt-2">Loading extended forecast...</p>
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- 48-Hour Hourly Forecast -->
-        <div class="row g-4 mb-5">
-            <div class="col-12">
-                <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>Hourly Forecast (Next 48 Hours)
-                </h5>
-                <div id="extended-hourly-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
-                    <!-- Loading skeleton -->
-                    <div class="text-center py-5 w-100">
-                        <div class="spinner-border text-primary" role="status"></div>
-                    </div>
-                </div>
+      <!-- 48-Hour Hourly Forecast -->
+      <div class="row g-4 mb-5">
+        <div class="col-12">
+          <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>Hourly Forecast (Next 48 Hours)
+          </h5>
+          <div id="extended-hourly-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
+            <!-- Loading skeleton -->
+            <div class="text-center py-5 w-100">
+              <div class="spinner-border text-primary" role="status"></div>
             </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Astronomy Section -->
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
-                    <h5 class="fw-bold mb-3">
-                        <i class="fas fa-sun text-warning me-2"></i>Sunrise & Sunset
-                    </h5>
-                    <p class="small text-muted mb-3">Perfect timing for photographers 📸</p>
-                    <div id="astronomy-sun-data">
-                        <!-- Sunrise/Sunset with Golden Hours -->
-                        <div class="text-center py-4">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Astronomy Section -->
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">
+              <i class="fas fa-sun text-warning me-2"></i>Sunrise & Sunset
+            </h5>
+            <p class="small text-muted mb-3">Perfect timing for photographers 📸</p>
+            <div id="astronomy-sun-data">
+              <!-- Sunrise/Sunset with Golden Hours -->
+              <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </div>
             </div>
-            <div class="col-md-6">
-                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
-                    <h5 class="fw-bold mb-3">
-                        <i class="fas fa-moon text-primary me-2"></i>Moon Phases
-                    </h5>
-                    <p class="small text-muted mb-3">8-day lunar cycle calendar</p>
-                    <div id="astronomy-moon-calendar">
-                        <!-- 8-day moon phase calendar -->
-                        <div class="text-center py-4">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+        <div class="col-md-6">
+          <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">
+              <i class="fas fa-moon text-primary me-2"></i>Moon Phases
+            </h5>
+            <p class="small text-muted mb-3">8-day lunar cycle calendar</p>
+            <div id="astronomy-moon-calendar">
+              <!-- 8-day moon phase calendar -->
+              <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+
+  <!-- AI Insights Section -->
+  <div id="forecast-insights" class="d-none mb-5">
+    <div class="row g-4">
+      <!-- Impact Predictions -->
+      <div class="col-lg-12">
+        <h5 class="fw-bold mb-4"><i class="fas fa-chart-line text-primary me-2"></i>Weather Impact Predictions</h5>
+        <div class="row g-4" id="impact-container">
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #f0f7fc;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Traffic Impact</h6>
+                <i class="fas fa-car-side text-primary"></i>
+              </div>
+              <div id="traffic-impact-content" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #e8f5e9;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Air Quality Index</h6>
+                <i class="fas fa-wind text-success"></i>
+              </div>
+              <div id="aqi-impact-content" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #fff8e1;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Pollen Count</h6>
+                <i class="fas fa-seedling text-warning"></i>
+              </div>
+              <div id="pollen-impact-content" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outfit Suggestions -->
+      <div class="col-md-6">
+        <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="fas fa-tshirt text-primary me-2"></i>Personalized Outfits</h5>
+            <select id="outfit-activity" class="form-select form-select-sm rounded-pill w-auto border-0 bg-light">
+              <option value="casual">Casual</option>
+              <option value="work">Sleek/Work</option>
+              <option value="outdoor">Adventure</option>
+            </select>
+          </div>
+          <div id="outfit-container">
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe Suggestions -->
+      <div class="col-md-6">
+        <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="fas fa-utensils text-primary me-2"></i>Weather Recipes</h5>
+            <span class="badge bg-light text-primary rounded-pill px-3">AI Selected</span>
+          </div>
+          <div id="recipe-container" class="d-flex flex-column gap-3">
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="row mb-5">
     <div class="col-12">
@@ -329,20 +415,45 @@
           <!-- Historical On This Day -->
           <div class="tab-pane fade" id="ai-history" role="tabpanel">
             <div class="p-4 bg-light rounded-4">
-              <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
                   <h5 class="fw-bold mb-1">"On This Day" Historical Insights</h5>
-                  <p class="small text-muted mb-0">Compare today's weather with the past decade.</p>
+                  <p class="small text-muted mb-0">Compare today's weather with the past decade and climate normals.</p>
                 </div>
-                <div class="btn-group">
-                  <button class="btn btn-outline-secondary btn-sm active hist-year-btn" data-years="5">5 Years
-                    Ago</button>
-                  <button class="btn btn-outline-secondary btn-sm hist-year-btn" data-years="10">10 Years Ago</button>
+                <div class="d-flex gap-2">
+                  <div id="climate-anomaly-badge" class="d-none">
+                    <!-- Dynamic Anomaly Badge -->
+                  </div>
+                  <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm active hist-year-btn" data-years="5">5 Years
+                      Ago</button>
+                    <button class="btn btn-outline-secondary btn-sm hist-year-btn" data-years="10">10 Years Ago</button>
+                  </div>
                 </div>
               </div>
+
+              <!-- Comparison Row -->
               <div id="history-insight-content" class="row row-cols-1 row-cols-md-3 g-4">
                 <div class="col text-center py-5 w-100">
                   <div class="spinner-border text-primary" role="status"></div>
+                </div>
+              </div>
+
+              <!-- Climate Context Footer -->
+              <div id="climate-context-footer" class="mt-4 pt-3 border-top d-none">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <p class="small text-muted mb-0">
+                      <i class="fas fa-circle-info me-2 text-primary"></i>
+                      Compared to the 30-year climate normal for this month, today is <span id="climate-comparison-text"
+                        class="fw-bold">...</span>.
+                    </p>
+                  </div>
+                  <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <div id="record-indicators" class="small">
+                      <!-- Dynamic record indicators -->
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -391,15 +502,48 @@
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 rounded-4 shadow-sm p-4">
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3">
-          <h4 class="fw-bold mb-0">Historical Weather Trends</h4>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+          <div>
+            <h4 class="fw-bold mb-1">Historical Weather Trends</h4>
+            <div class="d-flex gap-3 small text-muted">
+              <span id="trend-view-temp" class="trend-tab active-trend" role="button">Temperature</span>
+              <span id="trend-view-seasonal" class="trend-tab" role="button">Seasonal Patterns</span>
+              <span id="trend-view-records" class="trend-tab" role="button">Record Timeline</span>
+            </div>
+          </div>
           <div class="d-flex gap-2">
+            <div class="btn-group me-2">
+              <button class="btn btn-outline-theme btn-sm trend-period-btn active" data-years="5">5Y</button>
+              <button class="btn btn-outline-theme btn-sm trend-period-btn" data-years="10">10Y</button>
+            </div>
             <button id="export-json" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export JSON</button>
             <button id="export-csv" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export CSV</button>
           </div>
         </div>
-        <div class="historical-chart-container" style="position: relative;">
-          <canvas id="historicalChart"></canvas>
+
+        <div class="historical-chart-wrapper">
+          <!-- Main Trend Chart -->
+          <div id="chart-container-temp" class="historical-chart-container" style="position: relative; height: 350px;">
+            <canvas id="historicalChart"></canvas>
+          </div>
+
+          <!-- Seasonal Trends Chart (Hidden by default) -->
+          <div id="chart-container-seasonal" class="historical-chart-container d-none"
+            style="position: relative; height: 350px;">
+            <canvas id="seasonalTrendsChart"></canvas>
+          </div>
+
+          <!-- Record Timeline Chart (Hidden by default) -->
+          <div id="chart-container-records" class="historical-chart-container d-none"
+            style="position: relative; height: 350px;">
+            <canvas id="recordTimelineChart"></canvas>
+          </div>
+        </div>
+
+        <div id="trend-loading-overlay"
+          class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white opacity-75 d-none"
+          style="z-index: 5;">
+          <div class="spinner-border text-primary" role="status"></div>
         </div>
       </div>
     </div>
@@ -459,6 +603,43 @@
             <i class="fas fa-sparkles text-news me-1"></i> AI Advice: Wear SPF 30+ if going out today.
           </div>
         </div>
+
+        <!-- Weather Wisdom (Idioms) -->
+        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3 weather-idiom-container d-none"
+          style="background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); border-left: 5px solid #ff6b6b !important;">
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-quote-left text-danger me-2"></i>
+            <p class="fw-bold small text-muted mb-0" data-t="weather_wisdom">Weather Wisdom</p>
+          </div>
+          <h5 class="idiom-text fw-bold mb-2"></h5>
+          <p class="idiom-meaning small mb-1"></p>
+          <p class="idiom-context x-small text-muted italic mb-0"></p>
+        </div>
+
+        <!-- Travel Cost Insights -->
+        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3 travel-insights-container"
+          style="background: linear-gradient(135deg, #f0fff4 0%, #fff 100%); border-left: 5px solid #48bb78 !important;">
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-plane-departure text-success me-2"></i>
+            <p class="fw-bold small text-muted mb-0" data-t="travel_insights">Travel Cost Insights</p>
+          </div>
+          <div class="d-flex flex-column gap-2" id="travel-costs-list">
+            <div class="d-flex justify-content-between small">
+              <span data-t="umbrella">Umbrella</span>
+              <span class="fw-bold" data-amount="15.0" data-from-currency="USD"></span>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <span data-t="sunscreen">Sunscreen</span>
+              <span class="fw-bold" data-amount="12.0" data-from-currency="USD"></span>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <span data-t="winter_jacket">Winter Jacket</span>
+              <span class="fw-bold" data-amount="80.0" data-from-currency="USD"></span>
+            </div>
+          </div>
+          <p class="x-small text-muted mt-3 mb-0" data-t="price_estimate_note">Prices are local estimates based on
+            current weather needs.</p>
+        </div>
       </div>
     </div>
 
@@ -479,7 +660,7 @@
               <i class="fas fa-crosshairs"></i>
             </button>
           </div>
-          <div id="map" style="height: 100%; min-height: 600px; z-index: 1;"></div>
+          <div id="map" style="height: 100%; min-height: 800px; z-index: 1;"></div>
 
           <div id="weather-overlay" class="weather-overlay">
             <div class="map-loading-spinner text-center py-4">

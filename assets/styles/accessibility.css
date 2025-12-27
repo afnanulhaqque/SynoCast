@@ -1,0 +1,452 @@
+/* Accessibility Enhancements */
+
+/* Skip Navigation Links */
+.skip-nav {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-color);
+  color: var(--bg-color);
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 9999;
+  font-weight: 600;
+  transition: top 0.3s ease;
+}
+
+.skip-nav:focus {
+  top: 0;
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:active,
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Enhanced Focus Indicators */
+*:focus {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+}
+
+/* Specific focus styles for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--weather-shadow);
+}
+
+/* Card focus styles */
+.card:focus-visible {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--weather-shadow);
+}
+
+/* Tab focus styles */
+.nav-link:focus-visible {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 2px;
+  background-color: rgba(111, 174, 217, 0.1);
+}
+
+/* High Contrast Mode */
+:root[data-contrast="high"] {
+  --primary-color: #000000;
+  --bg-color: #ffffff;
+  --surface-color: #ffffff;
+  --accent-weather: #0000ff;
+  --accent-news: #ff6600;
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --divider-color: #000000;
+  --icon-color: #000000;
+}
+
+:root[data-contrast="high"] body {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+:root[data-contrast="high"] .card {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+}
+
+:root[data-contrast="high"] .navbar {
+  background-color: #000000 !important;
+  border-bottom: 3px solid #ffffff;
+}
+
+:root[data-contrast="high"] .nav-link {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+:root[data-contrast="high"] .btn {
+  border: 2px solid #000000;
+  font-weight: 700;
+}
+
+:root[data-contrast="high"] .btn-primary {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+:root[data-contrast="high"] .text-muted {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+:root[data-contrast="high"] *:focus-visible {
+  outline: 4px solid #0000ff;
+  outline-offset: 3px;
+}
+
+/* Disable animations in high contrast mode */
+:root[data-contrast="high"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Accessibility Toolbar */
+.accessibility-toolbar {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: var(--surface-color);
+  border: 2px solid var(--divider-color);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1040;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.accessibility-toolbar.show {
+  display: flex;
+}
+
+.accessibility-toolbar-toggle {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: var(--primary-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1041;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.accessibility-toolbar-toggle:hover {
+  transform: scale(1.1);
+  background-color: var(--accent-weather);
+}
+
+.accessibility-toolbar-toggle:focus-visible {
+  outline: 3px solid var(--accent-weather);
+  outline-offset: 3px;
+}
+
+.accessibility-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.accessibility-option:hover {
+  background-color: rgba(111, 174, 217, 0.1);
+}
+
+.accessibility-option label {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch input:checked + .slider {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:checked ~ .toggle-switch {
+  background-color: var(--accent-weather);
+}
+
+.toggle-switch:has(input:checked) {
+  background-color: var(--accent-weather);
+}
+
+/* Font Size Controls */
+.font-size-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.font-size-btn {
+  background: var(--bg-color);
+  border: 1px solid var(--divider-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.font-size-btn:hover {
+  background: var(--accent-weather);
+  color: white;
+  border-color: var(--accent-weather);
+}
+
+.font-size-btn:focus-visible {
+  outline: 2px solid var(--accent-weather);
+  outline-offset: 2px;
+}
+
+/* Font Size Classes */
+:root[data-font-size="small"] {
+  font-size: 14px;
+}
+
+:root[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+:root[data-font-size="large"] {
+  font-size: 18px;
+}
+
+:root[data-font-size="xlarge"] {
+  font-size: 20px;
+}
+
+/* ARIA Live Regions */
+.aria-live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Keyboard Shortcut Hints */
+.keyboard-hint {
+  display: inline-block;
+  background: var(--bg-color);
+  border: 1px solid var(--divider-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+  color: var(--text-secondary);
+}
+
+/* Touch Target Minimum Size */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Detection (Windows) */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: CanvasText;
+    --bg-color: Canvas;
+    --text-primary: CanvasText;
+    --accent-weather: LinkText;
+  }
+
+  * {
+    border-color: CanvasText !important;
+  }
+
+  button,
+  a {
+    border: 2px solid CanvasText !important;
+  }
+}
+
+/* Focus Within - Highlight parent when child is focused */
+.focus-within-highlight:focus-within {
+  box-shadow: 0 0 0 3px var(--weather-shadow);
+  border-color: var(--accent-weather);
+}
+
+/* Improved Link Visibility */
+a:not(.btn):not(.nav-link) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:not(.btn):not(.nav-link):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Error Message Accessibility */
+.error-message {
+  color: #d32f2f;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-message::before {
+  content: "⚠";
+  font-size: 1.2em;
+}
+
+/* Success Message Accessibility */
+.success-message {
+  color: #388e3c;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-message::before {
+  content: "✓";
+  font-size: 1.2em;
+}
+
+/* Loading State Accessibility */
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.loading-state::after {
+  content: "Loading...";
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Ensure sufficient color contrast */
+.text-muted {
+  color: #6b6b6b !important; /* WCAG AA compliant */
+}
+
+/* Mobile Accessibility */
+@media (max-width: 768px) {
+  .accessibility-toolbar {
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+
+  .accessibility-toolbar-toggle {
+    right: 10px;
+  }
+
+  /* Larger touch targets on mobile */
+  button,
+  a,
+  input,
+  select {
+    min-height: 48px;
+  }
+}

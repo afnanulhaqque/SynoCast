@@ -1,0 +1,390 @@
+/* Weather Icon Animations */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Sun Animation - Rotating rays */
+@keyframes sun-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sun-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.weather-icon-sun {
+  animation: sun-rotate 20s linear infinite, sun-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+}
+
+/* Cloud Animation - Floating */
+@keyframes cloud-float {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(10px) translateY(-5px);
+  }
+}
+
+@keyframes cloud-drift {
+  0% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(5px);
+  }
+}
+
+.weather-icon-cloud {
+  animation: cloud-float 6s ease-in-out infinite;
+}
+
+.weather-icon-clouds {
+  animation: cloud-drift 8s ease-in-out infinite alternate;
+}
+
+/* Rain Animation - Falling drops */
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-5px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+@keyframes rain-drip {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.weather-icon-rain {
+  animation: rain-drip 1.5s ease-in-out infinite;
+}
+
+.weather-icon-showers {
+  animation: rain-fall 1s ease-in-out infinite alternate;
+}
+
+/* Snow Animation - Gentle falling */
+@keyframes snow-fall {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(5px) rotate(180deg);
+  }
+}
+
+@keyframes snow-drift {
+  0% {
+    transform: translateX(-3px) translateY(0);
+  }
+  50% {
+    transform: translateX(3px) translateY(3px);
+  }
+  100% {
+    transform: translateX(-3px) translateY(0);
+  }
+}
+
+.weather-icon-snow {
+  animation: snow-fall 3s ease-in-out infinite,
+    snow-drift 4s ease-in-out infinite;
+}
+
+/* Thunderstorm Animation - Lightning flash */
+@keyframes lightning-flash {
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  25% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 0, 0.8));
+  }
+  75% {
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.6));
+  }
+}
+
+@keyframes thunder-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+.weather-icon-thunderstorm {
+  animation: lightning-flash 2s ease-in-out infinite,
+    thunder-shake 0.5s ease-in-out infinite;
+}
+
+/* Wind Animation - Swaying */
+@keyframes wind-sway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.weather-icon-wind {
+  animation: wind-sway 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Fog/Mist Animation - Fading */
+@keyframes fog-fade {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes mist-drift {
+  0% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(2px);
+  }
+}
+
+.weather-icon-fog,
+.weather-icon-mist {
+  animation: fog-fade 4s ease-in-out infinite,
+    mist-drift 6s ease-in-out infinite alternate;
+}
+
+/* Moon Animation - Gentle glow */
+@keyframes moon-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(173, 216, 230, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(173, 216, 230, 0.9));
+  }
+}
+
+.weather-icon-moon {
+  animation: moon-glow 4s ease-in-out infinite;
+}
+
+/* Tornado/Hurricane Animation - Spinning */
+@keyframes tornado-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.weather-icon-tornado {
+  animation: tornado-spin 3s ease-in-out infinite;
+}
+
+/* Temperature Pulse Animation */
+@keyframes temp-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.temp-pulse {
+  animation: temp-pulse 2s ease-in-out infinite;
+}
+
+/* Loading Skeleton Animation */
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+/* Forecast Card Fade In */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.forecast-card-enter {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+/* Stagger animation for multiple cards */
+.forecast-card-enter:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.forecast-card-enter:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.forecast-card-enter:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.forecast-card-enter:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.forecast-card-enter:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.forecast-card-enter:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.forecast-card-enter:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.forecast-card-enter:nth-child(8) {
+  animation-delay: 0.4s;
+}
+
+/* Weather Condition Transition */
+.weather-transition {
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon Color Transitions */
+.weather-icon-sun {
+  color: #ffc107 !important;
+}
+
+.weather-icon-cloud,
+.weather-icon-clouds {
+  color: #90a4ae !important;
+}
+
+.weather-icon-rain,
+.weather-icon-showers {
+  color: #42a5f5 !important;
+}
+
+.weather-icon-snow {
+  color: #e3f2fd !important;
+  filter: drop-shadow(0 0 5px rgba(227, 242, 253, 0.8));
+}
+
+.weather-icon-thunderstorm {
+  color: #455a64 !important;
+}
+
+.weather-icon-fog,
+.weather-icon-mist {
+  color: #b0bec5 !important;
+}
+
+.weather-icon-moon {
+  color: #add8e6 !important;
+}
+
+.weather-icon-wind {
+  color: #78909c !important;
+}
+
+/* Hover Effects for Interactive Icons */
+.weather-icon-interactive {
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.weather-icon-interactive:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+/* Accessibility - Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon-sun,
+  .weather-icon-cloud,
+  .weather-icon-clouds,
+  .weather-icon-rain,
+  .weather-icon-showers,
+  .weather-icon-snow,
+  .weather-icon-thunderstorm,
+  .weather-icon-wind,
+  .weather-icon-fog,
+  .weather-icon-mist,
+  .weather-icon-moon,
+  .weather-icon-tornado,
+  .temp-pulse,
+  .forecast-card-enter {
+    animation: none !important;
+  }
+
+  .weather-transition {
+    transition: none !important;
+  }
+}

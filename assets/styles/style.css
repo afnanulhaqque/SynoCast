@@ -1307,6 +1307,70 @@ a.footer-text-link:hover {
   transform: rotate(-135deg);
 }
 
+/* AI Insights & Impacts */
+.impact-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+.impact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+#outfit-container .badge {
+  font-size: 0.8rem;
+  padding: 0.5rem 0.8rem;
+}
+
+#recipe-container .card {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+#recipe-container .card:hover {
+  background-color: #fff !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* Chatbot Suggested Query Buttons */
+.suggestion-chip {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #f0f2f5;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  color: #444;
+  cursor: pointer;
+  margin: 4px;
+  transition: all 0.2s ease;
+  border: 1px solid #e1e4e8;
+}
+
+.suggestion-chip:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* AI Visual Generator Placeholder Styling */
+#outfit-image-result {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px dashed #dee2e6;
+}
+
+.ai-plan-content {
+  line-height: 1.6;
+  color: #444;
+}
+
+.ai-plan-content br + br {
+  display: block;
+  content: "";
+  margin-top: 10px;
+}
 /* Ensure Logo Adjustments on Mobile */
 @media screen and (max-width: 768px) {
   .synocast_logo_navbar {
@@ -3175,4 +3239,88 @@ body {
   padding: 10px;
   border-radius: 8px;
   border-left: 4px solid var(--accent-weather);
+}
+/* Historical & Climate Trends Section */
+.trend-tab {
+  cursor: pointer;
+  padding-bottom: 5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.trend-tab:hover {
+  color: var(--primary-color) !important;
+  opacity: 1;
+}
+
+.trend-tab.active-trend {
+  color: var(--primary-color) !important;
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+
+.historical-chart-wrapper {
+  background: var(--surface-color);
+  border-radius: 12px;
+  min-height: 350px;
+}
+
+.historical-chart-container {
+  transition: opacity 0.3s ease-in-out;
+}
+
+#trend-loading-overlay {
+  border-radius: 16px;
+  backdrop-filter: blur(2px);
+}
+
+#climate-anomaly-badge .badge {
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#climate-context-footer {
+  background-color: rgba(0, 0, 0, 0.02);
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.record-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Animations for new content */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#history-insight-content > .col {
+  animation: fadeInSlideUp 0.4s ease-out forwards;
+}
+
+/* Accuracy Gauge Overrides (if needed) */
+.accuracy-gauge-container .progress {
+  background-color: var(--bg-color);
+  overflow: visible;
+}
+
+.accuracy-gauge-container .progress-bar {
+  border-radius: 100px;
+  position: relative;
 }

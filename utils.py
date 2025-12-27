@@ -2,7 +2,8 @@ import os
 import requests
 import logging
 import json
-import google.generativeai as genai
+import time
+from google import genai
 from datetime import datetime, timedelta, timezone
 from flask import request, session
 
@@ -248,10 +249,7 @@ def categorize_news_with_ai(articles, api_key):
         return fallback_results
 
     try:
-        genai.configure(api_key=api_key)
-        # Use the latest flash model for categorization
-        model = genai.GenerativeModel("gemini-flash-latest")
-
+        client = genai.Client(api_key=api_key)
 
         
         article_summaries = []
@@ -302,7 +300,10 @@ def categorize_news_with_ai(articles, api_key):
         {json.dumps(article_summaries)}
         """
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",
+            contents=prompt
+        )
         content = response.text.strip()
         
         # Remove markdown code blocks if present
@@ -522,3 +523,617 @@ def format_astronomy_data(daily_item, timezone_offset=0):
     except Exception as e:
         logger.error(f"Astronomy data formatting error: {e}")
         return None
+
+# ============================================================================
+# HISTORICAL WEATHER DATA & CLIMATE TRENDS
+# ============================================================================
+
+HISTORICAL_CACHE = {}
+HISTORICAL_CACHE_DURATION = 86400  # 24 hours for historical data
+
+def fetch_historical_weather(lat, lon, date):
+    """
+    Fetch historical weather data from Open-Meteo Archive API.
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        date: datetime object or string in 'YYYY-MM-DD' format
+    
+    Returns:
+        dict with historical weather data or None on error
+    """
+    try:
+        # Convert date to string if datetime object
+        if isinstance(date, datetime):
+            date_str = date.strftime('%Y-%m-%d')
+        else:
+            date_str = date
+        
+        # Check cache
+        cache_key = f"hist_{lat}_{lon}_{date_str}"
+        now_ts = datetime.now().timestamp()
+        
+        if cache_key in HISTORICAL_CACHE:
+            cached = HISTORICAL_CACHE[cache_key]
+            if now_ts - cached["timestamp"] < HISTORICAL_CACHE_DURATION:
+                logger.info(f"Serving historical data for {date_str} from cache")
+                return cached["data"]
+        
+        # Open-Meteo Archive API (free, no API key required)
+        url = f"https://archive-api.open-meteo.com/v1/archive"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": date_str,
+            "end_date": date_str,
+            "daily": "temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,windspeed_10m_max,weathercode",
+            "timezone": "auto"
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract daily data
+        if data.get('daily') and len(data['daily'].get('time', [])) > 0:
+            result = {
+                "date": data['daily']['time'][0],
+                "temp_max": data['daily']['temperature_2m_max'][0],
+                "temp_min": data['daily']['temperature_2m_min'][0],
+                "temp_mean": data['daily']['temperature_2m_mean'][0],
+                "precipitation": data['daily']['precipitation_sum'][0],
+                "wind_speed": data['daily']['windspeed_10m_max'][0],
+                "weather_code": data['daily']['weathercode'][0],
+                "source": "Open-Meteo Archive"
+            }
+            
+            # Cache the result
+            HISTORICAL_CACHE[cache_key] = {
+                "timestamp": now_ts,
+                "data": result
+            }
+            
+            return result
+        
+        return None
+        
+    except Exception as e:
+        logger.error(f"Historical weather fetch error: {e}")
+        return None
+
+def fetch_climate_normals(lat, lon, month):
+    """
+    Fetch climate normals (30-year averages) for a location and month.
+    Uses Open-Meteo Climate API for global coverage.
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        month: Month number (1-12)
+    
+    Returns:
+        dict with climate normals or None on error
+    """
+    try:
+        # Check cache
+        cache_key = f"normals_{lat}_{lon}_{month}"
+        now_ts = datetime.now().timestamp()
+        
+        if cache_key in HISTORICAL_CACHE:
+            cached = HISTORICAL_CACHE[cache_key]
+            if now_ts - cached["timestamp"] < HISTORICAL_CACHE_DURATION * 7:  # Cache for 7 days
+                return cached["data"]
+        
+        # Open-Meteo Climate API
+        # Get the current year's data for the specific month to calculate normals
+        current_year = datetime.now().year
+        start_date = f"{current_year - 30}-{month:02d}-01"
+        end_date = f"{current_year}-{month:02d}-28"  # Safe end date for all months
+        
+        url = f"https://archive-api.open-meteo.com/v1/archive"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": start_date,
+            "end_date": end_date,
+            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
+            "timezone": "auto"
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.ok:
+            data = response.json()
+            
+            # Calculate averages
+            if data.get('daily'):
+                temps_max = [t for t in data['daily']['temperature_2m_max'] if t is not None]
+                temps_min = [t for t in data['daily']['temperature_2m_min'] if t is not None]
+                precip = [p for p in data['daily']['precipitation_sum'] if p is not None]
+                
+                result = {
+                    "month": month,
+                    "temp_max_avg": sum(temps_max) / len(temps_max) if temps_max else None,
+                    "temp_min_avg": sum(temps_min) / len(temps_min) if temps_min else None,
+                    "temp_mean_avg": (sum(temps_max) + sum(temps_min)) / (len(temps_max) + len(temps_min)) if temps_max and temps_min else None,
+                    "precipitation_avg": sum(precip) / len(precip) if precip else None,
+                    "source": "Open-Meteo Climate (30-year estimate)"
+                }
+                
+                # Cache the result
+                HISTORICAL_CACHE[cache_key] = {
+                    "timestamp": now_ts,
+                    "data": result
+                }
+                
+                return result
+        
+        # Fallback: Use simplified estimates based on latitude
+        # This is a rough approximation for demo purposes
+        logger.warning(f"Climate normals API failed, using latitude-based estimates")
+        
+        # Simplified temperature estimates based on latitude
+        lat_abs = abs(lat)
+        if lat_abs < 23.5:  # Tropics
+            base_temp = 27
+        elif lat_abs < 40:  # Subtropics
+            base_temp = 20
+        elif lat_abs < 60:  # Temperate
+            base_temp = 12
+        else:  # Polar
+            base_temp = 0
+        
+        # Add seasonal variation
+        if month in [12, 1, 2]:  # Winter
+            seasonal_adj = -5 if lat > 0 else 5
+        elif month in [6, 7, 8]:  # Summer
+            seasonal_adj = 5 if lat > 0 else -5
+        else:  # Spring/Fall
+            seasonal_adj = 0
+        
+        result = {
+            "month": month,
+            "temp_max_avg": base_temp + seasonal_adj + 5,
+            "temp_min_avg": base_temp + seasonal_adj - 5,
+            "temp_mean_avg": base_temp + seasonal_adj,
+            "precipitation_avg": 50,  # Generic estimate
+            "source": "Estimated (latitude-based)"
+        }
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Climate normals fetch error: {e}")
+        return None
+
+def calculate_climate_anomaly(current_temp, normal_temp):
+    """
+    Calculate temperature anomaly (deviation from normal).
+    
+    Args:
+        current_temp: Current temperature
+        normal_temp: Normal (average) temperature
+    
+    Returns:
+        dict with anomaly value and interpretation
+    """
+    try:
+        if current_temp is None or normal_temp is None:
+            return None
+        
+        anomaly = current_temp - normal_temp
+        
+        # Interpret the anomaly
+        if abs(anomaly) < 1:
+            category = "normal"
+            description = "Near average"
+        elif abs(anomaly) < 3:
+            category = "slightly_abnormal"
+            description = "Slightly warmer" if anomaly > 0 else "Slightly cooler"
+        elif abs(anomaly) < 5:
+            category = "abnormal"
+            description = "Warmer" if anomaly > 0 else "Cooler"
+        else:
+            category = "very_abnormal"
+            description = "Much warmer" if anomaly > 0 else "Much cooler"
+        
+        return {
+            "anomaly": round(anomaly, 1),
+            "category": category,
+            "description": description,
+            "direction": "warmer" if anomaly > 0 else "cooler" if anomaly < 0 else "normal"
+        }
+        
+    except Exception as e:
+        logger.error(f"Climate anomaly calculation error: {e}")
+        return None
+
+def analyze_seasonal_trends(lat, lon, years_back=5):
+    """
+    Analyze seasonal temperature and precipitation trends over multiple years.
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        years_back: Number of years to analyze (default 5)
+    
+    Returns:
+        dict with seasonal trend data
+    """
+    try:
+        current_year = datetime.now().year
+        start_year = current_year - years_back
+        
+        # Fetch data for each year
+        yearly_data = []
+        
+        for year in range(start_year, current_year):
+            start_date = f"{year}-01-01"
+            end_date = f"{year}-12-31"
+            
+            url = f"https://archive-api.open-meteo.com/v1/archive"
+            params = {
+                "latitude": lat,
+                "longitude": lon,
+                "start_date": start_date,
+                "end_date": end_date,
+                "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
+                "timezone": "auto"
+            }
+            
+            try:
+                response = requests.get(url, params=params, timeout=10)
+                if response.ok:
+                    data = response.json()
+                    yearly_data.append({
+                        "year": year,
+                        "data": data.get('daily', {})
+                    })
+            except:
+                continue
+        
+        if not yearly_data:
+            return None
+        
+        # Analyze trends by season
+        seasons = {
+            "winter": [12, 1, 2],
+            "spring": [3, 4, 5],
+            "summer": [6, 7, 8],
+            "fall": [9, 10, 11]
+        }
+        
+        seasonal_trends = {}
+        
+        for season_name, months in seasons.items():
+            season_temps = []
+            season_precip = []
+            
+            for year_data in yearly_data:
+                year = year_data["year"]
+                daily = year_data["data"]
+                
+                if not daily.get('time'):
+                    continue
+                
+                # Extract data for this season
+                for i, date_str in enumerate(daily['time']):
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    if date_obj.month in months:
+                        if daily.get('temperature_2m_max') and i < len(daily['temperature_2m_max']):
+                            temp_max = daily['temperature_2m_max'][i]
+                            temp_min = daily['temperature_2m_min'][i]
+                            if temp_max is not None and temp_min is not None:
+                                season_temps.append((temp_max + temp_min) / 2)
+                        
+                        if daily.get('precipitation_sum') and i < len(daily['precipitation_sum']):
+                            precip = daily['precipitation_sum'][i]
+                            if precip is not None:
+                                season_precip.append(precip)
+            
+            if season_temps:
+                seasonal_trends[season_name] = {
+                    "avg_temp": round(sum(season_temps) / len(season_temps), 1),
+                    "total_precip": round(sum(season_precip), 1) if season_precip else 0,
+                    "data_points": len(season_temps)
+                }
+        
+        return {
+            "years_analyzed": years_back,
+            "seasons": seasonal_trends,
+            "source": "Open-Meteo Archive"
+        }
+        
+    except Exception as e:
+        logger.error(f"Seasonal trends analysis error: {e}")
+        return None
+
+def get_record_temperatures(lat, lon, years_back=10):
+    """
+    Track record high and low temperatures from historical data.
+    
+    Args:
+        lat: Latitude
+        lon: Longitude
+        years_back: Number of years to search (default 10)
+    
+    Returns:
+        dict with record temperatures and dates
+    """
+    try:
+        current_year = datetime.now().year
+        start_year = current_year - years_back
+        
+        start_date = f"{start_year}-01-01"
+        end_date = f"{current_year - 1}-12-31"
+        
+        url = f"https://archive-api.open-meteo.com/v1/archive"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "start_date": start_date,
+            "end_date": end_date,
+            "daily": "temperature_2m_max,temperature_2m_min",
+            "timezone": "auto"
+        }
+        
+        response = requests.get(url, params=params, timeout=15)
+        
+        if not response.ok:
+            return None
+        
+        data = response.json()
+        daily = data.get('daily', {})
+        
+        if not daily.get('time'):
+            return None
+        
+        # Find records
+        record_high = {"temp": float('-inf'), "date": None}
+        record_low = {"temp": float('inf'), "date": None}
+        
+        for i, date_str in enumerate(daily['time']):
+            temp_max = daily['temperature_2m_max'][i]
+            temp_min = daily['temperature_2m_min'][i]
+            
+            if temp_max is not None and temp_max > record_high["temp"]:
+                record_high = {"temp": temp_max, "date": date_str}
+            
+            if temp_min is not None and temp_min < record_low["temp"]:
+                record_low = {"temp": temp_min, "date": date_str}
+        
+        return {
+            "record_high": {
+                "temperature": round(record_high["temp"], 1),
+                "date": record_high["date"],
+                "year": int(record_high["date"][:4]) if record_high["date"] else None
+            },
+            "record_low": {
+                "temperature": round(record_low["temp"], 1),
+                "date": record_low["date"],
+                "year": int(record_low["date"][:4]) if record_low["date"] else None
+            },
+            "years_analyzed": years_back,
+            "source": "Open-Meteo Archive"
+        }
+        
+    except Exception as e:
+        logger.error(f"Record temperatures fetch error: {e}")
+        return None
+
+# ============================================================================
+# AI Outfit Suggestion Functions
+# ============================================================================
+
+def get_outfit_suggestion(temperature, condition, precipitation_prob=0, activity="casual", wind_speed=0):
+    """
+    Get outfit suggestions based on weather conditions.
+    
+    Args:
+        temperature: Temperature in Celsius
+        condition: Weather condition string (e.g., 'Clear', 'Rain', 'Snow')
+        precipitation_prob: Probability of precipitation (0-100)
+        activity: Activity type ('casual', 'work', 'outdoor', 'formal')
+        wind_speed: Wind speed in m/s
+    
+    Returns:
+        Dict with outfit description, items, and image prompt
+    """
+    condition_lower = condition.lower()
+    outfit = {
+        "items": [],
+        "accessories": [],
+        "footwear": "",
+        "description": "",
+        "image_prompt": ""
+    }
+    
+    # Base clothing by temperature
+    if temperature < 0:
+        outfit["items"] = ["Heavy winter coat", "Thermal layers", "Thick sweater", "Warm pants"]
+        outfit["footwear"] = "Insulated winter boots"
+        outfit["accessories"] = ["Warm hat", "Scarf", "Gloves"]
+        temp_desc = "freezing cold"
+    elif temperature < 10:
+        outfit["items"] = ["Winter jacket", "Long-sleeve shirt", "Sweater", "Jeans or warm pants"]
+        outfit["footwear"] = "Closed-toe shoes or boots"
+        outfit["accessories"] = ["Light scarf", "Beanie"]
+        temp_desc = "cold"
+    elif temperature < 15:
+        outfit["items"] = ["Light jacket or cardigan", "Long-sleeve shirt", "Jeans"]
+        outfit["footwear"] = "Sneakers or casual shoes"
+        outfit["accessories"] = ["Light jacket"]
+        temp_desc = "cool"
+    elif temperature < 20:
+        outfit["items"] = ["Light sweater or hoodie", "T-shirt", "Jeans or casual pants"]
+        outfit["footwear"] = "Sneakers"
+        outfit["accessories"] = []
+        temp_desc = "mild"
+    elif temperature < 25:
+        outfit["items"] = ["T-shirt or blouse", "Light pants or jeans"]
+        outfit["footwear"] = "Sneakers or loafers"
+        outfit["accessories"] = ["Sunglasses"]
+        temp_desc = "pleasant"
+    elif temperature < 30:
+        outfit["items"] = ["Light t-shirt", "Shorts or light pants"]
+        outfit["footwear"] = "Sandals or breathable sneakers"
+        outfit["accessories"] = ["Sunglasses", "Sun hat"]
+        temp_desc = "warm"
+    else:
+        outfit["items"] = ["Breathable light clothing", "Shorts", "Tank top or light t-shirt"]
+        outfit["footwear"] = "Sandals or flip-flops"
+        outfit["accessories"] = ["Sunglasses", "Wide-brim hat", "Sunscreen"]
+        temp_desc = "hot"
+    
+    # Weather condition adjustments
+    if 'rain' in condition_lower or 'drizzle' in condition_lower or precipitation_prob > 50:
+        outfit["accessories"].extend(["Umbrella", "Waterproof jacket"])
+        outfit["footwear"] = "Waterproof boots or shoes"
+        weather_desc = "rainy"
+    elif 'snow' in condition_lower:
+        outfit["accessories"].extend(["Waterproof gloves", "Snow boots"])
+        outfit["footwear"] = "Insulated snow boots"
+        weather_desc = "snowy"
+    elif 'cloud' in condition_lower:
+        weather_desc = "cloudy"
+    elif 'clear' in condition_lower or 'sun' in condition_lower:
+        weather_desc = "sunny"
+        if temperature > 20:
+            outfit["accessories"].append("Sunscreen")
+    else:
+        weather_desc = condition_lower
+    
+    # Wind adjustments
+    if wind_speed > 10:
+        outfit["accessories"].append("Windbreaker")
+    
+    # Activity-based adjustments
+    if activity == "work" or activity == "formal":
+        outfit["items"] = [item.replace("T-shirt", "Dress shirt").replace("Jeans", "Dress pants") 
+                          for item in outfit["items"]]
+        outfit["footwear"] = outfit["footwear"].replace("Sneakers", "Dress shoes")
+        activity_desc = "professional"
+    elif activity == "outdoor":
+        outfit["items"].append("Athletic wear")
+        outfit["footwear"] = "Hiking boots or athletic shoes"
+        outfit["accessories"].append("Backpack")
+        activity_desc = "outdoor adventure"
+    else:
+        activity_desc = "casual"
+    
+    # Generate description
+    outfit["description"] = (
+        f"For this {temp_desc} and {weather_desc} weather ({temperature}°C), "
+        f"we recommend {activity_desc} attire. "
+        f"Layer with {', '.join(outfit['items'][:2])} and wear {outfit['footwear']}. "
+    )
+    
+    if outfit["accessories"]:
+        outfit["description"] += f"Don't forget: {', '.join(outfit['accessories'])}."
+    
+    # Generate image prompt for AI
+    outfit["image_prompt"] = (
+        f"A stylish {activity_desc} outfit laid out on a clean surface, "
+        f"featuring {', '.join(outfit['items'][:3])}, {outfit['footwear']}, "
+        f"and {', '.join(outfit['accessories'][:2]) if outfit['accessories'] else 'minimal accessories'}. "
+        f"Modern fashion photography, {weather_desc} weather theme, professional lighting, "
+        f"flat lay composition, high quality, detailed textures"
+    )
+    
+    return outfit
+
+
+
+def get_exchange_rates(api_key=None, base_currency="USD"):
+    """
+    Fetch and cache currency exchange rates.
+    Updates once every 24 hours.
+    """
+    from app import get_db
+    import sqlite3
+    
+    # Try fetching from cache first
+    try:
+        with get_db() as conn:
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            c.execute("SELECT rate, target_currency FROM currency_rates WHERE base_currency = ? AND last_updated > ?", 
+                      (base_currency, (datetime.now() - timedelta(hours=24)).isoformat()))
+            cached_rows = c.fetchall()
+            cached_rates = {row['target_currency']: row['rate'] for row in cached_rows}
+            
+            if cached_rates:
+                return cached_rates
+    except Exception as e:
+        logger.error(f"Error fetching cached rates: {e}")
+
+    # Fallback to API if cache is stale or empty
+    # Default rates if no API key
+    default_rates = {
+        "USD": 1.0, "EUR": 0.92, "GBP": 0.79, "JPY": 150.25, "CNY": 7.21, 
+        "PKR": 278.50, "INR": 82.95, "AUD": 1.53, "CAD": 1.35
+    }
+    
+    if not api_key:
+        return default_rates
+        
+    try:
+        url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/{base_currency}"
+        res = requests.get(url, timeout=10)
+        if res.ok:
+            data = res.json()
+            rates = data.get('conversion_rates', {})
+            
+            # Save to cache
+            with get_db() as conn:
+                for target, rate in rates.items():
+                    conn.execute("""
+                        INSERT OR REPLACE INTO currency_rates (base_currency, target_currency, rate, last_updated)
+                        VALUES (?, ?, ?, ?)
+                    """, (base_currency, target, rate, datetime.now().isoformat()))
+                conn.commit()
+            
+            return rates
+    except Exception as e:
+        logger.error(f"Error fetching exchange rates from API: {e}")
+        
+    return default_rates
+
+def convert_currency(amount, from_curr, to_curr, rates=None):
+    """Convert amount from one currency to another."""
+    if from_curr == to_curr:
+        return amount
+        
+    if not rates:
+        rates = get_exchange_rates()
+        
+    # If rates are base=USD, we need to convert to USD first if from_curr is not USD
+    if from_curr != "USD":
+        from_rate = rates.get(from_curr, 1)
+        amount_usd = amount / from_rate if from_rate else amount
+    else:
+        amount_usd = amount
+        
+    to_rate = rates.get(to_curr, 1)
+    return amount_usd * to_rate
+
+def get_travel_cost_insights(lat, lon, currency_pref="USD"):
+    """
+    Calculate weather-based travel costs for a location.
+    Provides estimates for seasonal items based on current weather.
+    """
+    base_prices = {
+        "umbrella": 15.0,
+        "sunscreen": 12.0,
+        "winter_jacket": 80.0,
+        "cold_drink": 3.0,
+        "hot_coffee": 4.0
+    }
+    
+    rates = get_exchange_rates()
+    converted_prices = {item: round(convert_currency(price, "USD", currency_pref, rates), 2) 
+                        for item, price in base_prices.items()}
+    
+    return converted_prices
+

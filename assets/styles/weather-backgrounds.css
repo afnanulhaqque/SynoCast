@@ -1,0 +1,381 @@
+/* Weather-Based Dynamic Backgrounds */
+
+/* Base Hero Card Styling */
+.weather-hero-card {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.8s ease-in-out;
+}
+
+/* Animated Background Patterns */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes particles-float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+}
+
+/* Clear/Sunny Day Background */
+.weather-bg-clear-day {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.weather-bg-clear-day::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: sun-rays 20s linear infinite;
+}
+
+@keyframes sun-rays {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* Clear Night Background */
+.weather-bg-clear-night {
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 20s ease infinite;
+}
+
+.weather-bg-clear-night::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent),
+    radial-gradient(1px 1px at 33% 80%, white, transparent);
+  background-size: 200% 200%;
+  animation: stars-twinkle 5s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+@keyframes stars-twinkle {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Cloudy Background */
+.weather-bg-clouds {
+  background: linear-gradient(135deg, #bdc3c7 0%, #8e9eab 50%, #bdc3c7 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+.weather-bg-clouds::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      ellipse 200px 100px at 20% 30%,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 250px 120px at 70% 60%,
+      rgba(255, 255, 255, 0.25),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 180px 90px at 50% 80%,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+  animation: clouds-move 30s ease-in-out infinite;
+}
+
+@keyframes clouds-move {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(50px);
+  }
+}
+
+/* Rainy Background */
+.weather-bg-rain {
+  background: linear-gradient(135deg, #4b6cb7 0%, #182848 50%, #4b6cb7 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
+}
+
+.weather-bg-rain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    transparent 0%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 2px 20px;
+  animation: rain-animation 0.5s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes rain-animation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 20px;
+  }
+}
+
+/* Snowy Background */
+.weather-bg-snow {
+  background: linear-gradient(135deg, #e6f2ff 0%, #c9dff5 50%, #e6f2ff 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.weather-bg-snow::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, white 1px, transparent 1px),
+    radial-gradient(circle, white 1px, transparent 1px),
+    radial-gradient(circle, white 2px, transparent 2px);
+  background-size: 50px 50px, 80px 80px, 100px 100px;
+  background-position: 0 0, 40px 40px, 80px 80px;
+  animation: snow-fall-bg 10s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes snow-fall-bg {
+  0% {
+    background-position: 0 0, 40px 40px, 80px 80px;
+  }
+  100% {
+    background-position: 0 100px, 40px 140px, 80px 180px;
+  }
+}
+
+/* Thunderstorm Background */
+.weather-bg-thunderstorm {
+  background: linear-gradient(135deg, #232526 0%, #414345 50%, #232526 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.weather-bg-thunderstorm::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  animation: lightning-strike 4s ease-in-out infinite;
+}
+
+@keyframes lightning-strike {
+  0%,
+  90%,
+  100% {
+    background: rgba(255, 255, 255, 0);
+  }
+  92% {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  94% {
+    background: rgba(255, 255, 255, 0);
+  }
+  96% {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Fog/Mist Background */
+.weather-bg-mist,
+.weather-bg-fog {
+  background: linear-gradient(135deg, #d7d2cc 0%, #304352 50%, #d7d2cc 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 18s ease infinite;
+}
+
+.weather-bg-mist::after,
+.weather-bg-fog::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      ellipse 400px 200px at 30% 40%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 350px 180px at 70% 70%,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  animation: fog-drift 20s ease-in-out infinite;
+}
+
+@keyframes fog-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-30px);
+    opacity: 0.8;
+  }
+}
+
+/* Drizzle Background */
+.weather-bg-drizzle {
+  background: linear-gradient(135deg, #89a5b0 0%, #5f7d8a 50%, #89a5b0 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+.weather-bg-drizzle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    transparent 0%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.08) 70%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  background-size: 1px 15px;
+  animation: rain-animation 0.7s linear infinite;
+  opacity: 0.5;
+}
+
+/* Haze Background */
+.weather-bg-haze {
+  background: linear-gradient(135deg, #f2d5a6 0%, #d4a574 50%, #f2d5a6 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 16s ease infinite;
+  filter: blur(0.5px);
+}
+
+/* Overlay for better text readability */
+.weather-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  z-index: 1;
+}
+
+.weather-hero-card .card-img-overlay {
+  z-index: 2;
+}
+
+/* Smooth Transition Between Backgrounds */
+.weather-bg-transition {
+  transition: background 1s ease-in-out, filter 1s ease-in-out;
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .weather-bg-clear-day,
+  .weather-bg-clear-night,
+  .weather-bg-clouds,
+  .weather-bg-rain,
+  .weather-bg-snow,
+  .weather-bg-thunderstorm,
+  .weather-bg-mist,
+  .weather-bg-fog,
+  .weather-bg-drizzle,
+  .weather-bg-haze {
+    animation: none !important;
+    background-size: 100% 100% !important;
+  }
+
+  .weather-bg-clear-day::before,
+  .weather-bg-clear-night::after,
+  .weather-bg-clouds::before,
+  .weather-bg-rain::after,
+  .weather-bg-snow::after,
+  .weather-bg-thunderstorm::before,
+  .weather-bg-mist::after,
+  .weather-bg-fog::after,
+  .weather-bg-drizzle::after {
+    animation: none !important;
+    opacity: 0.5 !important;
+  }
+}
+
+/* Performance Optimization */
+.weather-hero-card,
+.weather-hero-card::before,
+.weather-hero-card::after {
+  will-change: transform, opacity;
+}

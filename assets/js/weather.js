@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const countryEl = document.getElementById('weather-country');
     const dateHeaderEl = document.getElementById('weather-date-header');
     
+    // --- Hero Background Elements ---
+    const heroCard = document.getElementById('weather-hero-card');
+    const heroImg = document.getElementById('weather-hero-img');
+    const bgOverlay = document.getElementById('weather-bg-overlay');
+    
     const heroTempEl = document.getElementById('weather-hero-temp');
     const heroIconEl = document.getElementById('weather-hero-icon');
     const heroConditionEl = document.getElementById('weather-hero-condition');
@@ -36,9 +41,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnCelsius = document.getElementById('btn-celsius');
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
 
-    // --- Chart Instance ---
+    // --- Chart Instances ---
     let historicalChart = null;
+    let seasonalTrendsChart = null;
+    let recordTimelineChart = null;
     let historyData = null; // Store for export
+    let historicalTrendYears = 5;
+    let activeTrendTab = 'temp';
 
     // --- Search Functionality ---
     if (searchInput && searchResults) {
@@ -257,6 +266,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fetch History Data
             fetchHistory(lat, lon);
             
+            // Fetch All Historical Trends (Charts)
+            fetchHistoricalTrends(lat, lon, historicalTrendYears);
+            
             // Auto-fetch "On This Day" for 5 years ago
             fetchOnThisDay(lat, lon, 5);
 
@@ -336,8 +348,26 @@ document.addEventListener('DOMContentLoaded', function() {
             if(heroConditionEl) heroConditionEl.textContent = w.description.charAt(0).toUpperCase() + w.description.slice(1);
             
             // Map icons (Centralized)
-            const iconClass = WeatherUtils.getIconClass(w.id, w.icon);
-            if(heroIconEl) heroIconEl.className = `fas ${iconClass} fa-4x mb-2`;
+            const iconData = WeatherUtils.getIconClass(w.id, w.icon);
+            if(heroIconEl) heroIconEl.className = `fas ${iconData.icon} fa-4x mb-2 ${iconData.animation} ${iconData.color}`;
+            
+            // Update Background
+            updateWeatherBackground(w.id, w.icon);
+
+            // Dispatch global event for other managers (Idioms, Currency, etc.)
+            window.dispatchEvent(new CustomEvent('weatherDataLoaded', { 
+                detail: { 
+                    condition: w.main, 
+                    temp: current.main.temp,
+                    city: current.name,
+                    country: current.sys.country
+                } 
+            }));
+            
+            // Announce weather update for screen readers
+            if (window.SynoCastAccessibility) {
+                window.SynoCastAccessibility.announce(`Weather update: ${current.name} is ${w.description} at ${temp} degrees.`);
+            }
         }
 
         // Details
@@ -406,14 +436,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const timeStr = localD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
             
             // Icon
-            const iconClass = WeatherUtils.getIconClass(item.weather[0].id, item.weather[0].icon);
+            const iconData = WeatherUtils.getIconClass(item.weather[0].id, item.weather[0].icon);
 
             const activeClass = index === 0 ? 'active-forecast' : '';
             const borderStyle = index === 0 ? 'border: 2px solid var(--primary-color);' : 'border: 1px solid #eee;';
 
             const card = document.createElement('div');
-            card.className = `card border-0 rounded-4 p-3 flex-shrink-0 ${activeClass}`;
-            card.style = `width: 160px; ${borderStyle}`;
+            card.className = `card border-0 rounded-4 p-3 flex-shrink-0 ${activeClass} forecast-card-enter`;
+            card.style = `width: 160px; ${borderStyle} animation-delay: ${index * 0.1}s;`;
             card.innerHTML = `
                 <div class="card-body p-0 d-flex flex-column justify-content-between h-100">
                   <div>
@@ -429,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-tint"></i> ${pop}%
                       </div>
                     </div>
-                     <i class="fas ${iconClass} fa-2x text-muted"></i>
+                     <i class="fas ${iconData.icon} fa-2x ${iconData.animation} ${iconData.color}"></i>
                   </div>
                 </div>
             `;
@@ -474,11 +504,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const pop = Math.round(day.pop * 100);
             
              // Icon
-            const iconClass = WeatherUtils.getIconClass(day.weather.id, day.weather.icon);
+            const iconData = WeatherUtils.getIconClass(day.weather.id, day.weather.icon);
 
             const card = document.createElement('div');
-            card.className = `card border-0 rounded-4 p-3 flex-shrink-0`;
-            card.style = `width: 160px; border: 1px solid #eee;`;
+            card.className = `card border-0 rounded-4 p-3 flex-shrink-0 forecast-card-enter`;
+            card.style = `width: 160px; border: 1px solid #eee; animation-delay: ${distinctDays.indexOf(day) * 0.1}s;`;
             card.innerHTML = `
                 <div class="card-body p-0 d-flex flex-column justify-content-between h-100">
                   <div>
@@ -494,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-tint"></i> ${pop}%
                       </div>
                     </div>
-                    <i class="fas ${iconClass} fa-2x text-muted"></i>
+                    <i class="fas ${iconData.icon} fa-2x ${iconData.animation} ${iconData.color}"></i>
                   </div>
                 </div>
             `;
@@ -624,6 +654,163 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- Historical Trends Logic (Phases 5 & 6) ---
+    
+    async function fetchHistoricalTrends(lat, lon, years) {
+        const loader = document.getElementById('trend-loading-overlay');
+        if (loader) loader.classList.remove('d-none');
+
+        try {
+            // 1. Temperature Trend (Current View)
+            await fetchHistory(lat, lon);
+            
+            // 2. Seasonal Trends
+            const seasonalRes = await fetch(`/api/weather/climate-trends?lat=${lat}&lon=${lon}&years=${years}`);
+            const seasonalData = await seasonalRes.json();
+            renderSeasonalTrendsChart(seasonalData);
+            
+            // 3. Records Timeline
+            const recordsRes = await fetch(`/api/weather/records?lat=${lat}&lon=${lon}`);
+            const recordsData = await recordsRes.json();
+            renderRecordTimeline(recordsData);
+            
+        } catch (err) {
+            console.error("Trends fetch failed", err);
+        } finally {
+            if (loader) loader.classList.add('d-none');
+        }
+    }
+
+    function renderSeasonalTrendsChart(data) {
+        const ctx = document.getElementById('seasonalTrendsChart');
+        if (!ctx || !data || !data.seasons) return;
+
+        const labels = Object.keys(data.seasons);
+        const temps = labels.map(s => {
+            const t = data.seasons[s].avg_temp;
+            return currentUnit === 'F' ? WeatherUtils.celsiusToFahrenheit(t) : t;
+        });
+        const precip = labels.map(s => data.seasons[s].total_precip);
+
+        if (seasonalTrendsChart) seasonalTrendsChart.destroy();
+
+        seasonalTrendsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+                datasets: [
+                    {
+                        label: `Avg Temp (${currentUnit})`,
+                        data: temps,
+                        backgroundColor: '#dc3545',
+                        borderColor: '#dc3545',
+                        type: 'line',
+                        yAxisID: 'y',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Total Precipitation (mm)',
+                        data: precip,
+                        backgroundColor: 'rgba(13, 202, 240, 0.5)',
+                        borderColor: 'rgba(13, 202, 240, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: `Temp (${currentUnit})` }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'Precipitation (mm)' }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderRecordTimeline(data) {
+        const ctx = document.getElementById('recordTimelineChart');
+        if (!ctx || !data) return;
+
+        const records = [
+            { label: 'All-Time High', value: data.record_high.value, date: data.record_high.date, year: data.record_high.year, color: '#dc3545' },
+            { label: 'All-Time Low', value: data.record_low.value, date: data.record_low.date, year: data.record_low.year, color: '#0d6efd' }
+        ];
+
+        if (recordTimelineChart) recordTimelineChart.destroy();
+
+        recordTimelineChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: records.map(r => ({
+                    label: r.label,
+                    data: [{ x: r.year, y: currentUnit === 'F' ? celsiusToFahrenheit(r.value) : r.value }],
+                    backgroundColor: r.color,
+                    pointRadius: 10,
+                    pointHoverRadius: 12
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const r = records[context.datasetIndex];
+                                return `${r.label}: ${context.parsed.y}°${currentUnit} (${r.date})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Year' }
+                    },
+                    y: {
+                        title: { display: true, text: `Temp (${currentUnit})` }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- Trend Controls ---
+    document.querySelectorAll('.trend-tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.trend-tab').forEach(t => t.classList.remove('active-trend'));
+            tab.classList.add('active-trend');
+            
+            const view = tab.id.split('-').pop(); // temp, seasonal, records
+            activeTrendTab = view;
+
+            document.querySelectorAll('.historical-chart-container').forEach(c => c.classList.add('d-none'));
+            document.getElementById(`chart-container-${view}`).classList.remove('d-none');
+        };
+    });
+
+    document.querySelectorAll('.trend-period-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.trend-period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            historicalTrendYears = parseInt(btn.getAttribute('data-years'));
+            if (currentData) fetchHistoricalTrends(currentData.coord.lat, currentData.coord.lon, historicalTrendYears);
+        };
+    });
+
     // --- Tab Switching Logic ---
     const tabToday = document.getElementById('tab-today');
     const tabWeek = document.getElementById('tab-week');
@@ -632,6 +819,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const forecastAnalyticsEl = document.getElementById('forecast-analytics');
     const forecastExtendedEl = document.getElementById('forecast-extended');
+    const forecastInsightsEl = document.getElementById('forecast-insights');
+    const tabInsights = document.getElementById('tab-insights');
     
     // Analytics Chart Instances
     let analyticsTempChart = null;
@@ -651,11 +840,13 @@ document.addEventListener('DOMContentLoaded', function() {
         resetTab(tabWeek);
         resetTab(tabAnalytics);
         resetTab(tabExtended);
+        resetTab(tabInsights);
 
         forecastTodayEl?.classList.add('d-none');
         forecastWeekEl?.classList.add('d-none');
         forecastAnalyticsEl?.classList.add('d-none');
         forecastExtendedEl?.classList.add('d-none');
+        forecastInsightsEl?.classList.add('d-none');
 
         if (tab === 'today') {
             forecastTodayEl?.classList.remove('d-none');
@@ -693,6 +884,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Fetch extended forecast data
                 fetchExtendedForecast(currentData.coord.lat, currentData.coord.lon);
             }
+        } else if (tab === 'insights') {
+            forecastInsightsEl?.classList.remove('d-none');
+            if (tabInsights) {
+                tabInsights.classList.remove('text-muted');
+                tabInsights.classList.add('text-dark');
+                tabInsights.style.opacity = '1';
+            }
+            if (currentData) {
+                fetchAIInsights(currentData.coord.lat, currentData.coord.lon);
+            }
         }
     }
 
@@ -700,6 +901,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabWeek) tabWeek.addEventListener('click', () => switchTab('week'));
     if (tabAnalytics) tabAnalytics.addEventListener('click', () => switchTab('analytics'));
     if (tabExtended) tabExtended.addEventListener('click', () => switchTab('extended'));
+    if (tabInsights) tabInsights.addEventListener('click', () => switchTab('insights'));
 
     // --- AI Suite Logic ---
 
@@ -803,6 +1005,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchOnThisDay(lat, lon, years) {
         console.log(`Fetching On This Day for ${lat}, ${lon} (${years} years ago)`);
         const contentEl = document.getElementById('history-insight-content');
+        const anomalyBadge = document.getElementById('climate-anomaly-badge');
+        const contextFooter = document.getElementById('climate-context-footer');
+        const comparisonText = document.getElementById('climate-comparison-text');
+        const recordIndicators = document.getElementById('record-indicators');
         
         if (!lat || !lon) {
             if (currentData && currentData.coord) {
@@ -815,54 +1021,93 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!contentEl) return;
 
         contentEl.innerHTML = '<div class="col text-center py-5 w-100"><div class="spinner-border text-primary" role="status"></div></div>';
+        if (anomalyBadge) anomalyBadge.classList.add('d-none');
+        if (contextFooter) contextFooter.classList.add('d-none');
 
         try {
             const res = await fetch(`/api/weather/historical?lat=${lat}&lon=${lon}&years=${years}`);
-            const data = await res.json();
+            const result = await res.json();
             
-            if (data.temp_max !== undefined) {
+            if (result.status === "success") {
+                const data = result.data;
+                const anomaly = result.anomaly;
+                const normals = result.climatology;
+                
+                // 1. Comparison Cards
                 contentEl.innerHTML = `
-                    <div class="col text-center">
-                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                    <div class="col">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border text-center">
                             <p class="small text-muted mb-1">Max Temp</p>
                             <h4 class="fw-bold text-danger mb-0">${Math.round(data.temp_max)}°C</h4>
+                            <small class="text-muted">${years}Y Ago</small>
                         </div>
                     </div>
-                    <div class="col text-center">
-                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                    <div class="col">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border text-center">
                             <p class="small text-muted mb-1">Min Temp</p>
                             <h4 class="fw-bold text-primary mb-0">${Math.round(data.temp_min)}°C</h4>
+                            <small class="text-muted">${years}Y Ago</small>
                         </div>
                     </div>
-                    <div class="col text-center">
-                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
+                    <div class="col">
+                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border text-center">
                             <p class="small text-muted mb-1">Precipitation</p>
-                            <h4 class="fw-bold text-info mb-0">${data.rain}mm</h4>
+                            <h4 class="fw-bold text-info mb-0">${data.precipitation}mm</h4>
+                            <small class="text-muted">${years}Y Ago</small>
                         </div>
                     </div>
                 `;
-            } else if (data.data) { // OWM Response
-                 const main = data.data.data[0];
-                 contentEl.innerHTML = `
-                    <div class="col text-center">
-                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
-                            <p class="small text-muted mb-1">Temp</p>
-                            <h4 class="fw-bold text-danger mb-0">${Math.round(main.temp)}°C</h4>
-                        </div>
-                    </div>
-                    <div class="col text-center">
-                        <div class="p-3 bg-white rounded-4 shadow-sm h-100 border">
-                            <p class="small text-muted mb-1">Condition</p>
-                            <h4 class="fw-bold text-primary mb-0">${main.weather[0].main}</h4>
-                        </div>
-                    </div>
-                `;
+
+                // 2. Anomaly Badge
+                if (anomaly && anomalyBadge) {
+                    const colorMap = {
+                        "normal": "bg-success",
+                        "slightly_abnormal": "bg-warning",
+                        "abnormal": "bg-danger",
+                        "very_abnormal": "bg-dark"
+                    };
+                    const color = colorMap[anomaly.category] || "bg-secondary";
+                    anomalyBadge.innerHTML = `
+                        <span class="badge ${color} rounded-pill">
+                            <i class="fas fa-temperature-empty me-1"></i>
+                            ${anomaly.anomaly > 0 ? '+' : ''}${anomaly.anomaly}°C ${anomaly.direction}
+                        </span>
+                    `;
+                    anomalyBadge.classList.remove('d-none');
+                }
+
+                // 3. Comparison Text & Footer
+                if (normals && comparisonText && contextFooter) {
+                    comparisonText.textContent = `${anomaly ? anomaly.description : 'near normal'}`;
+                    comparisonText.className = anomaly?.anomaly > 0 ? 'fw-bold text-danger' : 'fw-bold text-primary';
+                    contextFooter.classList.remove('d-none');
+                }
+
+                // 4. Fetch Records (mini-check)
+                fetchOnThisDayRecords(lat, lon);
+
             } else {
                 contentEl.innerHTML = '<p class="text-center w-100 py-4 opacity-50">No historical data available for this date.</p>';
             }
         } catch (err) {
+            console.error("Historical error", err);
             contentEl.innerHTML = '<p class="text-center w-100 py-4 text-danger">Failed to fetch historical data.</p>';
         }
+    }
+
+    async function fetchOnThisDayRecords(lat, lon) {
+        try {
+            const res = await fetch(`/api/weather/records?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            const recordIndicators = document.getElementById('record-indicators');
+            
+            if (data && recordIndicators) {
+                const high = data.record_high;
+                recordIndicators.innerHTML = `
+                    <span class="text-danger fw-bold"><i class="fas fa-trophy me-1"></i>High: ${Math.round(high.value)}°C (${high.year})</span>
+                `;
+            }
+        } catch (e) {}
     }
 
     document.querySelectorAll('.hist-year-btn').forEach(btn => {
@@ -1114,45 +1359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Social Sharing ---
-    const shareBtn = document.getElementById('share-snapshot');
-    if (shareBtn) {
-        shareBtn.addEventListener('click', () => {
-            const card = document.querySelector('.weather-hero-card');
-            if(!card) return;
-            
-            // Show loading state
-            const icon = shareBtn.querySelector('i');
-            const originalClass = icon.className;
-            icon.className = "fas fa-spinner fa-spin text-primary";
-            
-            // Hide the button itself for the screenshot
-            shareBtn.style.display = 'none';
-            
-            html2canvas(card, {
-                useCORS: true,
-                scale: 2, 
-                backgroundColor: null 
-            }).then(canvas => {
-                // Restore button
-                shareBtn.style.display = '';
-                
-                // Create download
-                const link = document.createElement('a');
-                link.download = `SynoCast_Weather_${new Date().getTime()}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-                
-                // Restore icon
-                icon.className = originalClass;
-            }).catch(err => {
-                console.error("Screenshot failed:", err);
-                shareBtn.style.display = '';
-                icon.className = originalClass;
-                alert("Failed to create snapshot.");
-            });
-        });
-    }
+
 
     // --- Extended Forecast Functions ---
 
@@ -1388,6 +1595,197 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             container.appendChild(phaseCard);
         });
+    }
+
+    // --- AI Insights Logic ---
+
+    async function fetchAIInsights(lat, lon) {
+        fetchWeatherImpacts(lat, lon);
+        fetchOutfitSuggestion(lat, lon);
+        fetchRecipeSuggestions(lat, lon);
+    }
+
+    async function fetchWeatherImpacts(lat, lon) {
+        try {
+            const res = await fetch(`/api/weather/impacts?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            
+            // 1. Traffic
+            const trafficContent = document.getElementById('traffic-impact-content');
+            if (trafficContent) {
+                trafficContent.innerHTML = `
+                    <div class="display-6 fw-bold mb-1">${data.traffic.score}/100</div>
+                    <div class="small fw-bold text-uppercase mb-2">${data.traffic.level}</div>
+                    <p class="small text-muted mb-0">${data.traffic.advice}</p>
+                `;
+            }
+
+            // 2. Air Quality
+            const aqiContent = document.getElementById('aqi-impact-content');
+            if (aqiContent) {
+                aqiContent.innerHTML = `
+                    <div class="display-6 fw-bold mb-1">${data.air_quality.current_aqi}</div>
+                    <div class="small fw-bold text-uppercase mb-2" style="color: ${data.air_quality.color}">${data.air_quality.category}</div>
+                    <p class="small text-muted mb-0">${data.air_quality.advice}</p>
+                `;
+            }
+
+            // 3. Pollen
+            const pollenContent = document.getElementById('pollen-impact-content');
+            if (pollenContent) {
+                pollenContent.innerHTML = `
+                    <div class="display-6 fw-bold mb-1">${data.pollen.score}/100</div>
+                    <div class="small fw-bold text-uppercase mb-2" style="color: ${data.pollen.color}">${data.pollen.level}</div>
+                    <p class="small text-muted mb-0">${data.pollen.advice}</p>
+                    <div class="badge bg-light text-dark mt-2 small">${data.pollen.type}</div>
+                `;
+            }
+        } catch (err) {
+            console.error("Impacts fetch error:", err);
+        }
+    }
+
+    async function fetchOutfitSuggestion(lat, lon) {
+        const activity = document.getElementById('outfit-activity')?.value || 'casual';
+        const container = document.getElementById('outfit-container');
+        if (!container) return;
+
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>';
+
+        try {
+            const res = await fetch('/api/ai/outfit', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': SecurityUtils.getCsrfToken()
+                },
+                body: JSON.stringify({ lat, lon, activity })
+            });
+            const data = await res.json();
+            
+            if (data.outfit) {
+                const outfit = data.outfit;
+                container.innerHTML = `
+                    <div class="d-flex flex-column gap-3">
+                        <div class="bg-light p-3 rounded-4">
+                            <h6 class="fw-bold mb-2">Recommended Gear</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${outfit.items.map(i => `<span class="badge bg-primary-subtle text-primary-emphasis rounded-pill">${i}</span>`).join('')}
+                                ${outfit.accessories.map(a => `<span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">${a}</span>`).join('')}
+                                <span class="badge bg-dark-subtle text-dark-emphasis rounded-pill">${outfit.footwear}</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted mb-0">${outfit.description}</p>
+                        <div class="mt-2 pt-2 border-top">
+                            <button id="btn-generate-outfit-img" class="btn btn-sm btn-outline-primary rounded-pill w-100">
+                                <i class="fas fa-magic me-2"></i>Generate Visual with AI
+                            </button>
+                            <div id="outfit-image-result" class="mt-3 text-center d-none">
+                                <p class="small text-muted italic">"AI visual would be generated here in a real production environment using the prompt: ${outfit.image_prompt.substring(0, 50)}..."</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Handle image generation button
+                document.getElementById('btn-generate-outfit-img')?.addEventListener('click', function() {
+                    const result = document.getElementById('outfit-image-result');
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+                    this.disabled = true;
+                    
+                    setTimeout(() => {
+                        result.classList.remove('d-none');
+                        this.classList.add('d-none');
+                    }, 1500);
+                });
+            }
+        } catch (err) {
+            console.error("Outfit fetch error:", err);
+            container.innerHTML = '<p class="text-danger small">Failed to load suggestions.</p>';
+        }
+    }
+
+    // Attach listener to outfit activity change
+    document.getElementById('outfit-activity')?.addEventListener('change', () => {
+        if (currentData) fetchOutfitSuggestion(currentData.coord.lat, currentData.coord.lon);
+    });
+
+    async function fetchRecipeSuggestions(lat, lon) {
+        const container = document.getElementById('recipe-container');
+        if (!container) return;
+
+        try {
+            const res = await fetch(`/api/weather/recipes?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            
+            if (data.recipes && data.recipes.length > 0) {
+                container.innerHTML = '';
+                data.recipes.forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-4 border-start border-4 border-primary bg-light';
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">${recipe.name}</h6>
+                            <span class="badge bg-white text-muted small border">${recipe.type}</span>
+                        </div>
+                        <p class="small text-muted mb-2">${recipe.description}</p>
+                        <div class="d-flex gap-2">
+                             <span class="small text-primary-emphasis fw-bold"><i class="fas fa-clock me-1"></i>${recipe.time}</span>
+                             <span class="small text-secondary-emphasis"><i class="fas fa-layer-group me-1"></i>${recipe.difficulty}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        } catch (err) {
+            console.error("Recipes fetch error:", err);
+            container.innerHTML = '<p class="text-danger small">Failed to load recipes.</p>';
+        }
+    }
+
+    function updateWeatherBackground(conditionId, iconCode) {
+        if (!heroCard) return;
+
+        const isNight = iconCode.includes('n');
+        let bgClass = 'weather-bg-clear-day';
+
+        // Map condition IDs to background classes
+        if (conditionId >= 200 && conditionId < 300) {
+            bgClass = 'weather-bg-thunderstorm';
+        } else if (conditionId >= 300 && conditionId < 400) {
+            bgClass = 'weather-bg-drizzle';
+        } else if (conditionId >= 500 && conditionId < 600) {
+            bgClass = 'weather-bg-rain';
+        } else if (conditionId >= 600 && conditionId < 700) {
+            bgClass = 'weather-bg-snow';
+        } else if (conditionId >= 700 && conditionId < 800) {
+            if (conditionId === 701 || conditionId === 741) {
+                bgClass = 'weather-bg-mist';
+            } else if (conditionId === 721) {
+                bgClass = 'weather-bg-haze';
+            } else {
+                bgClass = 'weather-bg-fog';
+            }
+        } else if (conditionId === 800) {
+            bgClass = isNight ? 'weather-bg-clear-night' : 'weather-bg-clear-day';
+        } else if (conditionId > 800) {
+            bgClass = 'weather-bg-clouds';
+        }
+
+        // Remove old classes
+        const classesToRemove = Array.from(heroCard.classList).filter(c => c.startsWith('weather-bg-'));
+        heroCard.classList.remove(...classesToRemove);
+        
+        // Add new class
+        heroCard.classList.add(bgClass);
+
+        // Update image visibility - if background class exists, hide the static image
+        if (heroImg) {
+            heroImg.style.opacity = '0';
+        }
+        if (bgOverlay) {
+            bgOverlay.style.display = 'block';
+        }
     }
 
 });

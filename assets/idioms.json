@@ -1,0 +1,90 @@
+{
+  "clear": [
+    {
+      "idiom": "Clear as a bell",
+      "language": "en",
+      "meaning": "Very easy to see or understand",
+      "context": "Used when the sky is perfectly clear"
+    },
+    {
+      "idiom": "Cielo despejado, corazón contento",
+      "language": "es",
+      "meaning": "Clear sky, happy heart",
+      "context": "Popular saying in Spain and Latin America"
+    }
+  ],
+  "clouds": [
+    {
+      "idiom": "Every cloud has a silver lining",
+      "language": "en",
+      "meaning": "Every negative situation has a positive aspect",
+      "context": "British origin"
+    },
+    {
+      "idiom": "On cloud nine",
+      "language": "en",
+      "meaning": "Extremely happy",
+      "context": "Metaphorical use of clouds"
+    }
+  ],
+  "rain": [
+    {
+      "idiom": "It's raining cats and dogs",
+      "language": "en",
+      "meaning": "It's raining very heavily",
+      "context": "Common English idiom"
+    },
+    {
+      "idiom": "İnce eğrilmiş yağmur",
+      "language": "tr",
+      "meaning": "Finely spun rain",
+      "context": "Describes very light, misty rain"
+    },
+    {
+      "idiom": "بارش کا ہونا، رحمت کا ہونا",
+      "language": "ur",
+      "meaning": "Rain is a blessing",
+      "context": "Common cultural belief in South Asia"
+    }
+  ],
+  "thunderstorm": [
+    {
+      "idiom": "Stealing someone's thunder",
+      "language": "en",
+      "meaning": "Taking credit for someone else's work or ideas",
+      "context": "Theatrical origin"
+    }
+  ],
+  "snow": [
+    {
+      "idiom": "Pure as the driven snow",
+      "language": "en",
+      "meaning": "Completely innocent or pure",
+      "context": "Literary origin"
+    }
+  ],
+  "wind": [
+    {
+      "idiom": "Throw caution to the wind",
+      "language": "en",
+      "meaning": "To take a risk",
+      "context": "Common English idiom"
+    }
+  ],
+  "hot": [
+    {
+      "idiom": "Dog days of summer",
+      "language": "en",
+      "meaning": "The hottest days of the year",
+      "context": "Astronomical origin (Sirius/Dog Star)"
+    }
+  ],
+  "cold": [
+    {
+      "idiom": "Break the ice",
+      "language": "en",
+      "meaning": "To start a conversation or friendship",
+      "context": "Nautical origin"
+    }
+  ]
+}
