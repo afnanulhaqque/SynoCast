@@ -126,24 +126,7 @@
 
 
 
-                    <li class="nav-item dropdown d-flex align-items-center ms-lg-3">
-                        <a class="nav-link dropdown-toggle nav_text" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-label="Switch Language">
-                            <i class="fas fa-globe"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('es')">Español</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('fr')">Français</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('de')">Deutsch</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('zh')">中文 (简体)</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('ar')">العربية</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('hi')">हिन्दी</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('ja')">日本語</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('pt')">Português</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="switchLanguage('ur')">اردو</a></li>
-                        </ul>
-                    </li>
+
 
                     <li class="nav-item d-flex align-items-center ms-lg-3">
                         <button type="button" id="navbarSubscribeBtn"
@@ -348,17 +331,13 @@
     <script src="{{ url_for('static', filename='js/scroll_to_top.js') }}"></script>
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/autocomplete_utils.js"></script>
-    <script src="/assets/js/i18n.js"></script>
+
     <script src="/assets/js/timezone.js"></script>
     <script src="/assets/js/currency.js"></script>
     <script src="/assets/js/idioms.js"></script>
 
     <script>
-        function switchLanguage(lang) {
-            if (window.i18n) {
-                window.i18n.setLanguage(lang);
-            }
-        }
+
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
