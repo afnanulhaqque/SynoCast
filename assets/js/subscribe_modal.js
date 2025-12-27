@@ -125,6 +125,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(data.message || 'Incorrect OTP.');
             }
 
+            if (data.is_login) {
+                // If it was a login, redirect to profile/home to refresh state
+                window.location.href = '/profile';
+                return;
+            }
+
             otpStep.classList.add('d-none');
             successStep.classList.remove('d-none');
             subscribeActionBtn.dataset.state = 'done';

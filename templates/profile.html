@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %} My Profile {% endblock title %}
+
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <!-- Sidebar / User Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 text-center h-100 bg-white">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-light-purple rounded-circle"
+                        style="width: 100px; height: 100px;">
+                        <i class="fas fa-user fa-3x text-primary"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">
+                    {% if user %}
+                    {{ user.subscription.email.split('@')[0] }}
+                    {% else %}
+                    Guest
+                    {% endif %}
+                </h4>
+                <p class="text-muted small mb-4">
+                    {% if user %}
+                    {{ user.subscription.email }}
+                    {% else %}
+                    Not logged in
+                    {% endif %}
+                </p>
+
+                {% if user %}
+                <div class="d-grid gap-2">
+                    <!-- Logout Button -->
+                    <button id="btn-logout" class="btn btn-outline-danger rounded-pill">
+                        <i class="fas fa-sign-out-alt me-2"></i> Log Out
+                    </button>
+                </div>
+                {% else %}
+                <div class="alert alert-warning border-0 rounded-3 small">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Please log in to manage your profile.
+                </div>
+                <button class="btn modal_primary_btn rounded-pill w-100" data-bs-toggle="modal"
+                    data-bs-target="#subscribe_modal">
+                    Log In / Subscribe
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            {% if user %}
+            <!-- Preferences Section -->
+            <div class="card border-0 rounded-4 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-sliders-h me-2"></i> Preferences</h5>
+                <form id="profile-form">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted">Temperature Unit</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check custom-radio-btn">
+                                <input class="form-check-input" type="radio" name="tempUnit" id="unitC" value="C" {% if
+                                    user.preferences.temperature_unit=='C' %}checked{% endif %}>
+                                <label class="form-check-label" for="unitC">Celsius (°C)</label>
+                            </div>
+                            <div class="form-check custom-radio-btn">
+                                <input class="form-check-input" type="radio" name="tempUnit" id="unitF" value="F" {% if
+                                    user.preferences.temperature_unit=='F' %}checked{% endif %}>
+                                <label class="form-check-label" for="unitF">Fahrenheit (°F)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted">My Interests (for AI Suggestions)</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% set activities = ['Running', 'Cycling', 'Photography', 'Hiking', 'Gardening',
+                            'Stargazing', 'Surfing'] %}
+                            {% for activity in activities %}
+                            <input type="checkbox" class="btn-check" id="act-{{ activity }}" value="{{ activity }}" {%
+                                if activity in user.preferences.activities %}checked{% endif %}>
+                            <label class="btn btn-outline-secondary rounded-pill btn-sm" for="act-{{ activity }}">{{
+                                activity }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted">Dashboard Widgets</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="widget-news" {% if
+                                user.preferences.dashboard_config.get('show_news', True) %}checked{% endif %}>
+                            <label class="form-check-label" for="widget-news">Show Trending News</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="widget-map" {% if
+                                user.preferences.dashboard_config.get('show_map', True) %}checked{% endif %}>
+                            <label class="form-check-label" for="widget-map">Show Weather Map</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn modal_primary_btn rounded-pill px-4">
+                        <span id="save-spinner" class="spinner-border spinner-border-sm d-none me-2"
+                            role="status"></span>
+                        Save Changes
+                    </button>
+                    <div id="save-message"
+                        class="d-inline-block ms-3 small text-success fw-bold opacity-0 transition-fade">Saved!</div>
+                </form>
+            </div>
+
+            <!-- Favorite Locations Section -->
+            <div class="card border-0 rounded-4 shadow-sm p-4">
+                <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-heart me-2"></i> Favorite Locations</h5>
+
+                {% if user.favorites %}
+                <div class="list-group list-group-flush">
+                    {% for fav in user.favorites %}
+                    <div
+                        class="list-group-item border-0 px-0 d-flex justify-content-between align-items-center mb-2 bg-light rounded-3 p-3">
+                        <div class="d-flex align-items-center cursor-pointer"
+                            onclick="window.location.href='/weather?lat={{ fav.lat }}&lon={{ fav.lon }}'">
+                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm"
+                                style="width: 40px; height: 40px;">
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">{{ fav.city }}</h6>
+                                <small class="text-muted">{{ fav.country or 'Location' }}</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-light text-danger rounded-circle shadow-sm btn-delete-fav"
+                            data-id="{{ fav.id }}" title="Remove">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="far fa-heart fa-2x mb-2 opacity-25"></i>
+                    <p>No favorite locations yet. <br>Start searching on the Weather page!</p>
+                    <a href="/weather" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">Go to Weather</a>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <!-- Logged Out State Content -->
+            <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-light">
+                <img src="/assets/images/synocast-placeholder.png" class="img-fluid mb-4 w-50 opacity-50"
+                    style="filter: grayscale(1);">
+                <h3 class="fw-bold">Experience SynoCast Your Way</h3>
+                <p class="text-muted mb-4">Log in to save your favorite spots, customize your dashboard, and get
+                    personalized activity recommendations.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="/assets/js/profile.js"></script>
+{% endblock body %}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Community{% endblock %}
+
+{% block body %}
+<div class="container mt-5 pt-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold" style="color: var(--primary-color);">SynoCast Community</h1>
+            <p class="lead text-muted">Share photos, report conditions, and plan your adventures.</p>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills mb-4 justify-content-center" id="communityTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-4" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed"
+                type="button" role="tab">Community Feed</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="contribute-tab" data-bs-toggle="tab"
+                data-bs-target="#contribute" type="button" role="tab">Contribute</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4" id="planner-tab" data-bs-toggle="tab" data-bs-target="#planner"
+                type="button" role="tab">Event Planner</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="communityTabContent">
+        <!-- Feed Tab -->
+        <div class="tab-pane fade show active" id="feed" role="tabpanel">
+            <div class="masonry-feed" id="feed-container">
+                <!-- Items injected by JS -->
+                <div class="text-center w-100 py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contribute Tab -->
+        <div class="tab-pane fade" id="contribute" role="tabpanel">
+            <div class="row justify-content-center">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="card-title h5 mb-3"><i class="fas fa-camera me-2 text-primary"></i>Upload Photo
+                            </h3>
+                            <form id="uploadForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Select Photo</label>
+                                    <input type="file" class="form-control" name="photo" accept="image/*" required>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="caption"
+                                        placeholder="Add a caption..." required>
+                                </div>
+                                <input type="hidden" name="lat" id="up-lat">
+                                <input type="hidden" name="lon" id="up-lon">
+                                <input type="hidden" name="city" id="up-city">
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill">Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="card-title h5 mb-3"><i class="fas fa-bullhorn me-2 text-primary"></i>Report
+                                Weather</h3>
+                            <form id="reportForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Condition</label>
+                                    <select class="form-select" name="condition" required>
+                                        <option value="Clear">Clear</option>
+                                        <option value="Clouds">Cloudy</option>
+                                        <option value="Rain">Rain</option>
+                                        <option value="Snow">Snow</option>
+                                        <option value="Thunderstorm">Thunderstorm</option>
+                                        <option value="Fog">Fog</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" name="comment" rows="3"
+                                        placeholder="What's happening? (e.g., 'Flooding on Main St', 'Colder than forecast')"></textarea>
+                                </div>
+                                <input type="hidden" name="lat" id="rep-lat">
+                                <input type="hidden" name="lon" id="rep-lon">
+                                <input type="hidden" name="city" id="rep-city">
+                                <input type="hidden" name="api_condition" value="Unknown"> <!-- Updated by JS -->
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill">Submit Report</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Planner Tab -->
+        <div class="tab-pane fade" id="planner" role="tabpanel">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-5 text-center">
+                            <h2 class="h4 mb-4">AI Event Planner</h2>
+                            <p class="text-muted mb-4">Tell us what you want to do, and we'll find the best time based
+                                on the forecast.</p>
+                            <div class="input-group mb-3">
+                                <input type="text" id="activityInput" class="form-control form-control-lg"
+                                    placeholder="e.g., Go for a hike, Have a BBQ...">
+                                <button class="btn btn-primary px-4" type="button" id="planBtn">Plan It</button>
+                            </div>
+                            <div id="plannerResults" class="text-start mt-4 planner-response"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load Feed
+        loadFeed();
+
+        // Get Location for forms
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                document.querySelectorAll('input[name="lat"]').forEach(el => el.value = lat);
+                document.querySelectorAll('input[name="lon"]').forEach(el => el.value = lon);
+
+                // Reverse Geocode for City
+                fetch(`/api/geocode/reverse?lat=${lat}&lon=${lon}`)
+                    .then(r => r.json())
+                    .then(d => {
+                        const city = d.address.city || d.address.town || d.address.village || "Unknown Location";
+                        document.querySelectorAll('input[name="city"]').forEach(el => el.value = city);
+                    });
+
+                // Fetch current weather for report comparison
+                fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.current) {
+                            const cond = d.current.weather[0].main;
+                            document.querySelector('input[name="api_condition"]').value = cond;
+                        }
+                    });
+            });
+        }
+
+        // Handle Upload
+        document.getElementById('uploadForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/api/community/photo', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': document.querySelector('meta[name="_csrf_token"]').content }
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert('Photo uploaded!');
+                        this.reset();
+                        loadFeed(); // Refresh feed
+                        document.getElementById('feed-tab').click();
+                    } else {
+                        alert('Error: ' + res.error);
+                    }
+                });
+        });
+
+        // Handle Report
+        document.getElementById('reportForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(this));
+            fetch('/api/report_weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="_csrf_token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert('Report submitted!');
+                        this.reset();
+                        loadFeed();
+                        document.getElementById('feed-tab').click();
+                    } else {
+                        alert('Error: ' + res.error);
+                    }
+                });
+        });
+
+        // Handle Planner
+        document.getElementById('planBtn').addEventListener('click', function () {
+            const activity = document.getElementById('activityInput').value;
+            const lat = document.getElementById('up-lat').value; // Reuse queried lat
+            const lon = document.getElementById('up-lon').value;
+
+            if (!activity) return alert('Please enter an activity');
+            if (!lat) return alert('Location needed for planning. Enable location.');
+
+            const results = document.getElementById('plannerResults');
+            results.innerHTML = '<div class="text-center"><div class="spinner-border text-primary spinner-border-sm"></div> Thinking...</div>';
+
+            fetch('/api/planning/suggest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="_csrf_token"]').content
+                },
+                body: JSON.stringify({ activity, lat, lon })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.html) {
+                        results.innerHTML = d.html;
+                    } else {
+                        results.innerHTML = '<p class="text-danger">Could not get suggestions.</p>';
+                    }
+                });
+        });
+    });
+
+    function loadFeed() {
+        fetch('/api/community/feed?limit=30')
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('feed-container');
+                if (!data.length) {
+                    container.innerHTML = '<p class="text-center text-muted">No posts yet. Be the first!</p>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(item => {
+                    if (item.type === 'photo') {
+                        // Check if date needs parsing or already ISO
+                        const dateStr = item.created_at.endsWith('Z') ? item.created_at : item.created_at + 'Z';
+
+                        html += `
+                    <div class="card masonry-item user-photo-card shadow-sm border-0">
+                        <img src="/assets/user_uploads/${item.filename}" alt="${item.caption}">
+                        <div class="card-body">
+                            <p class="card-text small text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> ${item.city || 'Unknown'}</p>
+                            <p class="card-text fw-bold">${item.caption}</p>
+                            <p class="card-text"><small class="text-muted">${new Date(dateStr).toLocaleDateString()}</small></p>
+                        </div>
+                    </div>`;
+                    } else {
+                        const dateStr = item.reported_at.endsWith('Z') ? item.reported_at : item.reported_at + 'Z';
+                        html += `
+                    <div class="card masonry-item report-card shadow-sm border-0" style="background-color: var(--surface-color); border: 1px solid var(--divider-color) !important;">
+                        <div class="card-body">
+                            <h5 class="card-title h6 text-primary"><i class="fas fa-clipboard-check me-2"></i>Community Report</h5>
+                            <p class="mb-1"><strong>${item.reported_condition}</strong> in ${item.city || 'Unknown'}</p>
+                            ${item.comment ? `<p class="text-muted fst-italic">"${item.comment}"</p>` : ''}
+                             <p class="card-text"><small class="text-muted">${new Date(dateStr).toLocaleDateString()}</small></p>
+                        </div>
+                    </div>`;
+                    }
+                });
+                container.innerHTML = html;
+            });
+    }
+</script>
+{% endblock %}

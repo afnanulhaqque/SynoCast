@@ -11,6 +11,7 @@
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <div class="container weather-page mt-5 mb-5">
   <div class="row align-items-center mb-4 g-3">
@@ -40,10 +41,23 @@
     <img src="/assets/images/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover" alt="Weather"
       style="filter: brightness(0.55);" fetchpriority="high">
     <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
+      <button id="share-snapshot"
+        class="btn btn-sm btn-light position-absolute top-0 end-0 m-4 rounded-circle shadow-sm"
+        style="width: 40px; height: 40px; z-index: 10;" title="Share Snapshot">
+        <i class="fas fa-share-nodes text-primary"></i>
+      </button>
       <div class="row h-100">
         <div class="col-md-6 d-flex flex-column justify-content-between">
           <div>
-            <h1 id="weather-city" class="display-4 fw-bold mb-0 skeleton">---</h1>
+            <div class="d-flex align-items-center gap-3">
+              <h1 id="weather-city" class="display-4 fw-bold mb-0 skeleton">---</h1>
+              <!-- Favorite Heart Button -->
+              <button id="btn-favorite"
+                class="btn btn-link text-white p-0 opacity-50 hover-opacity-100 transition-opacity"
+                title="Add to Favorites" style="display: none;">
+                <i class="far fa-heart fa-2x"></i>
+              </button>
+            </div>
             <p id="weather-country" class="fs-5 fw-light skeleton w-50">---</p>
           </div>
           <div>
@@ -79,11 +93,13 @@
 
   <!-- Forecast Tabs -->
   <div class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 forecast-header-controls">
       <div class="d-flex gap-4 align-items-baseline">
         <h4 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1">
           Today</h4>
         <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Weekly</h4>
+        <h4 id="tab-analytics" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Analytics</h4>
+        <h4 id="tab-extended" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1">Extended</h4>
       </div>
       <div class="unit-toggle-group">
         <button id="btn-celsius" class="btn btn-unit active">°C</button>
@@ -98,7 +114,105 @@
     <div id="forecast-week" class="d-flex gap-4 overflow-auto pb-4 forecast-scroll d-none">
       {{ forecast_skeleton(6) }}
     </div>
+
+    <div id="forecast-analytics" class="d-none">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">Temperature Trend (5 Days)</h5>
+            <div class="chart-container" style="position: relative; height: 250px;">
+              <canvas id="analyticsTempChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">Precipitation Probability</h5>
+            <div class="chart-container" style="position: relative; height: 250px;">
+              <canvas id="analyticsPrecipChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card border-0 rounded-4 shadow-sm p-4">
+            <h5 class="fw-bold mb-3">Expected Rainfall Volume (Total)</h5>
+            <div class="chart-container" style="position: relative; height: 200px;">
+              <canvas id="analyticsRainChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+<div class="mb-5">
+    <div id="forecast-extended" class="d-none">
+        <!-- 8-Day Forecast Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-calendar-week me-2 text-primary"></i>8-Day Forecast</h5>
+                    <span id="extended-note" class="badge bg-info-subtle text-info-emphasis small d-none">
+                        <i class="fas fa-info-circle me-1"></i>Simulated data
+                    </span>
+                </div>
+                <div id="extended-daily-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
+                    <!-- Loading skeleton -->
+                    <div class="text-center py-5 w-100">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Loading extended forecast...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 48-Hour Hourly Forecast -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>Hourly Forecast (Next 48 Hours)
+                </h5>
+                <div id="extended-hourly-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
+                    <!-- Loading skeleton -->
+                    <div class="text-center py-5 w-100">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Astronomy Section -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-sun text-warning me-2"></i>Sunrise & Sunset
+                    </h5>
+                    <p class="small text-muted mb-3">Perfect timing for photographers 📸</p>
+                    <div id="astronomy-sun-data">
+                        <!-- Sunrise/Sunset with Golden Hours -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-moon text-primary me-2"></i>Moon Phases
+                    </h5>
+                    <p class="small text-muted mb-3">8-day lunar cycle calendar</p>
+                    <div id="astronomy-moon-calendar">
+                        <!-- 8-day moon phase calendar -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
   <div class="row mb-5">
     <div class="col-12">

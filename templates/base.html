@@ -116,6 +116,18 @@
                         <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather"
                             data-i18n="weather">Weather</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'community' %}active{% endif %} nav_text"
+                            href="/community" data-i18n="community">Community</a>
+                    </li>
+
+                    {% if session.get('user_email') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'profile' %}active{% endif %} nav_text"
+                            href="/profile">Profile</a>
+                    </li>
+                    {% endif %}
+
                     <li class="nav-item dropdown d-flex align-items-center ms-lg-3">
                         <a class="nav-link dropdown-toggle nav_text" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-globe"></i>
@@ -130,11 +142,20 @@
                     </li>
 
                     <li class="nav-item d-flex align-items-center ms-lg-3">
+                        {% if session.get('user_email') %}
+                        <a href="/profile"
+                            class="btn btn-outline-primary rounded-pill fw-medium d-flex align-items-center gap-2"
+                            style="border-width: 2px;">
+                            <i class="fas fa-user-circle"></i>
+                            <span>My Account</span>
+                        </a>
+                        {% else %}
                         <button type="button" id="navbarSubscribeBtn"
                             class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
                             data-bs-target="#subscribe_modal" data-i18n="subscribe">
-                            Subscribe
+                            Log In
                         </button>
+                        {% endif %}
                     </li>
                 </ul>
             </div>
@@ -180,7 +201,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="subscribe_modalLabel">Subscribe to SynoCast</h5>
+                    <h5 class="modal-title" id="subscribe_modalLabel">Log In or Subscribe</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

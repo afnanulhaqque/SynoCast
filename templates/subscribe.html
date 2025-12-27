@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %} Subscribe {% endblock title %}
+
+{% block body %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div
+                        class="col-md-5 bg-primary p-4 text-white d-flex flex-column justify-content-center align-items-center text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-bell fa-4x mb-3 animate-bell"></i>
+                            <h3 class="fw-bold">Stay Ahead</h3>
+                            <p class="small opacity-75">Get hyper-local alerts and AI-driven insights before the storm
+                                hits.</p>
+                        </div>
+                        <ul class="list-unstyled text-start small opacity-75">
+                            <li class="mb-2"><i class="fas fa-check-circle me-2"></i>Severe Weather Warnings</li>
+                            <li class="mb-2"><i class="fas fa-check-circle me-2"></i>Daily Forecast Summaries</li>
+                            <li class="mb-2"><i class="fas fa-check-circle me-2"></i>Health & Lifestyle Tips</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-7 p-5 bg-white">
+                        <h2 class="fw-bold mb-4">Subscribe</h2>
+
+                        <div id="subscribe-wizard">
+                            <!-- Step 1: Contact Info -->
+                            <div class="wizard-step" id="step-contact">
+                                <h5 class="mb-3 text-muted">Step 1 of 3: Contact Info</h5>
+                                <div class="mb-4">
+                                    <label for="page-email" class="form-label fw-semibold">Email Address</label>
+                                    <input type="email" class="form-control form-control-lg bg-light border-0"
+                                        id="page-email" placeholder="you@example.com" required>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-primary rounded-pill px-4" id="btn-next-prefs">Next:
+                                        Preferences <i class="fas fa-arrow-right ms-2"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Preferences -->
+                            <div class="wizard-step d-none" id="step-prefs">
+                                <h5 class="mb-3 text-muted">Step 2 of 3: Customize Alerts</h5>
+                                <p class="small text-muted mb-4">Choose what you want to be notified about.</p>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold mb-2">Alert Types</label>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="form-check p-3 bg-light rounded-3">
+                                                <input class="form-check-input" type="checkbox" value="severe"
+                                                    id="pref-severe" checked>
+                                                <label class="form-check-label" for="pref-severe">
+                                                    Severe Storms
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check p-3 bg-light rounded-3">
+                                                <input class="form-check-input" type="checkbox" value="rain"
+                                                    id="pref-rain" checked>
+                                                <label class="form-check-label" for="pref-rain">
+                                                    Rain/Snow
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check p-3 bg-light rounded-3">
+                                                <input class="form-check-input" type="checkbox" value="temp"
+                                                    id="pref-temp">
+                                                <label class="form-check-label" for="pref-temp">
+                                                    Temp. Changes
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check p-3 bg-light rounded-3">
+                                                <input class="form-check-input" type="checkbox" value="air"
+                                                    id="pref-air">
+                                                <label class="form-check-label" for="pref-air">
+                                                    Air Quality
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold mb-2">Notification Channels</label>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div
+                                                class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                                                <div>
+                                                    <h6 class="mb-0">Browser/Mobile Push</h6>
+                                                    <small class="text-muted">Instant alerts on your device</small>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                                    id="btn-enable-push">Enable</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold mb-2">Minimum Severity</label>
+                                    <select class="form-select bg-light border-0" id="pref-severity">
+                                        <option value="low">Low (Informational)</option>
+                                        <option value="medium" selected>Medium (Advisory)</option>
+                                        <option value="high">High (Warning)</option>
+                                        <option value="critical">Critical (Emergency only)</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-outline-secondary rounded-pill px-4"
+                                        id="btn-back-contact">Back</button>
+                                    <button class="btn btn-primary rounded-pill px-4" id="btn-send-otp">Send
+                                        Verification Code</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: OTP -->
+                            <div class="wizard-step d-none" id="step-otp">
+                                <h5 class="mb-3 text-muted">Step 3 of 3: Verify Email</h5>
+                                <p class="small text-muted mb-4" id="page-otp-instructions"></p>
+
+                                <div class="mb-4">
+                                    <label for="page-otp-input" class="form-label fw-semibold">One-Time Password</label>
+                                    <input type="text"
+                                        class="form-control form-control-lg bg-light border-0 text-center letter-spacing-2"
+                                        id="page-otp-input" placeholder="000000" maxlength="6" pattern="\d{6}">
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-outline-secondary rounded-pill px-4"
+                                        id="btn-back-prefs">Back</button>
+                                    <button class="btn btn-primary rounded-pill px-4" id="btn-verify-otp">Verify &
+                                        Subscribe</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Success -->
+                            <div class="wizard-step d-none text-center py-4" id="step-success">
+                                <div class="text-success mb-3">
+                                    <i class="fas fa-check-circle fa-4x"></i>
+                                </div>
+                                <h3 class="fw-bold mb-3">You're Subscribed!</h3>
+                                <p class="text-muted mb-4">We've saved your preferences. You'll receive alerts based on
+                                    your settings.</p>
+                                <a href="/" class="btn btn-outline-primary rounded-pill px-4">Return Home</a>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div class="alert alert-danger d-none mt-3 rounded-3" id="page-error" role="alert"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animate-bell {
+        animation: swing 3s infinite ease-in-out;
+    }
+
+    @keyframes swing {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        20% {
+            transform: rotate(15deg);
+        }
+
+        40% {
+            transform: rotate(-10deg);
+        }
+
+        60% {
+            transform: rotate(5deg);
+        }
+
+        80% {
+            transform: rotate(-5deg);
+        }
+
+        100% {
+            transform: rotate(0deg);
+        }
+    }
+
+    .letter-spacing-2 {
+        letter-spacing: 0.5em;
+    }
+</style>
+
+<script src="/assets/js/subscribe_page.js"></script>
+{% endblock body %}

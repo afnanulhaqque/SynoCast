@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentData = null;
     let forecastData = null;
     let currentUnit = 'C'; 
+    let extendedData = null; // Store extended forecast data
 
     // --- UI Elements ---
     const cityEl = document.getElementById('weather-city');
@@ -47,6 +48,123 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- Personalization Logic ---
+    const btnFavorite = document.getElementById('btn-favorite');
+    let userFavorites = [];
+
+    async function loadUserPreferences() {
+        try {
+            const res = await fetch('/api/user/profile');
+            if (res.status === 401) {
+                // Not logged in
+                return;
+            }
+            const data = await res.json();
+            
+            // 1. Set Unit
+            if (data.preferences && data.preferences.temperature_unit) {
+                currentUnit = data.preferences.temperature_unit;
+                updateDisplayUnits(); // Apply immediately if data already exists, else it applies on fetch
+            }
+
+            // 2. Load Favorites
+            // We fetch the full list or we can check later.
+            // Let's just store them locally for quick check
+            userFavorites = data.favorites || [];
+            
+            // 3. Show Heart Button
+            if (btnFavorite) {
+                btnFavorite.style.display = 'block';
+                checkFavoriteStatus();
+            }
+
+        } catch (e) {
+            console.log("Guest mode or error loading prefs");
+        }
+    }
+
+    // Call on load
+    loadUserPreferences();
+
+    function checkFavoriteStatus() {
+        if (!currentData || !btnFavorite) return;
+        
+        // Simple check: match lat/lon (rounded? API does exact matches usually or close enough)
+        // We stored exact lat/lon in DB from the weather API result ideally.
+        // Let's match by City Name + Country Code for robustness in this simple app context,
+        // as coordinates might fluctuate slightly in different API calls (e.g. search vs direct).
+        const isFav = userFavorites.some(f => 
+            (f.city.toLowerCase() === currentData.name.toLowerCase()) || 
+            (Math.abs(f.lat - currentData.coord.lat) < 0.1 && Math.abs(f.lon - currentData.coord.lon) < 0.1)
+        );
+        
+        const icon = btnFavorite.querySelector('i');
+        if (isFav) {
+            icon.classList.remove('far');
+            icon.classList.add('fas', 'text-danger');
+             btnFavorite.classList.remove('opacity-50');
+             btnFavorite.classList.add('opacity-100');
+        } else {
+            icon.classList.remove('fas', 'text-danger');
+            icon.classList.add('far');
+             btnFavorite.classList.add('opacity-50');
+             btnFavorite.classList.remove('opacity-100');
+        }
+    }
+
+    if (btnFavorite) {
+        btnFavorite.addEventListener('click', async () => {
+             if (!currentData) return;
+             
+             // Toggle
+             const icon = btnFavorite.querySelector('i');
+             const isFav = icon.classList.contains('fas'); // Currently filled
+             
+             try {
+                // Disable temporarily
+                btnFavorite.disabled = true;
+
+                 if (isFav) {
+                     // remove
+                     await fetch(`/api/user/favorites?lat=${currentData.coord.lat}&lon=${currentData.coord.lon}`, {
+                         method: 'DELETE',
+                         headers: { 'X-CSRFToken': SecurityUtils.getCsrfToken() }
+                     });
+                     // Update local state
+                     userFavorites = userFavorites.filter(f => Math.abs(f.lat - currentData.coord.lat) > 0.1);
+                 } else {
+                     // add
+                     await fetch('/api/user/favorites', {
+                         method: 'POST',
+                         headers: { 
+                             'Content-Type': 'application/json',
+                             'X-CSRFToken': SecurityUtils.getCsrfToken() 
+                         },
+                         body: JSON.stringify({
+                             lat: currentData.coord.lat,
+                             lon: currentData.coord.lon,
+                             city: currentData.name,
+                             country: currentData.sys.country
+                         })
+                     });
+                     userFavorites.push({
+                         lat: currentData.coord.lat,
+                         lon: currentData.coord.lon,
+                         city: currentData.name,
+                         country: currentData.sys.country
+                     });
+                 }
+                 
+                 checkFavoriteStatus();
+                 
+             } catch (e) {
+                 console.error("Fav toggle error:", e);
+             } finally {
+                 btnFavorite.disabled = false;
+             }
+        });
+    }
+
     // --- AI Trip Planner Autocomplete ---
     const tripInput = document.getElementById('trip-dest');
     const tripResults = document.getElementById('trip-dest-results');
@@ -85,6 +203,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update History Chart if it exists
         if (historicalChart && historyData) {
             renderHistoryChart(historyData);
+        }
+
+        // Update Analytics Charts if data exists
+        if (analyticsData) {
+            renderAnalyticsCharts(analyticsData);
         }
     }
 
@@ -139,6 +262,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Re-run unit update to ensure new data respects current selection
             updateDisplayUnits();
+            
+            // Check Favorite Status (if logged in)
+            checkFavoriteStatus();
 
         } catch (error) {
             console.error(error);
@@ -498,36 +624,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Tab Switching Logic (Preserved) ---
+    // --- Tab Switching Logic ---
     const tabToday = document.getElementById('tab-today');
     const tabWeek = document.getElementById('tab-week');
+    const tabAnalytics = document.getElementById('tab-analytics');
+    const tabExtended = document.getElementById('tab-extended');
+    
+    const forecastAnalyticsEl = document.getElementById('forecast-analytics');
+    const forecastExtendedEl = document.getElementById('forecast-extended');
+    
+    // Analytics Chart Instances
+    let analyticsTempChart = null;
+    let analyticsPrecipChart = null;
+    let analyticsRainChart = null;
 
     function switchTab(tab) {
+        // Helper to reset tab styles
+        const resetTab = (el) => {
+            if(!el) return;
+            el.classList.remove('text-primary', 'text-dark', 'border-bottom', 'border-2', 'border-primary'); // Active styles
+            el.classList.add('text-muted');
+            el.style.opacity = '0.5';
+        };
+
+        resetTab(tabToday);
+        resetTab(tabWeek);
+        resetTab(tabAnalytics);
+        resetTab(tabExtended);
+
+        forecastTodayEl?.classList.add('d-none');
+        forecastWeekEl?.classList.add('d-none');
+        forecastAnalyticsEl?.classList.add('d-none');
+        forecastExtendedEl?.classList.add('d-none');
+
         if (tab === 'today') {
             forecastTodayEl?.classList.remove('d-none');
-            forecastWeekEl?.classList.add('d-none');
-            tabToday?.classList.remove('text-muted');
-             tabToday?.classList.add('text-dark');
-            if(tabToday) tabToday.style.opacity = '1';
-            tabWeek?.classList.remove('text-dark');
-            tabWeek?.classList.add('text-muted');
-             if(tabWeek) tabWeek.style.opacity = '0.5';
-        } else {
+            if (tabToday) {
+                tabToday.classList.remove('text-muted');
+                tabToday.classList.add('text-primary', 'border-bottom', 'border-2', 'border-primary');
+                tabToday.style.opacity = '1';
+            }
+        } else if (tab === 'week') {
             forecastWeekEl?.classList.remove('d-none');
-             forecastTodayEl?.classList.add('d-none');
-            tabWeek?.classList.remove('text-muted');
-             tabWeek?.classList.add('text-dark');
-            if(tabWeek) tabWeek.style.opacity = '1';
-            tabToday?.classList.remove('text-dark');
-             tabToday?.classList.add('text-muted');
-            if(tabToday) tabToday.style.opacity = '0.5';
+            if (tabWeek) {
+                tabWeek.classList.remove('text-muted');
+                tabWeek.classList.add('text-dark');
+                tabWeek.style.opacity = '1';
+            }
+        } else if (tab === 'analytics') {
+            forecastAnalyticsEl?.classList.remove('d-none');
+            if (tabAnalytics) {
+                tabAnalytics.classList.remove('text-muted');
+                tabAnalytics.classList.add('text-dark');
+                tabAnalytics.style.opacity = '1';
+            }
+            if (currentData) {
+                // Fetch analytics data
+                fetchAnalytics(currentData.coord.lat, currentData.coord.lon);
+            }
+        } else if (tab === 'extended') {
+            forecastExtendedEl?.classList.remove('d-none');
+            if (tabExtended) {
+                tabExtended.classList.remove('text-muted');
+                tabExtended.classList.add('text-dark');
+                tabExtended.style.opacity = '1';
+            }
+            if (currentData) {
+                // Fetch extended forecast data
+                fetchExtendedForecast(currentData.coord.lat, currentData.coord.lon);
+            }
         }
     }
 
-    if (tabToday && tabWeek) {
-        tabToday.addEventListener('click', () => switchTab('today'));
-        tabWeek.addEventListener('click', () => switchTab('week'));
-    }
+    if (tabToday) tabToday.addEventListener('click', () => switchTab('today'));
+    if (tabWeek) tabWeek.addEventListener('click', () => switchTab('week'));
+    if (tabAnalytics) tabAnalytics.addEventListener('click', () => switchTab('analytics'));
+    if (tabExtended) tabExtended.addEventListener('click', () => switchTab('extended'));
 
     // --- AI Suite Logic ---
 
@@ -587,22 +759,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await res.json();
                 
                 if (data.city1 && data.city2) {
-                    const renderDuel = (cityData) => `
-                        <div class="mt-3">
-                            <h3 class="fw-bold mb-0">${Math.round(cityData.main.temp)}°C</h3>
-                            <p class="text-muted small mb-2">${cityData.weather[0].description}</p>
-                            <div class="d-flex justify-content-around small">
+                    // Determine lighter/darker color logic or simplified bar width
+                    const t1 = Math.round(data.city1.main.temp);
+                    const t2 = Math.round(data.city2.main.temp);
+                    const maxTemp = Math.max(t1, t2, 30); // Use 30 as a baseline max if both are cold
+
+                    const renderDuel = (cityData, temp, isWinner) => {
+                        const width = Math.min((temp / maxTemp) * 100, 100);
+                        const iconClass = WeatherUtils.getIconClass(cityData.weather[0].id, cityData.weather[0].icon);
+                        const winnerClass = isWinner ? 'text-success' : '';
+                        
+                        return `
+                        <div class="mt-3 fade-in">
+                            <i class="fas ${iconClass} fa-3x mb-3 text-secondary"></i>
+                            <h3 class="fw-bold mb-0 ${winnerClass}">${temp}°C</h3>
+                            <p class="text-muted small mb-2 text-capitalize">${cityData.weather[0].description}</p>
+                            
+                            <!-- Temp Bar -->
+                            <div class="progress rounded-pill mb-3" style="height: 8px;">
+                                <div class="progress-bar ${isWinner ? 'bg-success' : 'bg-secondary'}" role="progressbar" style="width: ${width}%" aria-valuenow="${width}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between px-4 small text-muted">
                                 <span><i class="fas fa-tint me-1"></i>${cityData.main.humidity}%</span>
                                 <span><i class="fas fa-wind me-1"></i>${Math.round(cityData.wind.speed * 3.6)}km/h</span>
                             </div>
                         </div>
-                    `;
-                    data1El.innerHTML = renderDuel(data.city1);
-                    data2El.innerHTML = renderDuel(data.city2);
+                    `};
+                    
+                    data1El.innerHTML = renderDuel(data.city1, t1, t1 > t2);
+                    data2El.innerHTML = renderDuel(data.city2, t2, t2 > t1);
                 } else {
                     data1El.innerHTML = data2El.innerHTML = '<span class="text-danger">Error</span>';
                 }
             } catch (err) {
+                console.error(err);
                 data1El.innerHTML = data2El.innerHTML = '<span class="text-danger">Failed</span>';
             }
         });
@@ -713,6 +904,142 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
 
+
+    // --- Analytics Logic ---
+    let analyticsData = null;
+
+    async function fetchAnalytics(lat, lon) {
+        try {
+            const res = await fetch(`/api/weather/analytics?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            
+            if (data.dates) {
+                analyticsData = data; // Store for unit toggling
+                renderAnalyticsCharts(data);
+            }
+        } catch (err) {
+            console.error("Analytics error", err);
+        }
+    }
+    
+    function renderAnalyticsCharts(data) {
+        if (!data || !document.getElementById('analyticsTempChart')) return;
+
+        // Shared Options
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+             plugins: {
+                legend: { position: 'top' },
+
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#333',
+                    bodyColor: '#333',
+                    borderColor: '#eee',
+                    borderWidth: 1,
+                    displayColors: true
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+            }
+        };
+
+        // 1. Temp Chart
+         const ctxTemp = document.getElementById('analyticsTempChart');
+         if (ctxTemp) {
+             if (analyticsTempChart) analyticsTempChart.destroy();
+             
+             // Convert if F
+             const maxT = currentUnit === 'F' ? data.max_temps.map(celsiusToFahrenheit) : data.max_temps;
+             const minT = currentUnit === 'F' ? data.min_temps.map(celsiusToFahrenheit) : data.min_temps;
+
+             analyticsTempChart = new Chart(ctxTemp, {
+                 type: 'line',
+                 data: {
+                     labels: data.dates,
+                     datasets: [
+                        {
+                            label: `Max Temp (${currentUnit})`,
+                            data: maxT,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: `Min Temp (${currentUnit})`,
+                            data: minT,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            tension: 0.4,
+                            fill: false
+                        }
+                     ]
+                 },
+                 options: commonOptions
+             });
+         }
+         
+         // 2. Precip Prob Chart
+         const ctxPop = document.getElementById('analyticsPrecipChart');
+         if (ctxPop) {
+             if (analyticsPrecipChart) analyticsPrecipChart.destroy();
+             analyticsPrecipChart = new Chart(ctxPop, {
+                 type: 'bar',
+                 data: {
+                     labels: data.dates,
+                     datasets: [{
+                         label: 'Precipitation Chance (%)',
+                         data: data.precip_probs,
+                         backgroundColor: 'rgba(13, 202, 240, 0.6)',
+                         borderColor: 'rgba(13, 202, 240, 1)',
+                         borderWidth: 1,
+                         borderRadius: 4
+                     }]
+                 },
+                 options: { 
+                     ...commonOptions,
+                     scales: { 
+                         y: { max: 100, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                         x: { grid: { display: false } }
+                     } 
+                 }
+             });
+         }
+         
+         // 3. Rain Volume
+         const ctxRain = document.getElementById('analyticsRainChart');
+         if (ctxRain) {
+             if (analyticsRainChart) analyticsRainChart.destroy();
+             analyticsRainChart = new Chart(ctxRain, {
+                 type: 'bar',
+                 data: {
+                     labels: data.dates,
+                     datasets: [{
+                         label: 'Total Rainfall (mm)',
+                         data: data.rain_totals,
+                         backgroundColor: 'rgba(102, 16, 242, 0.6)',
+                         borderColor: 'rgba(102, 16, 242, 1)',
+                         borderWidth: 1,
+                          borderRadius: 4
+                     }]
+                 },
+                 options: commonOptions
+             });
+         }
+    }
+
     // --- Initialization ---
     // Check for cached data first
     const cachedData = JSON.parse(localStorage.getItem('synocast_full_forecast_cache'));
@@ -786,4 +1113,281 @@ document.addEventListener('DOMContentLoaded', function() {
             placeholder: "Select date range"
         });
     }
+
+    // --- Social Sharing ---
+    const shareBtn = document.getElementById('share-snapshot');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            const card = document.querySelector('.weather-hero-card');
+            if(!card) return;
+            
+            // Show loading state
+            const icon = shareBtn.querySelector('i');
+            const originalClass = icon.className;
+            icon.className = "fas fa-spinner fa-spin text-primary";
+            
+            // Hide the button itself for the screenshot
+            shareBtn.style.display = 'none';
+            
+            html2canvas(card, {
+                useCORS: true,
+                scale: 2, 
+                backgroundColor: null 
+            }).then(canvas => {
+                // Restore button
+                shareBtn.style.display = '';
+                
+                // Create download
+                const link = document.createElement('a');
+                link.download = `SynoCast_Weather_${new Date().getTime()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                
+                // Restore icon
+                icon.className = originalClass;
+            }).catch(err => {
+                console.error("Screenshot failed:", err);
+                shareBtn.style.display = '';
+                icon.className = originalClass;
+                alert("Failed to create snapshot.");
+            });
+        });
+    }
+
+    // --- Extended Forecast Functions ---
+
+    async function fetchExtendedForecast(lat, lon) {
+        if (!lat || !lon) return;
+        
+        try {
+            const response = await fetch(`/api/weather/extended?lat=${lat}&lon=${lon}`);
+            if (!response.ok) throw new Error('Extended forecast API failed');
+            const data = await response.json();
+            
+            extendedData = data;
+            
+            // Show note if simulated
+            const noteEl = document.getElementById('extended-note');
+            if (noteEl && data.note) {
+                noteEl.classList.remove('d-none');
+            } else if (noteEl) {
+                noteEl.classList.add('d-none');
+            }
+            
+            // Render sections
+            renderExtendedDaily(data.daily);
+            renderExtendedHourly(data.hourly);
+            renderAstronomy(data.daily);
+            
+        } catch (error) {
+            console.error('Extended forecast error:', error);
+            const dailyEl = document.getElementById('extended-daily-forecast');
+            if (dailyEl) {
+                dailyEl.innerHTML = '<div class="text-center py-5 w-100"><p class="text-danger">Failed to load extended forecast</p></div>';
+            }
+        }
+    }
+
+    function renderExtendedDaily(dailyData) {
+        const container = document.getElementById('extended-daily-forecast');
+        if (!container || !dailyData) return;
+        
+        container.innerHTML = '';
+        
+        dailyData.forEach((day, index) => {
+            const iconClass = WeatherUtils.getIconClass(
+                day.weather.icon.includes('d') ? 800 : 801, 
+                day.weather.icon
+            );
+            
+            const tempMax = Math.round(day.temp.max);
+            const tempMin = Math.round(day.temp.min);
+            
+            const isSimulated = day.simulated ? 'opacity-75' : '';
+            const simulatedBadge = day.simulated ? '<span class="badge bg-secondary-subtle text-secondary small">Est.</span>' : '';
+            
+            const card = document.createElement('div');
+            card.className = `card border-0 rounded-4 p-3 flex-shrink-0 ${isSimulated}`;
+            card.style = `width: 180px; border: 1px solid #eee;`;
+            card.innerHTML = `
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <p class="small fw-bold mb-0">${day.date}</p>
+                        ${simulatedBadge}
+                    </div>
+                    <p class="small text-muted mb-3 text-capitalize">${day.weather.description}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="fas fa-arrow-up text-danger small"></i>
+                                <span class="temp-display fw-bold" data-celsius="${tempMax}">${tempMax}°</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fas fa-arrow-down text-primary small"></i>
+                                <span class="temp-display" data-celsius="${tempMin}">${tempMin}°</span>
+                            </div>
+                        </div>
+                        <i class="fas ${iconClass} fa-3x text-muted"></i>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span><i class="fas fa-tint me-1"></i>${day.pop}%</span>
+                        <span><i class="fas fa-wind me-1"></i>${day.wind_speed}km/h</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        
+        // Update temperature units
+        updateDisplayUnits();
+    }
+
+    function renderExtendedHourly(hourlyData) {
+        const container = document.getElementById('extended-hourly-forecast');
+        if (!container || !hourlyData) return;
+        
+        container.innerHTML = '';
+        
+        hourlyData.forEach((hour, index) => {
+            const iconClass = WeatherUtils.getIconClass(
+                hour.weather.icon.includes('d') ? 800 : 801,
+                hour.weather.icon
+            );
+            
+            const temp = Math.round(hour.temp);
+            
+            // Group by day
+            const showDate = index === 0 || hour.date !== hourlyData[index - 1]?.date;
+            
+            const card = document.createElement('div');
+            card.className = 'card border-0 rounded-4 p-3 flex-shrink-0';
+            card.style = `width: 140px; border: 1px solid #eee;`;
+            card.innerHTML = `
+                <div class="card-body p-0">
+                    ${showDate ? `<p class="small text-muted mb-1">${hour.date}</p>` : ''}
+                    <p class="small fw-bold mb-2">${hour.time}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="fas fa-thermometer-half text-primary small"></i>
+                                <span class="temp-display fw-bold" data-celsius="${temp}">${temp}°</span>
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-tint me-1"></i>${hour.pop}%
+                            </div>
+                        </div>
+                        <i class="fas ${iconClass} fa-2x text-muted"></i>
+                    </div>
+                    
+                    <p class="small text-muted text-capitalize mb-0">${hour.weather.description}</p>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        
+        // Update temperature units
+        updateDisplayUnits();
+    }
+
+    function renderAstronomy(dailyData) {
+        if (!dailyData || !dailyData[0]) return;
+        
+        // Render Sunrise/Sunset with Golden Hours
+        renderSunData(dailyData);
+        
+        // Render Moon Phases
+        renderMoonPhases(dailyData);
+    }
+
+    function renderSunData(dailyData) {
+        const container = document.getElementById('astronomy-sun-data');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // Show first 3 days
+        dailyData.slice(0, 3).forEach((day, index) => {
+            if (!day.astronomy) return;
+            
+            const astro = day.astronomy;
+            const goldenHours = astro.golden_hours;
+            
+            const dayCard = document.createElement('div');
+            dayCard.className = index < 2 ? 'mb-4 pb-3 border-bottom' : 'mb-2';
+            dayCard.innerHTML = `
+                <p class="small fw-bold mb-2">${day.date}</p>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-sunrise text-warning"></i>
+                            <div>
+                                <div class="small text-muted">Sunrise</div>
+                                <div class="fw-bold">${astro.sunrise}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-sunset text-warning"></i>
+                            <div>
+                                <div class="small text-muted">Sunset</div>
+                                <div class="fw-bold">${astro.sunset}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${goldenHours ? `
+                    <div class="bg-warning-subtle p-2 rounded-3">
+                        <div class="small fw-bold text-warning-emphasis mb-1">
+                            <i class="fas fa-camera me-1"></i>Golden Hours
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-6">
+                                <div class="text-muted">Morning</div>
+                                <div>${goldenHours.morning.start} - ${goldenHours.morning.end}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">Evening</div>
+                                <div>${goldenHours.evening.start} - ${goldenHours.evening.end}</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            container.appendChild(dayCard);
+        });
+    }
+
+    function renderMoonPhases(dailyData) {
+        const container = document.getElementById('astronomy-moon-calendar');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        dailyData.forEach((day, index) => {
+            if (!day.astronomy || !day.astronomy.moon_phase) return;
+            
+            const moonPhase = day.astronomy.moon_phase;
+            
+            const phaseCard = document.createElement('div');
+            phaseCard.className = index < dailyData.length - 1 ? 'mb-3 pb-2 border-bottom' : 'mb-2';
+            phaseCard.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="small text-muted mb-0">${day.date}</p>
+                        <p class="fw-bold mb-0">${moonPhase.name}</p>
+                        <p class="small text-muted mb-0">${moonPhase.illumination}</p>
+                    </div>
+                    <div class="fs-1">${moonPhase.emoji}</div>
+                </div>
+            `;
+            container.appendChild(phaseCard);
+        });
+    }
+
 });

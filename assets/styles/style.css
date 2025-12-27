@@ -20,6 +20,23 @@
     border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Global Selection Styling */
+::selection {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Global Link Styling */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-weather);
+}
+
 /* Bootstrap Overrides */
 .text-primary {
   color: var(--primary-color) !important;
@@ -3016,6 +3033,17 @@ body {
   transition: background 1.2s ease;
 }
 /* Unit Toggle Styling - Perfectly Rounded */
+/* Forecast Header Controls - Mobile Layout */
+@media (max-width: 576px) {
+  .forecast-header-controls {
+    justify-content: flex-start !important; /* Align to start when wrapped */
+  }
+
+  .forecast-header-controls .unit-toggle-group {
+    margin-left: auto; /* Push toggle to the right */
+  }
+}
+
 /* Unit Toggle Styling - Premium Pill Design */
 .unit-toggle-group {
   background: var(--divider-color);
@@ -3083,4 +3111,68 @@ body {
     color: #6faed9 !important; /* Muted Blue */
     background-color: transparent !important;
   }
+}
+
+/* Community Tabs Theming */
+#communityTabs .nav-link {
+  color: #2f2f2f !important; /* Soft Charcoal */
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  font-weight: 600;
+}
+
+#communityTabs .nav-link:hover {
+  color: var(--primary-color) !important;
+  background-color: #6faed9; /* Muted Blue */
+  border-color: #6faed9;
+}
+
+#communityTabs .nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: var(--bg-color) !important;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(47, 47, 47, 0.3);
+}
+
+/* Community Page Styles */
+.masonry-feed {
+  column-count: 3;
+  column-gap: 1.5rem;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .masonry-feed {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .masonry-feed {
+    column-count: 1;
+  }
+}
+
+.user-photo-card img {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+}
+
+.planner-response ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.planner-response li {
+  background: var(--surface-color);
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-weather);
 }
