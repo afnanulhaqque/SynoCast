@@ -3553,7 +3553,8 @@ body {
     position: absolute;
     height: 2px;
     width: 100%;
-    background: var(--primary-color);
+    /* Update Hamburger Color */
+    background: #6faed9; 
     border-radius: 2px;
     opacity: 1;
     left: 0;
@@ -3589,24 +3590,46 @@ body {
     transform: rotate(-135deg);
   }
 
-  /* Logo adjustment */
+  /* Social Icons Color adjustment */
+  .mobile-menu-footer .icon-link i {
+      color: #6faed9 !important;
+  }
+}
+  /* Logo adjustment - Revert to Left (Standard) */
   .navbar-brand {
-    z-index: 1070; /* Above overlay */
-    position: absolute; /* Take out of flow to center */
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0;
+    z-index: 1080; /* Ensure on top */
+    position: relative; /* Back to normal flow */
+    left: auto;
+    transform: none;
     margin: 0;
   }
 
   .navbar .container {
-    position: relative; /* Context for absolute logo */
-    justify-content: flex-end; /* Push hamburger to right */
-    min-height: 60px; /* Ensure height for logo */
+    justify-content: space-between; /* Space out logo and toggler */
+    min-height: 60px;
   }
 
-  /* Adjust Navbar Toggler (Hamburger) - Ensure it stays right */
+  /* Adjust Navbar Toggler (Hamburger) */
   .navbar-toggler {
-    margin-left: auto;
+    margin-left: 0;
+    position: relative; /* Back to normal flow */
+    z-index: 1080; /* Highest priority */
+  }
+
+  /* Clean up Menu UI */
+  .nav-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03); /* Much lighter border */
+  }
+
+  .navbar-nav .nav-link {
+    font-weight: 600; /* Bolder */
+    font-size: 18px; /* Larger */
+    letter-spacing: 1px;
+    color: #6faed9 !important;
+    padding: 15px 0;
+  }
+
+  .navbar-collapse {
+    padding-top: 100px; /* More space from top */
   }
 }
