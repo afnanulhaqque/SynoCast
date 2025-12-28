@@ -768,12 +768,26 @@ a.footer-text-link:hover {
 /* Small-screen adjustments */
 @media (max-width: 480px) {
   .chatbot_form {
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* Align buttons to right */
+    padding: 1rem;
   }
-  .chatbot_form .form-control,
-  .chatbot_form .modal_primary_btn {
-    height: auto;
-    width: 100%;
+
+  .chatbot_form .form-control {
+    width: 100%; /* Input takes full width */
+    margin-bottom: 0.5rem; /* Space below input */
+  }
+
+  /* Reset buttons to auto width so they sit inline */
+  .chatbot_form .modal_primary_btn,
+  .chatbot_form #chatbot_voice_btn {
+    width: auto !important;
+    margin-top: 0 !important; /* Reset margin */
+  }
+
+  .chatbot_form #chatbot_voice_btn {
+    margin-left: 0 !important;
+    margin-right: 0.5rem !important; /* Spacing between voice and send */
   }
   .chatbot-modal-dialog {
     width: 100%;
@@ -3554,7 +3568,7 @@ body {
     height: 2px;
     width: 100%;
     /* Update Hamburger Color */
-    background: #6faed9; 
+    background: #6faed9;
     border-radius: 2px;
     opacity: 1;
     left: 0;
@@ -3592,9 +3606,9 @@ body {
 
   /* Social Icons Color adjustment */
   .mobile-menu-footer .icon-link i {
-      color: #6faed9 !important;
+    color: #6faed9 !important;
   }
-}
+
   /* Logo adjustment - Revert to Left (Standard) */
   .navbar-brand {
     z-index: 1080; /* Ensure on top */
@@ -3631,5 +3645,15 @@ body {
 
   .navbar-collapse {
     padding-top: 100px; /* More space from top */
+  }
+
+  /* Short screen adjustment (Landscape) */
+  @media (max-height: 500px) {
+    .navbar-collapse {
+      padding-top: 60px; /* Less space on short screens */
+    }
+    .navbar-nav .nav-link {
+      padding: 10px 0; /* Compact links */
+    }
   }
 }
