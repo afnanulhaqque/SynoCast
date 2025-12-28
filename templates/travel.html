@@ -5,43 +5,59 @@
 {% block body %}
 <!-- Hero Section -->
 <section class="travel-hero position-relative text-white mb-5"
-    style="background: linear-gradient(135deg, #2f2f2f 0%, #3a3a3a 100%); min-height: 400px; display: flex; align-items: center;">
+    style="background: url('/assets/images/travel_bg.png') no-repeat center center/cover; min-height: 500px; display: flex; align-items: center; position: relative;">
+    <!-- Dark Gradient Overlay -->
+    <div
+        style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); z-index: 1;">
+    </div>
+
     <div class="container position-relative z-2">
         <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-4 fw-bold mb-3 animate-fade-in">Plan Your Next Adventure</h1>
-                <p class="lead mb-4 animate-fade-in delay-100">Get weather insights, packing tips, and currency rates
-                    for any destination.</p>
+            <div class="col-lg-7 mb-4 mb-lg-0">
+                <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold animate-fade-in"><i
+                        class="fas fa-compass me-2"></i> EXPLORE THE WORLD</span>
+                <h1 class="display-3 fw-bold mb-3 animate-fade-in text-shadow">Plan Your Next <br>Adventure</h1>
+                <p class="lead mb-4 animate-fade-in delay-100 text-light shadow-sm"
+                    style="max-width: 500px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                    Discover the perfect time to travel with AI-driven weather insights, smart packing lists, and
+                    real-time currency tools.
+                </p>
 
-                <div class="card border-0 p-2 shadow-lg rounded-pill animate-fade-in delay-200"
-                    style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
-                    <div class="input-group">
-                        <span class="input-group-text border-0 bg-transparent text-white"><i
+                <div class="card border-0 p-3 shadow-lg rounded-4 animate-fade-in delay-200"
+                    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); max-width: 550px;">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text border-0 bg-transparent text-primary ps-3"><i
                                 class="fas fa-search"></i></span>
                         <input type="text" id="travel-search-input"
-                            class="form-control border-0 bg-transparent text-white placeholder-white"
-                            placeholder="Where do you want to go? (e.g. Tokyo, Paris)" autocomplete="off">
-                        <button class="btn btn-primary rounded-pill px-4" id="travel-search-btn">Explore</button>
+                            class="form-control border-0 bg-transparent text-dark fw-bold placeholder-dark"
+                            placeholder="Where to? (e.g. Kyoto, Venice)" autocomplete="off" style="font-size: 1.1rem;">
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="travel-search-btn">
+                            Explore <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
                     </div>
-                    <ul id="travel-search-results" class="dropdown-menu w-100 mt-2 shadow-sm border-0 rounded-4"
+                    <ul id="travel-search-results" class="dropdown-menu w-100 mt-2 shadow-lg border-0 rounded-4"
                         style="display: none; max-height: 300px; overflow-y: auto;"></ul>
                 </div>
             </div>
-            <div class="col-lg-6 text-center animate-fade-in delay-300">
-                <img src="/assets/images/travel_car.png"
-                    onerror="this.src='https://cdn-icons-png.flaticon.com/512/3063/3063822.png'" alt="Travel"
-                    class="img-fluid" style="max-height: 350px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));">
+            <!-- Optional: Hide the car image if we have a full photo background, or keep it subtle. 
+                 Since the user asked for a "car", let's keep it but position it better or remove if it clashes.
+                 Given the user's "maza ni aa raha", a full cinematic background is usually better than a vector on top of a gradient.
+                 I will hide the vector column to let the background shine, or put a very subtle weather widget there?
+                 Let's keep the column but maybe empty or different content. Actually, the vector might look fake on top of a photo. 
+                 I'll remove the vector image to achieve a cleaner 'premium' look invoked by the photo. -->
+            <div class="col-lg-5 text-center px-4 d-none d-lg-block">
+                <!-- Maybe a floating glass card with "Trending: Bali" or standard vector -->
             </div>
         </div>
     </div>
 
-    <!-- Decorative Shapes -->
-    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="line-height: 0;">
+    <!-- Decorative Wave Bottom -->
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="line-height: 0; z-index: 2;">
         <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"
             style="position: relative; display: block; width: calc(100% + 1.3px); height: 60px;">
             <path
                 d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-                fill="#F8F9FA"></path>
+                fill="#fafaf8"></path>
         </svg>
     </div>
 </section>
