@@ -41,19 +41,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     compareBtn.addEventListener('click', async () => {
+        // Auto-resolve if text entered but no dropdown selected
+        if (!city1 && input1.value.trim()) {
+            city1 = await resolveCity(input1.value.trim());
+        }
+        if (!city2 && input2.value.trim()) {
+            city2 = await resolveCity(input2.value.trim());
+        }
+
         if(!city1 || !city2) {
-             // Try to resolve by text if object is null (user typed but didn't click dropdown)
-             if(input1.value && !city1) {
-                  // Assuming logic to fetch first match, skipping for brevity in this task, 
-                  // alerting user is safer
-                  alert("Please select City 1 from the suggestions.");
-                  return;
-             }
-             if(input2.value && !city2) {
-                  alert("Please select City 2 from the suggestions.");
-                  return;
-             }
+             if(!city1) alert("Please select City 1 from the suggestions or check spelling.");
+             else if(!city2) alert("Please select City 2 from the suggestions or check spelling.");
              return;
+        }
+
+        // Helper to resolve city
+        async function resolveCity(name) {
+            // 1. Try Local Dataset in AutocompleteUtils
+            if (window.AutocompleteUtils && window.AutocompleteUtils.CITY_DATASET) {
+                const match = window.AutocompleteUtils.CITY_DATASET.find(c => c.name.toLowerCase() === name.toLowerCase());
+                if (match) {
+                    return {
+                        lat: match.lat,
+                        lon: match.lon,
+                        name: match.name, // Ensure consistency
+                        display_name: `${match.name}, ${match.country}`,
+                        city: match.name // Add this for consistency with autocomplete util output
+                    };
+                }
+            }
+
+            // 2. Try API
+            try {
+                const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(name)}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                     const first = data[0];
+                     return {
+                         lat: first.lat,
+                         lon: first.lon,
+                         name: first.name,
+                         display_name: first.display_name,
+                         city: first.name
+                     };
+                }
+            } catch (e) {
+                console.error("Resolution error:", e);
+            }
+            return null;
         }
 
         view.style.display = 'block';

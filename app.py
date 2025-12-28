@@ -792,11 +792,53 @@ def travel():
 
 
 
+@app.route("/terms")
+def terms():
+    return render_template("terms.html", active_page="terms", date_time_info=utils.get_local_time_string())
+
+@app.route('/api/geocode/search')
+def api_geocode_search():
+    query = request.args.get('q')
+    if not query:
+        return jsonify([])
+        
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    # OpenWeatherMap Geocoding API
+    url = f"http://api.openweathermap.org/geo/1.0/direct?q={query}&limit=5&appid={api_key}"
+    
+    try:
+        res = requests.get(url, timeout=5)
+        if res.ok:
+            data = res.json()
+            results = []
+            for item in data:
+                name = item.get('name')
+                country = item.get('country')
+                # OWM Geo returns state sometimes
+                state = item.get('state', '')
+                display = f"{name}, {country}"
+                if state:
+                    display = f"{name}, {state}, {country}"
+                
+                results.append({
+                    "lat": item.get('lat'),
+                    "lon": item.get('lon'),
+                    "display_name": display,
+                    "name": name,
+                    "country": country
+                })
+            return jsonify(results)
+    except Exception as e:
+        app.logger.error(f"Geocode Error: {e}")
+        
+    return jsonify([])
+
 @app.route('/api/travel/weather')
 def api_travel_search():
     query = request.args.get('q')
     if not query:
         return jsonify({"error": "Query parameter 'q' is required"}), 400
+
 
     api_key = os.environ.get("OPENWEATHER_API_KEY")
     if not api_key:

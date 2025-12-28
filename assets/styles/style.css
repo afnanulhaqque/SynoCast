@@ -3657,3 +3657,45 @@ body {
     }
   }
 }
+/* Subscribe Modal Issue */
+#subscribe_modal {
+  z-index: 2050 !important; /* Higher than navbar (usually 1030ish in bootstrap) */
+}
+
+/* Navbar Logo Animation */
+.synocast_logo_navbar {
+  transition: all 0.3s ease-in-out;
+}
+
+.synocast_logo_navbar.center-logo {
+  /* No special styles on the image itself, handle on parent if needed or keep it simple */
+}
+
+/* 
+   When the navbar is open (body has navbar-active), we want to center the BRAND div
+   which contains the logo.
+*/
+.navbar-active .navbar-brand {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2000;
+}
+
+.synocast_logo_navbar {
+  left: 0 !important; /* Reset the specific left: 70px on the image */
+}
+
+@media (max-width: 991px) {
+  /* Ensure container is relative for absolute positioning of logo */
+  .navbar .container {
+    position: relative;
+  }
+}
+
+/* Hide Zoom Buttons on Short Devices */
+@media (max-width: 768px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}

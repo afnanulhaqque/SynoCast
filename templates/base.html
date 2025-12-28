@@ -371,6 +371,26 @@
                     .catch(err => console.log('Service Worker registration failed', err));
             });
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var myCollapsible = document.getElementById('navbarSupportedContent');
+            var body = document.body;
+            var logo = document.querySelector('.synocast_logo_navbar');
+
+            if (myCollapsible) {
+                myCollapsible.addEventListener('show.bs.collapse', function () {
+                    body.classList.add('navbar-active'); // Use a custom class to avoid conflict with modal-open if needed, or stick to overflow hidden
+                    body.style.overflow = 'hidden';
+                    if (logo) logo.classList.add('center-logo');
+                });
+
+                myCollapsible.addEventListener('hide.bs.collapse', function () {
+                    body.classList.remove('navbar-active');
+                    body.style.overflow = '';
+                    if (logo) logo.classList.remove('center-logo');
+                });
+            }
+        });
     </script>
 </body>
 
