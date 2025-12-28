@@ -76,6 +76,8 @@
     <link rel="manifest" href="/assets/manifest.json">
     <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
 
+    {% block head %}
+    {% endblock %}
 </head>
 
 <body>
@@ -122,11 +124,22 @@
                         <a class="nav-link {% if active_page == 'community' %}active{% endif %} nav_text"
                             href="/community" data-t="community">Community</a>
                     </li>
-
-
-
-
-
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'travel' %}active{% endif %} nav_text" href="/travel"
+                            data-t="travel">Travel</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'map' %}active{% endif %} nav_text" href="/map"
+                            data-t="map">Map</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'learn' %}active{% endif %} nav_text" href="/learn"
+                            data-t="learn">Learn</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'compare' %}active{% endif %} nav_text" href="/compare"
+                            data-t="compare">Compare</a>
+                    </li>
 
                     <li class="nav-item d-flex align-items-center ms-lg-3">
                         <button type="button" id="navbarSubscribeBtn"
@@ -136,6 +149,18 @@
                         </button>
                     </li>
                 </ul>
+
+                <!-- Mobile Menu Footer -->
+                <div class="mobile-menu-footer d-lg-none mt-auto pb-4">
+                    <div class="d-flex justify-content-start gap-3 px-3 mb-3">
+                        <a class="icon-link" href="https://www.linkedin.com/in/afnanulhaqque/" target="_blank">
+                            <i class="fab fa-linkedin-in text-dark fs-5"></i>
+                        </a>
+                        <a class="icon-link" href="https://www.instagram.com/afn6n_x/" target="_blank">
+                            <i class="fab fa-instagram text-dark fs-5"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </nav>
 

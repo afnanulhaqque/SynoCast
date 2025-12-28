@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}City Comparison Tool{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="text-center mb-5 animate-slide-down">
+        <h1 class="display-5 fw-bold text-primary mb-3">Weather Battle</h1>
+        <p class="lead text-muted">Compare weather conditions between two cities in real-time.</p>
+    </div>
+
+    <!-- Comparison Controls -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5 p-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i
+                            class="fas fa-map-marker-alt text-primary"></i></span>
+                    <input type="text" id="city1-input" class="form-control border-0 bg-light"
+                        placeholder="City 1 (e.g. London)">
+                    <ul id="city1-results" class="dropdown-menu w-100 shadow-sm border-0 rounded-4"></ul>
+                </div>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="d-none d-md-block">
+                    <button class="btn btn-outline-primary rounded-circle p-2" id="swap-btn"><i
+                            class="fas fa-exchange-alt"></i></button>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i
+                            class="fas fa-map-marker-alt text-danger"></i></span>
+                    <input type="text" id="city2-input" class="form-control border-0 bg-light"
+                        placeholder="City 2 (e.g. Dubai)">
+                    <ul id="city2-results" class="dropdown-menu w-100 shadow-sm border-0 rounded-4"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <button class="btn btn-primary rounded-pill px-5" id="compare-btn">Compare</button>
+        </div>
+    </div>
+
+    <!-- Comparison View (Hidden initially) -->
+    <div id="comparison-view" style="display: none;">
+        <div class="row g-4 mb-4">
+            <!-- City 1 Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-lg rounded-4 text-center p-4 animate-fade-in"
+                    style="border-top: 4px solid var(--primary-color) !important;">
+                    <h3 class="fw-bold mb-0" id="c1-name">--</h3>
+                    <p class="text-muted small" id="c1-country">--</p>
+
+                    <img id="c1-icon" src="" alt="" class="mx-auto my-3" style="width: 80px;">
+
+                    <h2 class="display-3 fw-bold mb-0 text-primary" id="c1-temp">--°</h2>
+                    <p class="lead text-muted" id="c1-cond">--</p>
+
+                    <div class="d-flex justify-content-center gap-4 mt-3 text-muted small">
+                        <div><i class="fas fa-wind me-1"></i> <span id="c1-wind">--</span> m/s</div>
+                        <div><i class="fas fa-tint me-1"></i> <span id="c1-hum">--</span>%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- City 2 Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-lg rounded-4 text-center p-4 animate-fade-in delay-100"
+                    style="border-top: 4px solid var(--accent-news) !important;">
+                    <h3 class="fw-bold mb-0" id="c2-name">--</h3>
+                    <p class="text-muted small" id="c2-country">--</p>
+
+                    <img id="c2-icon" src="" alt="" class="mx-auto my-3" style="width: 80px;">
+
+                    <h2 class="display-3 fw-bold mb-0 text-danger" id="c2-temp">--°</h2>
+                    <p class="lead text-muted" id="c2-cond">--</p>
+
+                    <div class="d-flex justify-content-center gap-4 mt-3 text-muted small">
+                        <div><i class="fas fa-wind me-1"></i> <span id="c2-wind">--</span> m/s</div>
+                        <div><i class="fas fa-tint me-1"></i> <span id="c2-hum">--</span>%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="card border-0 bg-light rounded-4 p-4 animate-fade-in delay-200">
+            <h5 class="fw-bold"><i class="fas fa-balance-scale me-2"></i> Quick Comparison</h5>
+            <p class="mb-0 text-muted" id="comparison-summary">Loading analysis...</p>
+        </div>
+    </div>
+</div>
+
+<script src="/assets/js/compare.js"></script>
+{% endblock %}

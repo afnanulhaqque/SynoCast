@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Travel Dashboard{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="travel-hero position-relative text-white mb-5"
+    style="background: linear-gradient(135deg, #2f2f2f 0%, #3a3a3a 100%); min-height: 400px; display: flex; align-items: center;">
+    <div class="container position-relative z-2">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-3 animate-fade-in">Plan Your Next Adventure</h1>
+                <p class="lead mb-4 animate-fade-in delay-100">Get weather insights, packing tips, and currency rates
+                    for any destination.</p>
+
+                <div class="card border-0 p-2 shadow-lg rounded-pill animate-fade-in delay-200"
+                    style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
+                    <div class="input-group">
+                        <span class="input-group-text border-0 bg-transparent text-white"><i
+                                class="fas fa-search"></i></span>
+                        <input type="text" id="travel-search-input"
+                            class="form-control border-0 bg-transparent text-white placeholder-white"
+                            placeholder="Where do you want to go? (e.g. Tokyo, Paris)" autocomplete="off">
+                        <button class="btn btn-primary rounded-pill px-4" id="travel-search-btn">Explore</button>
+                    </div>
+                    <ul id="travel-search-results" class="dropdown-menu w-100 mt-2 shadow-sm border-0 rounded-4"
+                        style="display: none; max-height: 300px; overflow-y: auto;"></ul>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center animate-fade-in delay-300">
+                <img src="/assets/images/travel-illustration.svg"
+                    onerror="this.src='https://cdn-icons-png.flaticon.com/512/3063/3063822.png'" alt="Travel"
+                    class="img-fluid" style="max-height: 350px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));">
+            </div>
+        </div>
+    </div>
+
+    <!-- Decorative Shapes -->
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="line-height: 0;">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"
+            style="position: relative; display: block; width: calc(100% + 1.3px); height: 60px;">
+            <path
+                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+                fill="#F8F9FA"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Main Content (Hidden until search) -->
+<div id="travel-content" class="container pb-5" style="display: none;">
+
+    <!-- Destination Header -->
+    <div class="row mb-4 align-items-end">
+        <div class="col">
+            <h2 class="mb-0 fw-bold" id="dest-name">Destination Name</h2>
+            <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-1"></i> <span id="dest-country">Country</span>
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex align-items-center bg-white shadow-sm rounded-4 px-3 py-2">
+                <div class="me-3 text-end">
+                    <div class="fw-bold fs-4 mb-0" id="dest-temp">--°</div>
+                    <small class="text-muted" id="dest-condition">--</small>
+                </div>
+                <img id="dest-icon" src="" alt="Icon" style="width: 50px; height: 50px;">
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Left Column: Packing & Currency -->
+        <div class="col-lg-4">
+            <!-- Currency Converter -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-coins text-warning me-2"></i> Currency Converter</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-0 bg-light fw-bold" id="currency-symbol">$</span>
+                            <input type="number" id="currency-amount" class="form-control border-0 bg-light"
+                                value="100">
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <select id="currency-base" class="form-select border-0 bg-light fw-bold">
+                            <option value="USD" selected>USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="PKR">PKR - Pakistani Rupee</option>
+                        </select>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                        <!-- Target is usually automatic based on location in a real app, but let's allow selection or show a list -->
+                        <div class="small fw-bold text-muted ms-auto">Rates</div>
+                    </div>
+
+                    <div id="currency-results" class="d-flex flex-column gap-2">
+                        <!-- Filled by JS -->
+                        <div class="placeholder-glow"><span class="placeholder col-12 rounded"></span></div>
+                    </div>
+                    <small class="text-muted d-block mt-3 x-small">* Indicative rates only.</small>
+                </div>
+            </div>
+
+            <!-- Smart Packing List -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4"
+                style="background: linear-gradient(135deg, #6faed9 0%, #5a9bc4 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-suitcase me-2"></i> Smart Packing</h5>
+                        <span class="badge bg-white text-primary rounded-pill"><i class="fas fa-magic"></i> AI</span>
+                    </div>
+                    <p class="small opacity-75 mb-3">Tailored suggestions based on forecast.</p>
+
+                    <div id="packing-list" class="vstack gap-2" style="max-height: 300px; overflow-y: auto;">
+                        <!-- AI Items here -->
+                        <div class="spinner-border spinner-border-sm text-white mx-auto" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Forecast & History -->
+        <div class="col-lg-8">
+            <!-- 5 Day Forecast -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Forecast</h5>
+                </div>
+                <div class="card-body" id="travel-forecast">
+                    <!-- Filled by JS -->
+                    <div class="text-center py-5 text-muted">Loading forecast...</div>
+                </div>
+            </div>
+
+            <!-- Historical Trends -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">This Month Usually</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="travelHistoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/assets/js/travel.js"></script>
+{% endblock %}

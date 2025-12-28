@@ -300,204 +300,7 @@
     </div>
   </div>
 
-  <div class="row mb-5">
-    <div class="col-12">
-      <div class="card border-0 rounded-4 shadow-sm p-4 overflow-hidden position-relative">
-        <div class="position-absolute top-0 end-0 p-3 opacity-25">
-          <i class="fas fa-robot fa-4x text-primary"></i>
-        </div>
-        <h3 class="fw-bold mb-4">SynoCast AI Suite</h3>
 
-        <ul class="nav nav-pills mb-4 bg-light p-2 rounded-pill d-inline-flex" id="ai-tabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active rounded-pill px-4" id="trip-tab" data-bs-toggle="pill"
-              data-bs-target="#ai-trip" type="button" role="tab" aria-selected="true">
-              <i class="fas fa-plane-departure me-2"></i>Trip Planner
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill px-4" id="duel-tab" data-bs-toggle="pill" data-bs-target="#ai-duel"
-              type="button" role="tab" aria-selected="false">
-              <i class="fas fa-bolt me-2"></i>Weather Duel
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill px-4" id="history-tab" data-bs-toggle="pill"
-              data-bs-target="#ai-history" type="button" role="tab" aria-selected="false">
-              <i class="fas fa-clock-rotate-left me-2"></i>On This Day
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill px-4" id="community-tab" data-bs-toggle="pill"
-              data-bs-target="#community-hub" type="button" role="tab" aria-selected="false">
-              <i class="fas fa-users me-2"></i>Community
-            </button>
-          </li>
-        </ul>
-
-        <div class="tab-content" id="ai-tabs-content">
-          <!-- AI Trip Planner -->
-          <div class="tab-pane fade show active" id="ai-trip" role="tabpanel">
-            <div class="row g-4">
-              <div class="col-md-5">
-                <div class="p-3 bg-light rounded-4 h-100">
-                  <h5 class="fw-bold mb-3">AI Weather Trip Planner</h5>
-                  <div id="trip-error-msg" class="alert alert-danger d-none small p-2 rounded-3 mb-3"></div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Destination</label>
-                    <div class="position-relative">
-                      <input type="text" id="trip-dest" class="form-control rounded-pill" placeholder="e.g. London, UK"
-                        autocomplete="off">
-                      <div id="trip-dest-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
-                        style="z-index: 1050; background: white; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px;">
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Dates</label>
-                    <input type="text" id="trip-dates" class="form-control rounded-pill bg-white"
-                      placeholder="Select dates" readonly>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Purpose</label>
-                    <select id="trip-purpose" class="form-select rounded-pill">
-                      <option value="leisure">Leisure / Vacation</option>
-                      <option value="business">Business Trip</option>
-                      <option value="adventure">Adventure / Hiking</option>
-                      <option value="event">Outdoor Event</option>
-                    </select>
-                  </div>
-                  <button id="btn-generate-trip" class="btn modal_primary_btn w-100 rounded-pill py-2">
-                    Generate AI Plan
-                  </button>
-                </div>
-              </div>
-              <div class="col-md-7">
-                <div id="trip-plan-result" class="p-4 rounded-4 border h-100 bg-white shadow-sm"
-                  style="min-height: 300px;">
-                  <div class="text-center py-5 text-muted">
-                    <i class="fas fa-map-marked-alt fa-3x mb-3 opacity-25"></i>
-                    <p>Enter details and let SynoBot plan your trip weather-ready!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Weather Duel -->
-          <div class="tab-pane fade" id="ai-duel" role="tabpanel">
-            <div class="row g-4 align-items-center">
-              <div class="col-md-5 text-center">
-                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
-                  <h5 class="fw-bold mb-4">City One</h5>
-                  <input type="text" id="duel-city1" class="form-control rounded-pill mb-3" placeholder="Search City 1">
-                  <div id="duel-data1" class="py-3">
-                    <span class="text-muted">No data</span>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-2 text-center">
-                <div class="duel-vs-circle shadow-lg">VS</div>
-                <button id="btn-duel-compare" class="btn modal_primary_btn rounded-pill mt-4 px-4">Compare</button>
-              </div>
-              <div class="col-md-5 text-center">
-                <div class="p-4 bg-light rounded-4 shadow-sm h-100">
-                  <h5 class="fw-bold mb-4">City Two</h5>
-                  <input type="text" id="duel-city2" class="form-control rounded-pill mb-3" placeholder="Search City 2">
-                  <div id="duel-data2" class="py-3">
-                    <span class="text-muted">No data</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Historical On This Day -->
-          <div class="tab-pane fade" id="ai-history" role="tabpanel">
-            <div class="p-4 bg-light rounded-4">
-              <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <div>
-                  <h5 class="fw-bold mb-1">"On This Day" Historical Insights</h5>
-                  <p class="small text-muted mb-0">Compare today's weather with the past decade and climate normals.</p>
-                </div>
-                <div class="d-flex gap-2">
-                  <div id="climate-anomaly-badge" class="d-none">
-                    <!-- Dynamic Anomaly Badge -->
-                  </div>
-                  <div class="btn-group">
-                    <button class="btn btn-outline-secondary btn-sm active hist-year-btn" data-years="5">5 Years
-                      Ago</button>
-                    <button class="btn btn-outline-secondary btn-sm hist-year-btn" data-years="10">10 Years Ago</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Comparison Row -->
-              <div id="history-insight-content" class="row row-cols-1 row-cols-md-3 g-4">
-                <div class="col text-center py-5 w-100">
-                  <div class="spinner-border text-primary" role="status"></div>
-                </div>
-              </div>
-
-              <!-- Climate Context Footer -->
-              <div id="climate-context-footer" class="mt-4 pt-3 border-top d-none">
-                <div class="row align-items-center">
-                  <div class="col-md-8">
-                    <p class="small text-muted mb-0">
-                      <i class="fas fa-circle-info me-2 text-primary"></i>
-                      Compared to the 30-year climate normal for this month, today is <span id="climate-comparison-text"
-                        class="fw-bold">...</span>.
-                    </p>
-                  </div>
-                  <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                    <div id="record-indicators" class="small">
-                      <!-- Dynamic record indicators -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Community Hub -->
-          <div class="tab-pane fade" id="community-hub" role="tabpanel">
-            <div class="row g-4">
-              <div class="col-md-6">
-                <div class="p-4 bg-light rounded-4">
-                  <h5 class="fw-bold mb-3">Verify Local Weather</h5>
-                  <p class="small text-muted">Help optimize our AI by reporting actual conditions at your location.</p>
-                  <div class="d-flex flex-wrap gap-2 mb-4">
-                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Clear"><i
-                        class="fas fa-sun me-1 shadow-sm"></i> Sunny</button>
-                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Clouds"><i
-                        class="fas fa-cloud me-1 shadow-sm"></i> Cloudy</button>
-                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Rain"><i
-                        class="fas fa-cloud-showers-heavy me-1 shadow-sm"></i> Rainy</button>
-                    <button class="btn btn-white btn-sm rounded-pill verify-btn" data-condition="Snow"><i
-                        class="fas fa-snowflake me-1 shadow-sm"></i> Snowy</button>
-                  </div>
-                  <div id="verify-status" class="alert d-none small"></div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
-                  <h5 class="fw-bold mb-3">Reliability Metrics</h5>
-                  <div id="accuracy-gauge" class="accuracy-gauge-container mb-2">
-                    <div class="progress rounded-pill" style="height: 12px;">
-                      <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85"
-                        aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                  <p class="small text-muted mt-2">OpenWeatherMap data has been <span class="fw-bold text-success">85%
-                      accurate</span> in your region today based on 42 community reports.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="row mb-5">
     <div class="col-12">
@@ -550,135 +353,63 @@
   </div>
 
   <div class="row g-5 mb-5">
-    <div class="col-lg-4">
+    <div class="col-lg-12">
       <h4 class="fw-bold mb-4">Daily Statistics</h4>
-      <div class="d-flex flex-column gap-3">
-        <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: #f8f9fa;">
-          <p id="weather-highlight-date" class="fw-bold small text-muted mb-3">Today's Range</p>
-          <div class="d-flex justify-content-between">
-            <div class="text-center">
-              <div class="small text-muted mb-1">Max</div>
-              <span id="weather-highlight-max" class="fs-4 fw-bold text-danger">--°</span>
-            </div>
-            <div class="vr mx-3"></div>
-            <div class="text-center">
-              <div class="small text-muted mb-1">Min</div>
-              <span id="weather-highlight-min" class="fs-4 fw-bold text-primary">--°</span>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100" style="background: #f8f9fa;">
+            <p id="weather-highlight-date" class="fw-bold small text-muted mb-3">Today's Range</p>
+            <div class="d-flex justify-content-between">
+              <div class="text-center">
+                <div class="small text-muted mb-1">Max</div>
+                <span id="weather-highlight-max" class="fs-4 fw-bold text-danger">--°</span>
+              </div>
+              <div class="vr mx-3"></div>
+              <div class="text-center">
+                <div class="small text-muted mb-1">Min</div>
+                <span id="weather-highlight-min" class="fs-4 fw-bold text-primary">--°</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: #f8f9fa;">
-          <p class="fw-bold small text-muted mb-2">Variation</p>
-          <h3 id="weather-highlight-variation" class="fw-bold mb-0">--°</h3>
-          <small class="text-muted">Temperature delta today</small>
-        </div>
-        <div class="card border-0 rounded-4 p-4 shadow-sm"
-          style="background: #f0f7fc; border-left: 5px solid var(--primary-color) !important;">
-          <div class="d-flex align-items-center mb-2">
-            <i class="fas fa-wind text-primary me-2"></i>
-            <p class="fw-bold small text-muted mb-0">Air Quality</p>
+
+        <div class="col-md-4">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100" style="background: #f8f9fa;">
+            <p class="fw-bold small text-muted mb-2">Variation</p>
+            <h3 id="weather-highlight-variation" class="fw-bold mb-0">--°</h3>
+            <small class="text-muted">Temperature delta today</small>
           </div>
-          <h3 id="weather-aqi-value" class="fw-bold mb-0">--</h3>
-          <small id="weather-aqi-description" class="text-muted">Loading air quality...</small>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100"
+            style="background: #f0f7fc; border-left: 5px solid var(--primary-color) !important;">
+            <div class="d-flex align-items-center mb-2">
+              <i class="fas fa-wind text-primary me-2"></i>
+              <p class="fw-bold small text-muted mb-0">Air Quality</p>
+            </div>
+            <h3 id="weather-aqi-value" class="fw-bold mb-0">--</h3>
+            <small id="weather-aqi-description" class="text-muted">Loading air quality...</small>
+          </div>
         </div>
 
         <!-- Health Insights Section -->
-        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3"
-          style="background: #fffcf8; border-left: 5px solid var(--accent-news) !important;">
-          <div class="d-flex align-items-center mb-2">
-            <i class="fas fa-hand-holding-medical text-warning me-2"></i>
-            <p class="fw-bold small text-muted mb-0">Health & Wellness</p>
-          </div>
-
-          <div id="health-metrics-grid" class="row g-2 mb-3">
-            <div class="text-center w-100 py-3">
-              <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+        <div class="col-12 mt-4">
+          <div class="card border-0 rounded-4 p-4 shadow-sm"
+            style="background: #fffcf8; border-left: 5px solid var(--accent-news) !important;">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-hand-holding-medical text-warning me-2"></i>
+              <p class="fw-bold small text-muted mb-0">Health & Wellness</p>
             </div>
-          </div>
 
-          <div id="health-ai-advice" class="p-2 bg-white rounded-3 small border border-warning-subtle text-muted">
-            <small class="text-muted">Loading AI insights...</small>
-          </div>
-        </div>
-
-        <!-- Weather Wisdom (Idioms) -->
-        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3 weather-idiom-container d-none"
-          style="background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); border-left: 5px solid #ff6b6b !important;">
-          <div class="d-flex align-items-center mb-2">
-            <i class="fas fa-quote-left text-danger me-2"></i>
-            <p class="fw-bold small text-muted mb-0" data-t="weather_wisdom">Weather Wisdom</p>
-          </div>
-          <h5 class="idiom-text fw-bold mb-2"></h5>
-          <p class="idiom-meaning small mb-1"></p>
-          <p class="idiom-context x-small text-muted italic mb-0"></p>
-        </div>
-
-        <!-- Travel Cost Insights -->
-        <div class="card border-0 rounded-4 p-4 shadow-sm mt-3 travel-insights-container"
-          style="background: linear-gradient(135deg, #f0fff4 0%, #fff 100%); border-left: 5px solid #48bb78 !important;">
-          <div class="d-flex align-items-center mb-3">
-            <i class="fas fa-plane-departure text-success me-2"></i>
-            <p class="fw-bold small text-muted mb-0" data-t="travel_insights">Travel Cost Insights</p>
-          </div>
-          <div class="d-flex flex-column gap-2" id="travel-costs-list">
-            <div class="d-flex justify-content-between small">
-              <span data-t="umbrella">Umbrella</span>
-              <span class="fw-bold" data-amount="15.0" data-from-currency="USD"></span>
-            </div>
-            <div class="d-flex justify-content-between small">
-              <span data-t="sunscreen">Sunscreen</span>
-              <span class="fw-bold" data-amount="12.0" data-from-currency="USD"></span>
-            </div>
-            <div class="d-flex justify-content-between small">
-              <span data-t="winter_jacket">Winter Jacket</span>
-              <span class="fw-bold" data-amount="80.0" data-from-currency="USD"></span>
-            </div>
-          </div>
-          <p class="x-small text-muted mt-3 mb-0" data-t="price_estimate_note">Prices are local estimates based on
-            current weather needs.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-8">
-      <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="card-body p-0 position-relative h-100">
-          <div class="map-controls">
-            <div class="position-relative w-100">
-              <form class="animated-search-form" onsubmit="return false;">
-                <input id="location-search" type="search" placeholder="Search a city..." required autocomplete="off">
-                <i class="fas fa-magnifying-glass search-icon"></i>
-              </form>
-              <div id="location-search-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
-                style="z-index: 1050; background: white; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px; bottom: 100%; margin-bottom: 50px;">
+            <div id="health-metrics-grid" class="row g-3 mb-3">
+              <div class="text-center w-100 py-3">
+                <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
               </div>
             </div>
-            <button class="btn btn-white shadow-sm locate-btn border ms-2" id="locate-btn" title="Locate Me">
-              <i class="fas fa-crosshairs"></i>
-            </button>
-          </div>
-          <div id="map" style="height: 100%; min-height: 800px; z-index: 1;"></div>
 
-          <div id="weather-overlay" class="weather-overlay">
-            <div class="map-loading-spinner text-center py-4">
-              <div class="spinner-grow text-primary" role="status"></div>
-            </div>
-            <div class="weather-info">
-              <div id="map-city" class="city-name">Loading...</div>
-              <div class="d-flex align-items-center justify-content-between mb-4">
-                <span id="map-temp" class="map-temp-display">--</span>
-                <div id="map-icon" class="map-icon-display"></div>
-              </div>
-              <div class="map-details-footer d-flex flex-column gap-2">
-                <div class="detail-item">
-                  <i class="fas fa-wind"></i>
-                  <span id="map-wind">--</span>
-                </div>
-                <div class="detail-item">
-                  <i class="fas fa-tint"></i>
-                  <span id="map-humidity">--</span>
-                </div>
-              </div>
+            <div id="health-ai-advice" class="p-3 bg-white rounded-3 small border border-warning-subtle text-muted">
+              <small class="text-muted">Loading AI insights...</small>
             </div>
           </div>
         </div>
@@ -707,6 +438,6 @@
 </div>
 
 <script src="/assets/js/weather.js"></script>
-<script src="/assets/js/map.js"></script>
+
 
 {% endblock body %}

@@ -139,6 +139,8 @@ def check_weather_alerts():
                 app.logger.error(f"Weather alert background task error: {e}")
                 time.sleep(60)
 
+
+
 def trigger_daily_forecast_webhooks():
     """Background task to trigger daily forecast webhooks."""
     with app.app_context():
@@ -769,6 +771,287 @@ def news():
         featured_news=featured_news,
         meta=seo_meta
     )
+
+
+
+@app.route("/travel")
+def travel():
+    dt_info = utils.get_local_time_string()
+    
+    seo_meta = {
+        "description": "Plan your trip with SynoCast's Travel Dashboard. Features weather forecasts, currency conversion, and packing list suggestions.",
+        "keywords": "travel weather, trip planner, currency converter, packing list, historical weather"
+    }
+    
+    return render_template(
+        "travel.html", 
+        active_page="travel", 
+        date_time_info=dt_info,
+        meta=seo_meta
+    )
+
+
+
+@app.route('/api/travel/weather')
+def api_travel_search():
+    query = request.args.get('q')
+    if not query:
+        return jsonify({"error": "Query parameter 'q' is required"}), 400
+
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    if not api_key:
+        return jsonify({"error": "Server configuration error (API Key)"}), 500
+
+    try:
+        # direct weather fetch
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={query}&units=metric&appid={api_key}"
+        res = requests.get(url, timeout=5)
+        
+        if res.ok:
+            data = res.json()
+            # Format simple response
+            return jsonify({
+                "city": data.get("name"),
+                "country": data.get("sys", {}).get("country"),
+                "temp": data.get("main", {}).get("temp"),
+                "condition": data.get("weather", [{}])[0].get("description", "Unknown"),
+                "icon": data.get("weather", [{}])[0].get("icon"),
+                "wind_speed": data.get("wind", {}).get("speed"),
+                "humidity": data.get("main", {}).get("humidity"),
+                "lat": data.get("coord", {}).get("lat"),
+                "lon": data.get("coord", {}).get("lon")
+            })
+        else:
+            return jsonify({"error": "Location not found"}), 404
+            
+    except Exception as e:
+         app.logger.error(f"Travel API Error: {e}")
+         return jsonify({"error": "Failed to fetch weather data"}), 500
+
+
+@app.route('/api/currency/convert')
+def api_currency_convert():
+    base = request.args.get('base', 'USD').upper()
+    targets = request.args.get('targets', 'EUR,GBP,JPY,PKR').upper().split(',')
+    
+    # Mock rates for demo (or efficient fallback)
+    # in a real app, use https://api.exchangerate-api.com/v4/latest/USD
+    try:
+        res = requests.get(f"https://api.exchangerate-api.com/v4/latest/{base}", timeout=5)
+        if res.ok:
+            data = res.json()
+            rates = data.get('rates', {})
+            result = {t: rates.get(t) for t in targets if t in rates}
+            return jsonify({"base": base, "rates": result})
+    except Exception as e:
+        app.logger.error(f"Currency API Error: {e}")
+    
+    # Fallback/Mock
+    mock_rates = {
+        "USD": 1.0, "EUR": 0.92, "GBP": 0.79, "JPY": 150.0, "PKR": 278.0
+    }
+    
+    base_rate = mock_rates.get(base, 1.0)
+    result = {}
+    for t in targets:
+        target_rate = mock_rates.get(t, 1.0)
+        # Convert base -> USD -> Target
+        # Rate = Target / Base
+        result[t] = round(target_rate / base_rate, 2)
+        
+    return jsonify({"base": base, "rates": result})
+
+
+@app.route('/api/travel/packing-list')
+def api_travel_packing_list():
+    destination = request.args.get('destination')
+    days = request.args.get('days', 3)
+    weather_summary = request.args.get('weather') # e.g. "Rainy, 15C"
+    
+    if not destination:
+        return jsonify({"error": "Missing destination"}), 400
+
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_key:
+        return jsonify({
+            "items": [
+                {"category": "essentials", "item": "Passport"},
+                {"category": "clothing", "item": "Jacket"},
+                {"category": "electronics", "item": "Power Bank"}
+            ]
+        })
+
+    try:
+        client = genai.Client(api_key=gemini_key.strip())
+        prompt = f"""
+        Generate a smart packing list for a {days}-day trip to {destination}.
+        Weather forecast: {weather_summary}.
+        
+        Return JSON with a list of items grouped by category.
+        Format:
+        {{
+            "items": [
+                {{"category": "Clothing", "item": "Raincoat (Heavy rain expected)", "icon": "fa-tshirt"}},
+                {{"category": "Gadgets", "item": "Universal Adapter", "icon": "fa-plug"}},
+                ...
+            ]
+        }}
+        Limit to 10-12 most important items.
+        """
+        
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        return jsonify(json.loads(response.text))
+    except Exception as e:
+        app.logger.error(f"Packing List AI Error: {e}")
+        return jsonify({"items": []})
+
+
+
+@app.route("/map")
+def map_explorer():
+    dt_info = utils.get_local_time_string()
+    
+    seo_meta = {
+        "description": "Explore global weather patterns with SynoCast's immersive 3D map. View wind, rain, temperature, and cloud layers in real-time.",
+        "keywords": "weather map, 3D globe, wind map, rain radar, temperature heatmap, global weather"
+    }
+    
+    return render_template(
+        "map.html", 
+        active_page="map", 
+        date_time_info=dt_info,
+        meta=seo_meta
+    )
+
+
+@app.route("/learn")
+def weather_wisdom():
+    dt_info = utils.get_local_time_string()
+    
+    seo_meta = {
+        "description": "Master weather concepts with SynoCast's Weather Wisdom. Learn about climate science, terminology, and daily trivia.",
+        "keywords": "weather education, climate change explainers, weather glossary, meteorology for beginners, weather trivia"
+    }
+    
+    return render_template(
+        "learn.html", 
+        active_page="learn", 
+        date_time_info=dt_info,
+        meta=seo_meta
+    )
+
+
+@app.route('/api/learn/trivia')
+def api_learn_trivia():
+    # Simple hardcoded trivia for now
+    questions = [
+        {"q": "What is the highest temperature ever recorded on Earth?", "options": ["56.7°C (Death Valley)", "58°C (Libya)", "54°C (Kuwait)"], "a": 0, "expl": "Furnace Creek Ranch, Death Valley, recorded 56.7°C on July 10, 1913."},
+        {"q": "What type of cloud is often called a 'thunderhead'?", "options": ["Cumulus", "Cumulonimbus", "Stratus"], "a": 1, "expl": "Cumulonimbus clouds are dense, towering vertical clouds associated with thunderstorms."},
+        {"q": "What instrument measures atmospheric pressure?", "options": ["Thermometer", "Anemometer", "Barometer"], "a": 2, "expl": "Barometers measure atmospheric pressure, which helps predict weather changes."},
+        {"q": "Where is the wettest place on Earth?", "options": ["Mawsynram, India", "Cherrapunji, India", "Kauai, Hawaii"], "a": 0, "expl": "Mawsynram receives the highest average annual rainfall."},
+        {"q": "What is the calm center of a hurricane called?", "options": ["The Eye", "The Core", "The Hub"], "a": 0, "expl": "The eye is a region of mostly calm weather at the center of strong tropical cyclones."}
+    ]
+    import random
+    return jsonify(random.choice(questions))
+
+
+@app.route('/api/learn/glossary')
+def api_learn_glossary():
+    # Return a static list or fetch from DB (for now static list of common terms)
+    terms = [
+        {"term": "Albedo", "definition": "The proportion of the incident light or radiation that is reflected by a surface, typically that of a planet or moon."},
+        {"term": "Barometric Pressure", "definition": "The pressure exerted by the weight of the atmosphere."},
+        {"term": "Convection", "definition": "Heat transfer in a gas or liquid by the circulation of currents from one region to another."},
+        {"term": "Dew Point", "definition": "The temperature at which air becomes saturated with water vapor and dew forms."},
+        {"term": "El Niño", "definition": "A warming of the ocean surface, or above-average sea surface temperatures, in the central and eastern tropical Pacific Ocean."},
+        {"term": "Front", "definition": "The boundary between two air masses that have different temperatures or humidity."},
+        {"term": "Humidity", "definition": "The amount of water vapor in the air."},
+        {"term": "Isobar", "definition": "A line on a map connecting points having the same atmospheric pressure."},
+        {"term": "Jet Stream", "definition": "Narrow bands of strong wind in the upper levels of the atmosphere."},
+        {"term": "Meteorology", "definition": "The scientific study of the atmosphere and its phenomena, especially weather and weather forecasting."},
+        {"term": "Precipitation", "definition": "Any form of water, liquid or solid, falling from the sky (rain, snow, hail, etc.)."},
+        {"term": "Relative Humidity", "definition": "The ratio of the current absolute humidity to the highest possible absolute humidity at the current temperature."},
+        {"term": "Supercell", "definition": "A system producing severe thunderstorms and featuring rotating winds sustained by a prolonged updraft that may result in hail or tornadoes."},
+        {"term": "Trade Winds", "definition": "Permanent east-to-west prevailing winds that flow in the Earth's equatorial region."},
+        {"term": "Wind Chill", "definition": "The perceived decrease in air temperature felt by the body on exposed skin due to the flow of air."}
+    ]
+    return jsonify(terms)
+
+
+@app.route("/compare")
+def compare_cities():
+    dt_info = utils.get_local_time_string()
+    
+    seo_meta = {
+        "description": "Compare weather conditions between two cities side-by-side. Analyze temperature, humidity, and pollution differences.",
+        "keywords": "weather comparison, city vs city, climate comparison, weather battle, temperature comparison"
+    }
+    
+    return render_template(
+        "compare.html", 
+        active_page="compare", 
+        date_time_info=dt_info,
+        meta=seo_meta
+    )
+
+@app.route('/api/weather_data')
+def api_weather_data():
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    if not lat or not lon:
+        return jsonify({"error": "Missing lat/lon"}), 400
+    
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    if not api_key:
+        return jsonify({"error": "Server API Config Error"}), 500
+        
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}"
+        res = requests.get(url, timeout=5)
+        if res.ok:
+            return jsonify(res.json())
+        return jsonify({"error": "Provider Error"}), res.status_code
+    except Exception as e:
+        app.logger.error(f"Weather Data API Error: {e}")
+        return jsonify({"error": "Internal Error"}), 500
+
+@app.route('/api/proxy/tiles/<layer_type>/<z>/<x>/<y>')
+def proxy_weather_tiles(layer_type, z, x, y):
+    # Mapping custom types to OWM layers
+    # OWM 1.0 layers (Legacy but standard for free tier often): temp_new, precipitation_new, etc.
+    # Note: OWM 2.0 API might be different. Assuming standard tile layers.
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    if not api_key:
+         abort(500)
+    
+    layer_map = {
+        "clouds_new": "clouds_new",
+        "precipitation_new": "precipitation_new",
+        "temp_new": "temp_new",
+        "wind_new": "wind_new",
+        "pressure_new": "pressure_new"
+    }
+    
+    owm_layer = layer_map.get(layer_type)
+    if not owm_layer:
+        abort(404)
+        
+    url = f"https://tile.openweathermap.org/map/{owm_layer}/{z}/{x}/{y}.png?appid={api_key}"
+    
+    try:
+        from flask import Response
+        res = requests.get(url, stream=True, timeout=10)
+        if res.ok:
+            return Response(res.content, mimetype=res.headers.get('content-type', 'image/png'))
+        else:
+            return jsonify({"error": "Tile fetch failed"}), 404
+    except Exception as e:
+        app.logger.error(f"Tile Proxy Error: {e}")
+        abort(500)
 
 
 @app.route("/weather")
@@ -3450,6 +3733,7 @@ def unhandled_exception(e):
         return jsonify({"error": f"An unexpected error occurred: {error_msg}"}), 500
     # Fallback to 500 page for generic exceptions
     return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
+
 
 if __name__ == "__main__":
     # Start weather alert background task (only in local development)
