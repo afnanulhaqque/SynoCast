@@ -9,8 +9,7 @@ const ASSETS_TO_CACHE = [
   '/assets/js/chatbot_modal.js',
   '/assets/js/subscribe_modal.js',
   '/assets/js/periodic_sync.js',
-  '/assets/logo/logo-small.png',
-  '/assets/logo/icon-512.png',
+  '/assets/logo/logo_about.png',
   '/offline'
 ];
 
