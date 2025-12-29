@@ -4,7 +4,7 @@
   "description": "Location-aware weather storytelling and alerts with AI-powered insights.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2F2F2F",
+  "background_color": "#6B6B6B",
   "theme_color": "#6FAED9",
   "orientation": "portrait-primary",
   "categories": ["weather", "news", "utilities"],
@@ -16,7 +16,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/logo/logo-small.ongg",
+      "src": "/assets/logo/logo-small.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
