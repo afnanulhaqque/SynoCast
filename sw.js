@@ -1,4 +1,4 @@
-const CACHE_NAME = 'synocast-v3';
+const CACHE_NAME = 'synocast-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/static/styles/style.css',
@@ -130,8 +130,8 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/assets/logo/logo-small.svg',
-      badge: '/assets/logo/logo-small.svg',
+      icon: '/assets/logo/icon-512.png',
+      badge: '/assets/logo/logo-small.png',
       vibrate: [200, 100, 200],
       data: {
         url: data.url || '/',
