@@ -4,22 +4,16 @@
   "description": "Location-aware weather storytelling and alerts with AI-powered insights.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAFAF8",
+  "background_color": "#000000",
   "theme_color": "#6FAED9",
   "orientation": "portrait-primary",
   "categories": ["weather", "news", "utilities"],
   "icons": [
     {
-      "src": "/assets/logo/logo-small.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
       "src": "/assets/logo/logo-small.png",
       "sizes": "512x512",
-      "type": "image/png"
-      // "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
