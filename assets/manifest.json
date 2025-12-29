@@ -16,9 +16,9 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/logo/logo-small.svg",
-      "sizes": "200x200",
-      "type": "image/svg+xml",
+      "src": "/assets/logo/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
