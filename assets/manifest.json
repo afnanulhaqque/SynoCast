@@ -10,15 +10,15 @@
   "categories": ["weather", "news", "utilities"],
   "icons": [
     {
-      "src": "/assets/logo/logo-small.svg",
+      "src": "/assets/logo/logo-small.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/assets/logo/logo-small.svg",
+      "src": "/assets/logo/logo-small.ongg",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
