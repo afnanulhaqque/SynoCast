@@ -48,6 +48,18 @@
       ]
     },
     {
+      "name": "Widget Mode",
+      "short_name": "Widget",
+      "description": "Open standalone weather widget",
+      "url": "/widget",
+      "icons": [
+        {
+          "src": "/assets/logo/logo-small.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "My Profile",
       "short_name": "Profile",
       "description": "Manage favorites and preferences",
@@ -56,6 +68,25 @@
         {
           "src": "/assets/logo/logo-small.png",
           "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Current Weather",
+      "short_name": "Weather",
+      "description": "View current weather conditions",
+      "tag": "weather",
+      "template": "widget",
+      "ms_ac_template": "widget.html",
+      "data": "/api/widget-data",
+      "type": "application/json",
+      "screenshots": [],
+      "icons": [
+        {
+          "src": "/assets/logo/logo-small.png",
+          "sizes": "512x512"
         }
       ]
     }

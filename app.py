@@ -1472,6 +1472,15 @@ def api_widget_data():
         app.logger.error(f"Widget data API error: {e}")
         return jsonify({"error": "Failed to fetch widget data"}), 500
 
+@app.route("/widget")
+def widget():
+    """
+    Renders a dedicated widget view.
+    Designed to be used as an app shortcut or standalone PWA window.
+    """
+    return render_template("widget.html")
+
+
 
 @app.route("/api/weather/analytics")
 def api_weather_analytics():
