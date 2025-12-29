@@ -384,21 +384,8 @@ def init_db():
                 """
             )
             
-            # Weather reports for community verification
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS weather_reports (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    lat REAL,
-                    lon REAL,
-                    city TEXT,
-                    reported_condition TEXT,
-                    api_condition TEXT,
-                    reported_at TEXT,
-                    is_accurate INTEGER
-                )
-                """
-            )
+            # Weather reports table removed
+
             
             # User preferences for alerts and global settings
             conn.execute(
@@ -446,28 +433,11 @@ def init_db():
                 
             conn.commit()
 
-            # Check weather_reports columns
-            cursor.execute("PRAGMA table_info(weather_reports)")
-            wr_columns = [column[1] for column in cursor.fetchall()]
-            if "comment" not in wr_columns:
-                conn.execute("ALTER TABLE weather_reports ADD COLUMN comment TEXT")
-            if "email" not in wr_columns:
-                conn.execute("ALTER TABLE weather_reports ADD COLUMN email TEXT")
+            # Check weather_reports columns removed
 
-            # Weather Photos Table
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS weather_photos (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    filename TEXT NOT NULL,
-                    lat REAL,
-                    lon REAL,
-                    city TEXT,
-                    caption TEXT,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
+
+            # Weather Photos Table removed
+
             
             # Favorite Locations Table
             conn.execute(
@@ -531,111 +501,13 @@ def init_db():
                 """
             )
 
-            # Gamification Tables
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS user_points (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    email TEXT,
-                    points INTEGER DEFAULT 0,
-                    event_type TEXT,
-                    description TEXT,
-                    created_at TEXT
-                )
-                """
-            )
+            # Gamification Tables removed
 
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS badges (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT UNIQUE,
-                    description TEXT,
-                    icon_class TEXT,
-                    threshold INTEGER
-                )
-                """
-            )
-
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS user_badges (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    email TEXT,
-                    badge_id INTEGER,
-                    awarded_at TEXT,
-                    UNIQUE(email, badge_id)
-                )
-                """
-            )
-            
-            # Pre-seed basic badges if empty
-            cursor.execute("SELECT COUNT(*) FROM badges")
-            if cursor.fetchone()[0] == 0:
-                badges_data = [
-                    ("Novice Reporter", "Submit your first weather report", "fa-seedling", 1),
-                    ("Reliable Source", "Submit 5 accurate weather reports", "fa-check-double", 5),
-                    ("Storm Chaser", "Report severe weather accurately", "fa-bolt", 0), # Special condition
-                    ("Community Pillar", "Reach 500 karma points", "fa-crown", 500)
-                ]
-                cursor.executemany("INSERT INTO badges (name, description, icon_class, threshold) VALUES (?, ?, ?, ?)", badges_data)
 
 
 
             
-            # Historical Weather Cache Table
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS historical_weather_cache (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    lat REAL NOT NULL,
-                    lon REAL NOT NULL,
-                    date TEXT NOT NULL,
-                    temp_max REAL,
-                    temp_min REAL,
-                    temp_mean REAL,
-                    precipitation REAL,
-                    wind_speed REAL,
-                    weather_code INTEGER,
-                    source TEXT,
-                    cached_at TEXT NOT NULL,
-                    UNIQUE(lat, lon, date)
-                )
-                """
-            )
-            
-            # Create index for faster historical queries
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_historical_location_date 
-                ON historical_weather_cache(lat, lon, date)
-                """
-            )
-            
-            # Climate Records Table
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS climate_records (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    lat REAL NOT NULL,
-                    lon REAL NOT NULL,
-                    record_type TEXT NOT NULL,
-                    value REAL NOT NULL,
-                    date TEXT NOT NULL,
-                    year INTEGER NOT NULL,
-                    updated_at TEXT NOT NULL,
-                    UNIQUE(lat, lon, record_type)
-                )
-                """
-            )
-            
-            # Create index for faster record queries
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_records_location 
-                ON climate_records(lat, lon, record_type)
-                """
-            )
+
 
             conn.commit()
             
@@ -2632,268 +2504,10 @@ def api_weather_compare():
 
     return jsonify({"city1": w1, "city2": w2})
 
-@app.route("/api/weather/historical")
-@limiter.limit("20 per minute")
-def api_weather_historical():
-    """
-    Enhanced Historical Weather Insights: On This Day.
-    Fetches data from cache or Open-Meteo, calculates climate anomalies.
-    """
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    years_ago = int(request.args.get('years', 5))
-
-    if not lat or not lon:
-        return jsonify({"error": "lat and lon required"}), 400
-
-    try:
-        # Calculate target date
-        target_date = datetime.now() - timedelta(days=365 * years_ago)
-        date_str = target_date.strftime('%Y-%m-%d')
-        
-        historical_data = None
-        
-        # 1. Check database cache
-        with get_db() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM historical_weather_cache WHERE lat = ? AND lon = ? AND date = ?", 
-                (round(float(lat), 4), round(float(lon), 4), date_str)
-            )
-            row = cursor.fetchone()
-            if row:
-                historical_data = dict(row)
-                app.logger.info(f"Serving historical data for {date_str} from DB cache")
-
-        # 2. If not in cache, fetch from API
-        if not historical_data:
-            historical_data = utils.fetch_historical_weather(lat, lon, date_str)
-            if historical_data:
-                # Save to DB cache
-                try:
-                    with get_db() as conn:
-                        conn.execute(
-                            """
-                            INSERT OR REPLACE INTO historical_weather_cache 
-                            (lat, lon, date, temp_max, temp_min, temp_mean, precipitation, wind_speed, weather_code, source, cached_at)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            """,
-                            (
-                                round(float(lat), 4), round(float(lon), 4), date_str,
-                                historical_data['temp_max'], historical_data['temp_min'], 
-                                historical_data['temp_mean'], historical_data['precipitation'],
-                                historical_data['wind_speed'], historical_data['weather_code'],
-                                historical_data['source'], datetime.utcnow().isoformat()
-                            )
-                        )
-                        conn.commit()
-                except Exception as db_err:
-                    app.logger.error(f"Failed to cache historical data: {db_err}")
-
-        if not historical_data:
-            return jsonify({"error": "Failed to fetch historical data"}), 500
-
-        # 3. Fetch Climate Normals (30-year average) for this month
-        month = target_date.month
-        normals = utils.fetch_climate_normals(float(lat), float(lon), month)
-        
-        # 4. Calculate Anomaly
-        anomaly = None
-        if normals and historical_data.get('temp_mean') is not None:
-            anomaly = utils.calculate_climate_anomaly(historical_data['temp_mean'], normals['temp_mean_avg'])
-
-        return jsonify({
-            "status": "success",
-            "years_ago": years_ago,
-            "date": date_str,
-            "data": historical_data,
-            "climatology": normals,
-            "anomaly": anomaly
-        })
-
-    except Exception as e:
-        app.logger.error(f"Historical API error: {e}")
-        return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/weather/climate-trends")
-@limiter.limit("10 per minute")
-def api_weather_climate_trends():
-    """
-    Returns seasonal patterns and trends for a location.
-    """
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    years = int(request.args.get('years', 5))
-
-    if not lat or not lon:
-        return jsonify({"error": "lat and lon required"}), 400
-
-    try:
-        trends = utils.analyze_seasonal_trends(float(lat), float(lon), years_back=years)
-        if not trends:
-            return jsonify({"error": "Failed to analyze climate trends"}), 500
-            
-        return jsonify(trends)
-    except Exception as e:
-        app.logger.error(f"Climate trends API error: {e}")
-        return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/weather/records")
-@limiter.limit("10 per minute")
-def api_weather_records():
-    """
-    Returns record-breaking temperatures for a location.
-    Checks cache first, then fetches from historical archive.
-    """
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-
-    if not lat or not lon:
-        return jsonify({"error": "lat and lon required"}), 400
-
-    try:
-        # Check database for records first
-        records = {}
-        with get_db() as conn:
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM climate_records WHERE lat = ? AND lon = ?", 
-                (round(float(lat), 4), round(float(lon), 4))
-            )
-            rows = cursor.fetchall()
-            for row in rows:
-                records[row['record_type']] = {
-                    "value": row['value'],
-                    "date": row['date'],
-                    "year": row['year']
-                }
-
-        # If no records or data is stale (older than 30 days), fetch from API
-        if not records:
-            api_records = utils.get_record_temperatures(float(lat), float(lon), years_back=10)
-            if api_records:
-                # Save to DB
-                try:
-                    with get_db() as conn:
-                        for r_type in ['record_high', 'record_low']:
-                            data = api_records[r_type]
-                            conn.execute(
-                                """
-                                INSERT OR REPLACE INTO climate_records 
-                                (lat, lon, record_type, value, date, year, updated_at)
-                                VALUES (?, ?, ?, ?, ?, ?, ?)
-                                """,
-                                (
-                                    round(float(lat), 4), round(float(lon), 4), r_type,
-                                    data['temperature'], data['date'], data['year'],
-                                    datetime.utcnow().isoformat()
-                                )
-                            )
-                        conn.commit()
-                except Exception as db_err:
-                    app.logger.error(f"Failed to cache climate records: {db_err}")
-                
-                records = api_records
-
-        return jsonify(records)
-    except Exception as e:
-        app.logger.error(f"Climate records API error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/report_weather", methods=["POST"])
-def api_report_weather():
-    """Community Verification System."""
-    data = request.json
-    lat = data.get('lat')
-    lon = data.get('lon')
-    city = data.get('city')
-    reported_condition = data.get('condition')
-    comment = data.get('comment', '')
-    api_condition = data.get('api_condition')
-    is_accurate = 1 if reported_condition.lower() == api_condition.lower() else 0
-
-    try:
-        with get_db() as conn:
-            conn.execute(
-                "INSERT INTO weather_reports (lat, lon, city, reported_condition, comment, api_condition, reported_at, is_accurate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (lat, lon, city, reported_condition, comment, api_condition, datetime.utcnow().isoformat(), is_accurate)
-            )
-            conn.commit()
-        return jsonify({"success": True, "message": "Report submitted. Thanks for verifying!"})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route("/community")
-def community():
-    seo_meta = {
-        "description": "Join the SynoCast community. Share weather photos, report local conditions, and plan your outdoor activities with AI.",
-        "keywords": "weather community, photos, weather reports, event planner, outdoor activities"
-    }
-    return render_template("community.html", active_page="community", date_time_info=utils.get_local_time_string(), meta=seo_meta)
-
-@app.route("/api/community/photo", methods=["POST"])
-def api_upload_photo():
-    if 'photo' not in request.files:
-         return jsonify({"error": "No file part"}), 400
-    file = request.files['photo']
-    if file.filename == '':
-         return jsonify({"error": "No selected file"}), 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # Unique filename to prevent overwrites (timestamp prefix)
-        unique_name = f"{int(datetime.utcnow().timestamp())}_{filename}"
-        filepath = os.path.join(app.root_path, UPLOAD_FOLDER, unique_name)
-        file.save(filepath)
-        
-        # Save to DB
-        lat = request.form.get('lat')
-        lon = request.form.get('lon')
-        city = request.form.get('city')
-        caption = request.form.get('caption')
-        
-        with get_db() as conn:
-            conn.execute(
-                "INSERT INTO weather_photos (filename, lat, lon, city, caption, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                (unique_name, lat, lon, city, caption, datetime.utcnow().isoformat())
-            )
-            conn.commit()
-            
-        return jsonify({"success": True})
-    
-    return jsonify({"error": "Invalid file type"}), 400
-
-@app.route("/api/community/feed")
-def api_community_feed():
-    limit = request.args.get('limit', 20)
-    try:
-        with get_db() as conn:
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
-            
-            # Photos
-            c.execute("SELECT *, 'photo' as type FROM weather_photos ORDER BY created_at DESC LIMIT ?", (limit,))
-            photos = [dict(row) for row in c.fetchall()]
-            
-            # Reports
-            c.execute("SELECT *, 'report' as type FROM weather_reports ORDER BY reported_at DESC LIMIT ?", (limit,))
-            reports = [dict(row) for row in c.fetchall()]
-            
-        # Combine and sort
-        feed = photos + reports
-        # Helper to get date safely
-        def get_date(x):
-            return x.get('created_at') or x.get('reported_at')
-            
-        feed.sort(key=lambda x: get_date(x), reverse=True)
-        return jsonify(feed[:int(limit)])
-    except Exception as e:
-        app.logger.error(f"Feed error: {e}")
-        return jsonify([])
 
 @app.route("/api/planning/suggest", methods=["POST"])
 @limiter.limit("10 per minute")

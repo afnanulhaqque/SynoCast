@@ -302,52 +302,97 @@
 
 
 
+
+
+  <!-- Compare Section -->
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 rounded-4 shadow-sm p-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-          <div>
-            <h4 class="fw-bold mb-1">Historical Weather Trends</h4>
-            <div class="d-flex gap-3 small text-muted">
-              <span id="trend-view-temp" class="trend-tab active-trend" role="button">Temperature</span>
-              <span id="trend-view-seasonal" class="trend-tab" role="button">Seasonal Patterns</span>
-              <span id="trend-view-records" class="trend-tab" role="button">Record Timeline</span>
+        <div class="text-center mb-4">
+          <h4 class="fw-bold mb-1">City Comparison</h4>
+          <p class="text-muted small">Compare weather conditions with another city in real-time.</p>
+        </div>
+
+        <!-- Comparison Controls -->
+        <div class="row g-3 align-items-center justify-content-center mb-4">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0"><i class="fas fa-map-marker-alt text-primary"></i></span>
+              <input type="text" id="comp-city1-input" class="form-control border-0 bg-light"
+                placeholder="Base City (Auto-filled)" readonly>
             </div>
           </div>
-          <div class="d-flex gap-2">
-            <div class="btn-group me-2">
-              <button class="btn btn-outline-theme btn-sm trend-period-btn active" data-years="5">5Y</button>
-              <button class="btn btn-outline-theme btn-sm trend-period-btn" data-years="10">10Y</button>
+          <div class="col-md-1 text-center">
+            <div class="d-none d-md-block">
+              <span class="text-muted">VS</span>
             </div>
-            <button id="export-json" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export JSON</button>
-            <button id="export-csv" class="btn btn-outline-theme btn-sm rounded-pill px-3">Export CSV</button>
+          </div>
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0"><i class="fas fa-search text-primary"></i></span>
+              <input type="text" id="comp-city2-input" class="form-control border-0 bg-light"
+                placeholder="Search City to Compare...">
+              <ul id="comp-city2-results" class="dropdown-menu w-100 shadow-sm border-0 rounded-4"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mb-4">
+          <button class="btn btn-primary rounded-pill px-4" id="btn-compare-trigger">
+            <i class="fas fa-balance-scale me-2"></i>Compare
+          </button>
+        </div>
+
+        <!-- Comparison View (Hidden initially) -->
+        <div id="comparison-result-view" style="display: none;">
+          <div class="row g-4 mb-4">
+            <!-- City 1 Card -->
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3"
+                style="border-top: 4px solid var(--primary-color) !important;">
+                <h5 class="fw-bold mb-0" id="cmp-c1-name">--</h5>
+                <p class="text-muted small" id="cmp-c1-country">--</p>
+
+                <img id="cmp-c1-icon" src="" alt="" class="mx-auto my-2" style="width: 60px;">
+
+                <h3 class="fw-bold mb-0 text-primary" id="cmp-c1-temp">--°</h3>
+                <p class="small text-muted" id="cmp-c1-cond">--</p>
+
+                <div class="d-flex justify-content-center gap-3 mt-2 text-muted small">
+                  <div><i class="fas fa-wind me-1"></i> <span id="cmp-c1-wind">--</span></div>
+                  <div><i class="fas fa-tint me-1"></i> <span id="cmp-c1-hum">--</span>%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- City 2 Card -->
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3"
+                style="border-top: 4px solid var(--accent-news) !important;">
+                <h5 class="fw-bold mb-0" id="cmp-c2-name">--</h5>
+                <p class="text-muted small" id="cmp-c2-country">--</p>
+
+                <img id="cmp-c2-icon" src="" alt="" class="mx-auto my-2" style="width: 60px;">
+
+                <h3 class="fw-bold mb-0 text-danger" id="cmp-c2-temp">--°</h3>
+                <p class="small text-muted" id="cmp-c2-cond">--</p>
+
+                <div class="d-flex justify-content-center gap-3 mt-2 text-muted small">
+                  <div><i class="fas fa-wind me-1"></i> <span id="cmp-c2-wind">--</span></div>
+                  <div><i class="fas fa-tint me-1"></i> <span id="cmp-c2-hum">--</span>%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="alert alert-light border-0 rounded-4 mb-0">
+            <div class="d-flex gap-2">
+              <i class="fas fa-info-circle text-primary mt-1"></i>
+              <p class="mb-0 small text-muted" id="cmp-summary-text">Loading analysis...</p>
+            </div>
           </div>
         </div>
 
-        <div class="historical-chart-wrapper">
-          <!-- Main Trend Chart -->
-          <div id="chart-container-temp" class="historical-chart-container" style="position: relative; height: 350px;">
-            <canvas id="historicalChart"></canvas>
-          </div>
-
-          <!-- Seasonal Trends Chart (Hidden by default) -->
-          <div id="chart-container-seasonal" class="historical-chart-container d-none"
-            style="position: relative; height: 350px;">
-            <canvas id="seasonalTrendsChart"></canvas>
-          </div>
-
-          <!-- Record Timeline Chart (Hidden by default) -->
-          <div id="chart-container-records" class="historical-chart-container d-none"
-            style="position: relative; height: 350px;">
-            <canvas id="recordTimelineChart"></canvas>
-          </div>
-        </div>
-
-        <div id="trend-loading-overlay"
-          class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white opacity-75 d-none"
-          style="z-index: 5;">
-          <div class="spinner-border text-primary" role="status"></div>
-        </div>
       </div>
     </div>
   </div>

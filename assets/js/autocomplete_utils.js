@@ -196,3 +196,4 @@ const AutocompleteUtils = {
         searchResults.classList.remove('d-none');
     }
 };
+window.AutocompleteUtils = AutocompleteUtils;

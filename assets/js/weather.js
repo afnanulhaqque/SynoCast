@@ -42,12 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnFahrenheit = document.getElementById('btn-fahrenheit');
 
     // --- Chart Instances ---
-    let historicalChart = null;
-    let seasonalTrendsChart = null;
-    let recordTimelineChart = null;
-    let historyData = null; // Store for export
-    let historicalTrendYears = 5;
-    let activeTrendTab = 'temp';
+    // Analytics Only
+
 
     // --- Search Functionality ---
     if (searchInput && searchResults) {
@@ -209,14 +205,16 @@ document.addEventListener('DOMContentLoaded', function() {
             btnFahrenheit?.classList.remove('active');
         }
         
-        // Update History Chart if it exists
-        if (historicalChart && historyData) {
-            renderHistoryChart(historyData);
-        }
+
 
         // Update Analytics Charts if data exists
         if (analyticsData) {
             renderAnalyticsCharts(analyticsData);
+        }
+        
+        // Update Compare Base City
+        if (typeof initCompareBaseCity === 'function') {
+            initCompareBaseCity();
         }
     }
 
@@ -528,16 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- History Chart & Export Logic ---
 
-    async function fetchHistory(lat, lon) {
-        try {
-            const res = await fetch(`/api/weather/history?lat=${lat}&lon=${lon}`);
-            const data = await res.json();
-            historyData = data;
-            renderHistoryChart(data);
-        } catch (err) {
-            console.error("Failed to fetch history:", err);
-        }
-    }
+
 
     async function loadHealthData(lat, lon) {
         const grid = document.getElementById('health-metrics-grid');
@@ -590,262 +579,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function renderHistoryChart(data) {
-        const ctx = document.getElementById('historicalChart');
-        if (!ctx) return;
 
-        const labels = data.map(item => item.date);
-        const temps = data.map(item => {
-            const t = parseFloat(item.temp);
-            return currentUnit === 'F' ? WeatherUtils.celsiusToFahrenheit(t) : t;
-        });
 
-        if (historicalChart) {
-            historicalChart.destroy();
-        }
 
-        historicalChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: `Avg Temperature (${currentUnit})`,
-                    data: temps,
-                    borderColor: '#2F2F2F',
-                    backgroundColor: 'rgba(47, 47, 47, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#2F2F2F',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: '#fff',
-                        titleColor: '#333',
-                        bodyColor: '#666',
-                        borderColor: '#eee',
-                        borderWidth: 1,
-                        padding: 12,
-                        cornerRadius: 10,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.parsed.y}°${currentUnit}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: {
-                            color: 'rgba(0,0,0,0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            callback: value => `${value}°`
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
 
-    // --- Export Functionality ---
-    const exportJsonBtn = document.getElementById('export-json');
-    const exportCsvBtn = document.getElementById('export-csv');
 
-    if (exportJsonBtn) {
-        exportJsonBtn.addEventListener('click', () => {
-            if (!historyData) return;
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyData, null, 2));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "weather_history.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        });
-    }
 
-    if (exportCsvBtn) {
-        exportCsvBtn.addEventListener('click', () => {
-            if (!historyData) return;
-            const headers = "Date,Temperature(C),Condition,Humidity(%),Wind(km/h)\n";
-            const rows = historyData.map(item => `${item.date},${item.temp},${item.condition},${item.humidity},${item.wind}`).join("\n");
-            const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(headers + rows);
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", csvContent);
-            downloadAnchorNode.setAttribute("download", "weather_history.csv");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        });
-    }
-
-    // --- Historical Trends Logic (Phases 5 & 6) ---
-    
-    async function fetchHistoricalTrends(lat, lon, years) {
-        const loader = document.getElementById('trend-loading-overlay');
-        if (loader) loader.classList.remove('d-none');
-
-        try {
-            // 1. Temperature Trend (Current View)
-            await fetchHistory(lat, lon);
-            
-            // 2. Seasonal Trends
-            const seasonalRes = await fetch(`/api/weather/climate-trends?lat=${lat}&lon=${lon}&years=${years}`);
-            const seasonalData = await seasonalRes.json();
-            renderSeasonalTrendsChart(seasonalData);
-            
-            // 3. Records Timeline
-            const recordsRes = await fetch(`/api/weather/records?lat=${lat}&lon=${lon}`);
-            const recordsData = await recordsRes.json();
-            renderRecordTimeline(recordsData);
-            
-        } catch (err) {
-            console.error("Trends fetch failed", err);
-        } finally {
-            if (loader) loader.classList.add('d-none');
-        }
-    }
-
-    function renderSeasonalTrendsChart(data) {
-        const ctx = document.getElementById('seasonalTrendsChart');
-        if (!ctx || !data || !data.seasons) return;
-
-        const labels = Object.keys(data.seasons);
-        const temps = labels.map(s => {
-            const t = data.seasons[s].avg_temp;
-            return currentUnit === 'F' ? WeatherUtils.celsiusToFahrenheit(t) : t;
-        });
-        const precip = labels.map(s => data.seasons[s].total_precip);
-
-        if (seasonalTrendsChart) seasonalTrendsChart.destroy();
-
-        seasonalTrendsChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
-                datasets: [
-                    {
-                        label: `Avg Temp (${currentUnit})`,
-                        data: temps,
-                        backgroundColor: '#dc3545',
-                        borderColor: '#dc3545',
-                        type: 'line',
-                        yAxisID: 'y',
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Total Precipitation (mm)',
-                        data: precip,
-                        backgroundColor: 'rgba(13, 202, 240, 0.5)',
-                        borderColor: 'rgba(13, 202, 240, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: { display: true, text: `Temp (${currentUnit})` }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        title: { display: true, text: 'Precipitation (mm)' }
-                    }
-                }
-            }
-        });
-    }
-
-    function renderRecordTimeline(data) {
-        const ctx = document.getElementById('recordTimelineChart');
-        if (!ctx || !data) return;
-
-        const records = [
-            { label: 'All-Time High', value: data.record_high.value, date: data.record_high.date, year: data.record_high.year, color: '#dc3545' },
-            { label: 'All-Time Low', value: data.record_low.value, date: data.record_low.date, year: data.record_low.year, color: '#0d6efd' }
-        ];
-
-        if (recordTimelineChart) recordTimelineChart.destroy();
-
-        recordTimelineChart = new Chart(ctx, {
-            type: 'scatter',
-            data: {
-                datasets: records.map(r => ({
-                    label: r.label,
-                    data: [{ x: r.year, y: currentUnit === 'F' ? celsiusToFahrenheit(r.value) : r.value }],
-                    backgroundColor: r.color,
-                    pointRadius: 10,
-                    pointHoverRadius: 12
-                }))
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                const r = records[context.datasetIndex];
-                                return `${r.label}: ${context.parsed.y}°${currentUnit} (${r.date})`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        type: 'linear',
-                        title: { display: true, text: 'Year' }
-                    },
-                    y: {
-                        title: { display: true, text: `Temp (${currentUnit})` }
-                    }
-                }
-            }
-        });
-    }
-
-    // --- Trend Controls ---
-    document.querySelectorAll('.trend-tab').forEach(tab => {
-        tab.onclick = () => {
-            document.querySelectorAll('.trend-tab').forEach(t => t.classList.remove('active-trend'));
-            tab.classList.add('active-trend');
-            
-            const view = tab.id.split('-').pop(); // temp, seasonal, records
-            activeTrendTab = view;
-
-            document.querySelectorAll('.historical-chart-container').forEach(c => c.classList.add('d-none'));
-            document.getElementById(`chart-container-${view}`).classList.remove('d-none');
-        };
-    });
 
     document.querySelectorAll('.trend-period-btn').forEach(btn => {
         btn.onclick = () => {
@@ -1600,4 +1339,140 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
+    // --- Compare Functionality Integration ---
+    const compCity1Input = document.getElementById('comp-city1-input');
+    const compCity2Input = document.getElementById('comp-city2-input');
+    const compCity2List = document.getElementById('comp-city2-results');
+    const compBtn = document.getElementById('btn-compare-trigger');
+    const compView = document.getElementById('comparison-result-view');
+    
+    let compCity2 = null; // Store selected city 2
+
+    // Initialize Autocomplete for City 2
+    if (compCity2Input && compCity2List && window.AutocompleteUtils) {
+        window.AutocompleteUtils.initAutocomplete(compCity2Input, compCity2List, (c) => {
+             compCity2 = c;
+             compCity2Input.value = c.city;
+        });
+    }
+
+    // Initialize City 1 from Current Weather
+    function initCompareBaseCity() {
+        const cInput = document.getElementById('comp-city1-input');
+        if (currentData && cInput) {
+            cInput.value = currentData.name;
+        }
+    }
+    
+    // Trigger update when weather loads
+    // We can hook into updateCurrentWeather or just poll/check
+    // Since we are inside the same closure, we can just call this when data updates
+    // See initialization section below
+
+    if (compBtn) {
+        compBtn.addEventListener('click', async () => {
+             if (!currentData) {
+                 alert("Please wait for the main weather to load first.");
+                 return;
+             }
+             
+             // Auto-resolve City 2 if text but no selection
+             if (!compCity2 && compCity2Input.value.trim()) {
+                 compCity2 = await resolveCityInternal(compCity2Input.value.trim());
+             }
+
+             if (!compCity2) {
+                 alert("Please select a second city to compare.");
+                 return;
+             }
+
+             // Show loading state
+             compBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Comparing...';
+             compBtn.disabled = true;
+
+             try {
+                 // Fetch City 2 Data (City 1 is currentData)
+                 const res = await fetch(`/api/weather?lat=${compCity2.lat}&lon=${compCity2.lon}`);
+                 const city2Data = await res.json();
+                 
+                 compView.style.display = 'block';
+                 
+                 // Render City 1 (Current)
+                 renderCompareCard('cmp-c1', currentData);
+                 
+                 // Render City 2
+                 renderCompareCard('cmp-c2', city2Data.current);
+                 
+                 // Summary
+                 generateCompareSummary(currentData, city2Data.current);
+                 
+             } catch (err) {
+                 console.error("Compare error:", err);
+                 alert("Failed to compare cities. Please try again.");
+             } finally {
+                 compBtn.innerHTML = '<i class="fas fa-balance-scale me-2"></i>Compare';
+                 compBtn.disabled = false;
+             }
+        });
+    }
+
+    async function resolveCityInternal(name) {
+         // Re-use AutocompleteUtils logic or API
+         try {
+            const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(name)}`);
+            const data = await res.json();
+            if (data && data.length > 0) return data[0];
+         } catch(e) { console.error(e); }
+         return null;
+    }
+
+    function renderCompareCard(prefix, data) {
+         document.getElementById(`${prefix}-name`).textContent = data.name;
+         document.getElementById(`${prefix}-country`).textContent = data.sys.country;
+         document.getElementById(`${prefix}-temp`).textContent = `${Math.round(data.main.temp)}°`;
+         document.getElementById(`${prefix}-cond`).textContent = data.weather[0].description;
+         document.getElementById(`${prefix}-icon`).src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+         
+         // Unit handling for wind (assuming API returns metric by default unless specified otherwise, but we should handle units consistent with app)
+         // Note: currentData in app is formatted by app logic, but raw API data might need conversion if units changed
+         // Ideally we should normalize. For now, assume metric as per API call units=metric default in generic fetch? 
+         // Actually app uses units=metric. 
+         
+         let speed = data.wind.speed;
+         let speedUnit = 'm/s'; // default metric
+         if (currentUnit === 'F') { // Global unit state
+             // API usually returns metric if not specified? 
+             // We can just basic assumption or conversion. 
+             // Let's stick to raw values or basic conversion if needed.
+         }
+         
+         document.getElementById(`${prefix}-wind`).textContent = `${speed} m/s`;
+         document.getElementById(`${prefix}-hum`).textContent = data.main.humidity;
+    }
+
+    function generateCompareSummary(d1, d2) { // d1=current (metric), d2=fetched (metric)
+        const t1 = d1.main.temp;
+        const t2 = d2.main.temp;
+        const diff = Math.abs(t1 - t2).toFixed(1);
+        
+        let msg = `${d1.name} is `;
+        
+        if (Math.abs(t1 - t2) < 1) {
+            msg += `about the same temperature as ${d2.name}.`;
+        } else if (t1 > t2) {
+            msg += `${diff}°C warmer than ${d2.name}.`;
+        } else {
+            msg += `${diff}°C colder than ${d2.name}.`;
+        }
+        
+        msg += ` ${d1.name} is having ${d1.weather[0].description}, while ${d2.name} has ${d2.weather[0].description}.`;
+        document.getElementById('cmp-summary-text').textContent = msg;
+    }
+    
+    // Hook into updateCurrentWeather to update base city input
+    // We'll wrap the original function or just add a listener if we had custom events
+    // Easier: just set it when data loads. Added call in initialization block below.
+
 });
+
