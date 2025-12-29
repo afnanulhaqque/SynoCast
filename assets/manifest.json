@@ -11,7 +11,7 @@
   "icons": [
     {
       "src": "/assets/logo/logo-small.svg",
-      "sizes": "200x200",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
@@ -19,7 +19,7 @@
       "src": "/assets/logo/logo-small.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      // "purpose": "any maskable"
     }
   ],
   "shortcuts": [
