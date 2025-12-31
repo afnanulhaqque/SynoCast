@@ -60,6 +60,30 @@ const WeatherUtils = {
     },
 
     /**
+     * Get weather scene image based on condition ID
+     * @param {number} id - OWM Condition ID
+     * @returns {string} Image filename
+     */
+    getWeatherSceneImage: function(id) {
+        let imgName = 'weather_scene_clear.png'; // Default
+
+        if (id >= 200 && id < 300) {
+            imgName = 'weather_scene_storm.png';
+        } else if (id >= 300 && id < 600) {
+            imgName = 'weather_scene_rain.png';
+        } else if (id >= 600 && id < 700) {
+            imgName = 'weather_scene_snow.png';
+        } else if (id >= 700 && id < 800) {
+            imgName = 'weather_scene_fog.png';
+        } else if (id === 800) {
+            imgName = 'weather_scene_clear.png';
+        } else if (id > 800) {
+            imgName = 'weather_scene_clouds.png';
+        }
+        return imgName;
+    },
+
+    /**
      * Converts Celsius to Fahrenheit
      * @param {number} celsius 
      * @returns {number}

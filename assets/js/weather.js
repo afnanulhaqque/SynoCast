@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             // Save to cache
-            localStorage.setItem('synocast_full_forecast_cache', JSON.stringify(data));
+            localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
 
             currentData = data.current;
             forecastData = data.forecast;
@@ -838,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Initialization ---
     // Check for cached data first
-    const cachedData = JSON.parse(localStorage.getItem('synocast_full_forecast_cache'));
+    const cachedData = JSON.parse(localStorage.getItem('synocast_weather_cache'));
     if (cachedData) {
         currentData = cachedData.current;
         forecastData = cachedData.forecast;
@@ -1336,20 +1336,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update Hero Image based on Temperature
         if (heroImg) {
-            let imgName = 'weather_scene_warm.png'; // Default
-
-            if (temp < 0) {
-                imgName = 'weather_scene_freezing.png';
-            } else if (temp >= 0 && temp < 10) {
-                imgName = 'weather_scene_cold.png';
-            } else if (temp >= 10 && temp <= 25) {
-                imgName = 'weather_scene_warm.png';
-            } else if (temp > 25) {
-                imgName = 'weather_scene_hot.png';
-            }
+            // Map Weather Condition to Image
+            const imgName = WeatherUtils.getWeatherSceneImage(conditionId);
             
             heroImg.src = `/assets/images/${imgName}`;
-            heroImg.alt = "Weather Scene"; // As requested
+            heroImg.alt = "Weather Scene - " + (isNight ? "Night" : "Day");
             
             // Make image visible (Override previous logic that hid it)
             heroImg.style.opacity = '1';

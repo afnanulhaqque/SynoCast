@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.current) {
                 // Save to cache
                 data.cityName = cityName;
-                localStorage.setItem('synocast_cached_weather', JSON.stringify(data));
+                localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
 
                 // Current Weather Data Mapping (OpenWeatherMap)
                 if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const { lat, lon, isCached } = detail;
         
         // Show cached weather if available
-        const cachedWeather = JSON.parse(localStorage.getItem('synocast_cached_weather'));
+        const cachedWeather = JSON.parse(localStorage.getItem('synocast_weather_cache'));
         if (cachedWeather && isCached) {
             renderWeatherData(cachedWeather);
         }
@@ -230,19 +230,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const imgEl = document.getElementById('home-weather-img');
         if (imgEl) {
             const temp = data.current.main.temp;
-            let imgName = 'weather_scene_warm.png'; // Default
+            const weatherId = data.current.weather[0].id; // Use ID for better accuracy
+            const main = data.current.weather[0].main.toLowerCase();
             
-            if (temp < 0) {
-                imgName = 'weather_scene_freezing.png';
-            } else if (temp >= 0 && temp < 10) {
-                imgName = 'weather_scene_cold.png';
-            } else if (temp >= 10 && temp <= 25) {
-                imgName = 'weather_scene_warm.png';
-            } else if (temp > 25) {
-                imgName = 'weather_scene_hot.png';
-            }
+            // Map Weather Condition to Image
+            const imgName = WeatherUtils.getWeatherSceneImage(weatherId);
             
             imgEl.src = `/assets/images/${imgName}`;
+            imgEl.alt = data.current.weather[0].main; 
         }
 
         if (data.forecast && forecastEl) {
@@ -262,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
     renderFavorites();
     
     // Check for cached weather on load
-    const initialCache = JSON.parse(localStorage.getItem('synocast_cached_weather'));
+    const initialCache = JSON.parse(localStorage.getItem('synocast_weather_cache'));
     if (initialCache) {
         renderWeatherData(initialCache);
     } else {
