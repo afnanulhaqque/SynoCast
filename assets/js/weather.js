@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if(heroIconEl) heroIconEl.className = `fas ${iconData.icon} fa-4x mb-2 ${iconData.animation} ${iconData.color}`;
             
             // Update Background
-            updateWeatherBackground(w.id, w.icon);
+            updateWeatherBackground(w.id, w.icon, current.main.temp);
 
             // Dispatch global event for other managers (Idioms, Currency, etc.)
             window.dispatchEvent(new CustomEvent('weatherDataLoaded', { 
@@ -1294,13 +1294,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updateWeatherBackground(conditionId, iconCode) {
+    function updateWeatherBackground(conditionId, iconCode, temp) {
         if (!heroCard) return;
+
+        // "Check" the current temperature as requested
+        const tempF = WeatherUtils.celsiusToFahrenheit(temp);
+        console.log(`Checking current temperature: ${Math.round(temp)}°C / ${Math.round(tempF)}°F`);
 
         const isNight = iconCode.includes('n');
         let bgClass = 'weather-bg-clear-day';
 
-        // Map condition IDs to background classes
+        // Map condition IDs to background classes (keeping for fallbacks/overlays)
         if (conditionId >= 200 && conditionId < 300) {
             bgClass = 'weather-bg-thunderstorm';
         } else if (conditionId >= 300 && conditionId < 400) {
@@ -1327,15 +1331,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const classesToRemove = Array.from(heroCard.classList).filter(c => c.startsWith('weather-bg-'));
         heroCard.classList.remove(...classesToRemove);
         
-        // Add new class
+        // Add new class (still used for gradient direction/fallback color)
         heroCard.classList.add(bgClass);
 
-        // Update image visibility - if background class exists, hide the static image
+        // Update Hero Image based on Temperature
         if (heroImg) {
-            heroImg.style.opacity = '0';
+            let imgName = 'weather_scene_warm.png'; // Default
+
+            if (temp < 0) {
+                imgName = 'weather_scene_freezing.png';
+            } else if (temp >= 0 && temp < 10) {
+                imgName = 'weather_scene_cold.png';
+            } else if (temp >= 10 && temp <= 25) {
+                imgName = 'weather_scene_warm.png';
+            } else if (temp > 25) {
+                imgName = 'weather_scene_hot.png';
+            }
+            
+            heroImg.src = `/assets/images/${imgName}`;
+            heroImg.alt = "Weather Scene"; // As requested
+            
+            // Make image visible (Override previous logic that hid it)
+            heroImg.style.opacity = '1';
         }
+
+        // Ensure overlay is there for text readability, but maybe adjust it?
         if (bgOverlay) {
             bgOverlay.style.display = 'block';
+             // You can tweak opacity here via style if needed, but CSS handles it usually
         }
     }
 

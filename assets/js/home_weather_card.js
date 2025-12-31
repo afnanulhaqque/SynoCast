@@ -225,6 +225,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const conditionEl = document.getElementById('home-condition');
             if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
         }
+        
+        // Update weather scene image based on temperature
+        const imgEl = document.getElementById('home-weather-img');
+        if (imgEl) {
+            const temp = data.current.main.temp;
+            let imgName = 'weather_scene_warm.png'; // Default
+            
+            if (temp < 0) {
+                imgName = 'weather_scene_freezing.png';
+            } else if (temp >= 0 && temp < 10) {
+                imgName = 'weather_scene_cold.png';
+            } else if (temp >= 10 && temp <= 25) {
+                imgName = 'weather_scene_warm.png';
+            } else if (temp > 25) {
+                imgName = 'weather_scene_hot.png';
+            }
+            
+            imgEl.src = `/assets/images/${imgName}`;
+        }
 
         if (data.forecast && forecastEl) {
             updateForecast(data.forecast, data.current.timezone);
