@@ -39,9 +39,10 @@
   <div id="weather-hero-card"
     class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card weather-bg-transition shadow-lg"
     style="min-height: 350px;" role="region" aria-label="Current Weather Summary">
-    <!-- Overlay removed as per user request -->
+    <div id="weather-bg-overlay" class="weather-bg-overlay"></div>
     <img id="weather-hero-img" src="/assets/images/banner-home.png"
-      class="position-absolute w-100 h-100 object-fit-cover" alt="" fetchpriority="high">
+      class="position-absolute w-100 h-100 object-fit-cover" alt="" style="filter: brightness(0.75);"
+      fetchpriority="high">
     <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
 
       <div class="row h-100">
