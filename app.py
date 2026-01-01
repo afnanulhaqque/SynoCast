@@ -1169,6 +1169,33 @@ def api_user_favorites():
             conn.commit()
         return jsonify({"success": True})
 
+
+@app.route("/pakistan")
+def pakistan_weather():
+    dt_info = utils.get_local_time_string()
+    
+    cities_file = os.path.join(app.root_path, 'assets', 'pakistan_cities.json')
+    cities_data = []
+    try:
+        with open(cities_file, 'r', encoding='utf-8') as f:
+            cities_data = json.load(f)
+    except Exception as e:
+        app.logger.error(f"Error loading cities data: {e}")
+        
+    seo_meta = {
+        "description": "Live weather updates for all major cities in Pakistan.",
+        "keywords": "Pakistan weather, Islamabad weather, Karachi weather, Lahore weather"
+    }
+    
+    # Pass data as JSON string for JS
+    return render_template(
+        "pakistan.html", 
+        active_page="pakistan", 
+        date_time_info=dt_info,
+        cities_json=json.dumps(cities_data),
+        meta=seo_meta
+    )
+
 @app.route("/api/update-session-location", methods=["POST"])
 def update_session_location():
     """Update server-side session with client-granted location info."""
@@ -1219,6 +1246,21 @@ def api_ip_location():
         app.logger.error(f"IP Location error: {e}")
         return jsonify({"status": "fail", "message": str(e)}), 500
 
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# Configure robust retry strategy
+retry_strategy = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["HEAD", "GET", "OPTIONS"]
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+http_session = requests.Session()
+http_session.mount("https://", adapter)
+http_session.mount("http://", adapter)
+
 @app.route("/api/weather")
 @limiter.limit("30 per minute")
 def api_weather():
@@ -1248,22 +1290,45 @@ def api_weather():
         pollution_url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
 
         # Using more workers for better concurrency
+        current_data = {}
+        forecast_data = {}
+        pollution_data = {}
+        
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            future_current = executor.submit(requests.get, current_url, timeout=5)
-            future_forecast = executor.submit(requests.get, forecast_url, timeout=5)
-            future_pollution = executor.submit(requests.get, pollution_url, timeout=5)
+            # We use the session with retries here
+            future_current = executor.submit(http_session.get, current_url, timeout=5)
+            future_forecast = executor.submit(http_session.get, forecast_url, timeout=5)
+            future_pollution = executor.submit(http_session.get, pollution_url, timeout=5)
 
-            current_res = future_current.result()
-            forecast_res = future_forecast.result()
-            pollution_res = future_pollution.result()
+            # Process Current Weather (Critical)
+            try:
+                current_res = future_current.result()
+                current_res.raise_for_status()
+                current_data = current_res.json()
+            except Exception as e:
+                app.logger.error(f"Failed to fetch current weather: {e}")
+                # If current weather fails, the whole request is basically useless, so we might still want to error out 
+                # OR return what we have? Usually current weather is critical.
+                return jsonify({"error": "Failed to fetch current weather data"}), 502
 
-        current_res.raise_for_status()
-        forecast_res.raise_for_status()
-        pollution_res.raise_for_status()
+            # Process Forecast (Critical)
+            try:
+                forecast_res = future_forecast.result()
+                forecast_res.raise_for_status()
+                forecast_data = forecast_res.json()
+            except Exception as e:
+                app.logger.error(f"Failed to fetch forecast: {e}")
+                forecast_data = {} # Fallback? Or fail? Let's fail for now if main forecast fails, as it's core.
+                return jsonify({"error": "Failed to fetch forecast data"}), 502
 
-        current_data = current_res.json()
-        forecast_data = forecast_res.json()
-        pollution_data = pollution_res.json()
+            # Process Pollution (Non-Critical - Graceful Degradation)
+            try:
+                pollution_res = future_pollution.result()
+                pollution_res.raise_for_status()
+                pollution_data = pollution_res.json()
+            except Exception as e:
+                app.logger.warning(f"Failed to fetch air pollution (non-critical): {e}")
+                pollution_data = None # Frontend should handle null pollution
 
         result = {
             "current": current_data,
@@ -1280,7 +1345,7 @@ def api_weather():
         return jsonify(result)
 
     except Exception as e:
-        app.logger.error(f"OpenWeatherMap API error: {e}")
+        app.logger.error(f"OpenWeatherMap API General error: {e}")
         return jsonify({"error": "Failed to fetch weather data"}), 500
 
 

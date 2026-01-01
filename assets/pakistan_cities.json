@@ -1,0 +1,1472 @@
+[
+  {
+    "locode": "PK AAW",
+    "name": "Abbottabad",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ADP",
+    "name": "Ahmadpur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ARF",
+    "name": "Arifwala",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ATG",
+    "name": "Attock",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ATY",
+    "name": "Attock City",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BDN",
+    "name": "Badin",
+    "subdiv": "",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BAG",
+    "name": "Bagh/AJK",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WGB",
+    "name": "Bahawalnagar",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BHV",
+    "name": "Bahawalpur",
+    "subdiv": "PB",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BNP",
+    "name": "Bannu",
+    "subdiv": "KP",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BPR",
+    "name": "Bhai Pheru",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BKR",
+    "name": "Bhakkar",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BWL",
+    "name": "Bhalwal",
+    "subdiv": "PB",
+    "function": "--3-----",
+    "coordinates": "3216N 07252E"
+  },
+  {
+    "locode": "PK BHM",
+    "name": "Bhimber",
+    "subdiv": "JK",
+    "function": "--3-----",
+    "coordinates": "3258N 07404E"
+  },
+  {
+    "locode": "PK BHC",
+    "name": "Bhurban",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BRW",
+    "name": "Burewala",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CWP",
+    "name": "Campbellpore",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CKW",
+    "name": "Chakwal",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CMN",
+    "name": "Chaman",
+    "subdiv": "BA",
+    "function": "-23----B",
+    "coordinates": "3055N 06626E"
+  },
+  {
+    "locode": "PK CGM",
+    "name": "Changa Manga",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CSD",
+    "name": "Charsadda",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CCE",
+    "name": "Chichawatni",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CCM",
+    "name": "Chichoki Mallian",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CHB",
+    "name": "Chilas",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CSI",
+    "name": "Chishtian",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK CJL",
+    "name": "Chitral",
+    "subdiv": "KP",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DDU",
+    "name": "Dadu",
+    "subdiv": "SD",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DRK",
+    "name": "Daharki",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DBA",
+    "name": "Dalbandin",
+    "subdiv": "BA",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DKA",
+    "name": "Daska",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DEA",
+    "name": "Dera Ghazi Khan",
+    "subdiv": "PB",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DSK",
+    "name": "Dera Ismail Khan",
+    "subdiv": "KP",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK DIR",
+    "name": "Dir",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LYP",
+    "name": "Faisalabad",
+    "subdiv": "PB",
+    "function": "-234-6--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK FZB",
+    "name": "Faizabad",
+    "subdiv": "KP",
+    "function": "--3-----",
+    "coordinates": "3423N 07145E"
+  },
+  {
+    "locode": "PK GAD",
+    "name": "Gadoon",
+    "subdiv": "IS",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GHB",
+    "name": "Garhi Habibullah Khan",
+    "subdiv": "KP",
+    "function": "--3--6--",
+    "coordinates": "3424N 07323E"
+  },
+  {
+    "locode": "PK GHK",
+    "name": "Ghakhar",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GHT",
+    "name": "Ghotki",
+    "subdiv": "SD",
+    "function": "--3-----",
+    "coordinates": "2801N 06919E"
+  },
+  {
+    "locode": "PK GIL",
+    "name": "Gilgit",
+    "subdiv": "GB",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GKN",
+    "name": "Gujar Khan",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GRW",
+    "name": "Gujranwala",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GRT",
+    "name": "Gujrat",
+    "subdiv": "PB",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK GWD",
+    "name": "Gwadar",
+    "subdiv": "BA",
+    "function": "1-34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HFD",
+    "name": "Hafizabad",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HPR",
+    "name": "Haripur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HRU",
+    "name": "Haripur Hazara",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HAS",
+    "name": "Hasilpur",
+    "subdiv": "PB",
+    "function": "-----6--",
+    "coordinates": "2945N 07138E"
+  },
+  {
+    "locode": "PK HSN",
+    "name": "Hassanabdal",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HVN",
+    "name": "Havelian",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HAY",
+    "name": "Hayatabad",
+    "subdiv": "KP",
+    "function": "-----6--",
+    "coordinates": "3416N 07141E"
+  },
+  {
+    "locode": "PK HUB",
+    "name": "Hub",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK HDD",
+    "name": "Hyderabad",
+    "subdiv": "SD",
+    "function": "-234-6--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ISB",
+    "name": "Islamabad",
+    "subdiv": "IS",
+    "function": "--345---",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JAG",
+    "name": "Jacobabad",
+    "subdiv": "SD",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JLP",
+    "name": "Jalalpur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JAM",
+    "name": "Jam Shoro",
+    "subdiv": "SD",
+    "function": "--3-----",
+    "coordinates": "2526N 06820E"
+  },
+  {
+    "locode": "PK JRD",
+    "name": "Jamrud",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JNW",
+    "name": "Jaranwala",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JLM",
+    "name": "Jhal Magsi",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JNG",
+    "name": "Jhang",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JHC",
+    "name": "Jhang City",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JMR",
+    "name": "Jhelum",
+    "subdiv": "PB",
+    "function": "-23-----",
+    "coordinates": "3256N 07344E"
+  },
+  {
+    "locode": "PK JIW",
+    "name": "Jiwani",
+    "subdiv": "BA",
+    "function": "1-34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK JGS",
+    "name": "Jungshahi",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KBW",
+    "name": "Kabirwala",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KCF",
+    "name": "Kadanwari",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KBH",
+    "name": "Kalat",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KML",
+    "name": "Kamalia",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KMB",
+    "name": "Kambar",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KHI",
+    "name": "Karachi",
+    "subdiv": "SD",
+    "function": "12345---",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KYC",
+    "name": "Karachi City",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KCT",
+    "name": "Karachi Container Terminal",
+    "subdiv": "SD",
+    "function": "1-------",
+    "coordinates": "2450N 06658E"
+  },
+  {
+    "locode": "PK PZK",
+    "name": "Karachi Freight Terminal",
+    "subdiv": "SD",
+    "function": "-----6--",
+    "coordinates": "2452N 06702E"
+  },
+  {
+    "locode": "PK KZL",
+    "name": "Kashmor",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KUS",
+    "name": "Kasur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KBA",
+    "name": "Keti Bandar",
+    "subdiv": "",
+    "function": "1-------",
+    "coordinates": "2408N 06726E"
+  },
+  {
+    "locode": "PK KBU",
+    "name": "Keti Bunder",
+    "subdiv": "SD",
+    "function": "1-3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KHP",
+    "name": "Khairpur",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KWL",
+    "name": "Khanewal",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KPR",
+    "name": "Khanpur",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK QKH",
+    "name": "Kharian",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KWA",
+    "name": "Khewra",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KPO",
+    "name": "Khipro",
+    "subdiv": "SD",
+    "function": "--3-----",
+    "coordinates": "2550N 06922E"
+  },
+  {
+    "locode": "PK KRB",
+    "name": "Khokhropar",
+    "subdiv": "SD",
+    "function": "-23-----",
+    "coordinates": "2542N 07011E"
+  },
+  {
+    "locode": "PK KHB",
+    "name": "Khushab",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KDD",
+    "name": "Khuzdar",
+    "subdiv": "BA",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KHW",
+    "name": "Khwazakhela",
+    "subdiv": "KP",
+    "function": "--3-----",
+    "coordinates": "3456N 07228E"
+  },
+  {
+    "locode": "PK KIA",
+    "name": "Kiamari",
+    "subdiv": "SD",
+    "function": "1-------",
+    "coordinates": "2449N 06658E"
+  },
+  {
+    "locode": "PK OHT",
+    "name": "Kohat",
+    "subdiv": "KP",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KHC",
+    "name": "Kohat Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KLU",
+    "name": "Kohlu",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ADK",
+    "name": "Kot Addu",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LPK",
+    "name": "Kot Lakhpat",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KOL",
+    "name": "Kotli/AJK",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KOT",
+    "name": "Kotri",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LHE",
+    "name": "Lahore",
+    "subdiv": "PB",
+    "function": "-23456--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LRC",
+    "name": "Lahore Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LKM",
+    "name": "Lakki Marwat",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LLM",
+    "name": "Lala Mosa",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LND",
+    "name": "Landhi",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LRK",
+    "name": "Larkana",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LSB",
+    "name": "Lasbela",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LON",
+    "name": "Lodhran",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK LRG",
+    "name": "Lora Lai",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MKD",
+    "name": "Malakand",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MBD",
+    "name": "Mandi Bahauddin",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MBW",
+    "name": "Mandi Burewala",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MAN",
+    "name": "Mangla",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": "3154N 07223E"
+  },
+  {
+    "locode": "PK HRA",
+    "name": "Mansehra",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MDX",
+    "name": "Mardan",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MLI",
+    "name": "Matli",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MHR",
+    "name": "Mehrabpur",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MYH",
+    "name": "Mian Channu",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MWD",
+    "name": "Mianwali",
+    "subdiv": "PB",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MNG",
+    "name": "Mingaora",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MPD",
+    "name": "Mirpur Khas (= Sindhri)",
+    "subdiv": "SD",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MRP",
+    "name": "Mirpur Mathelo",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MPR",
+    "name": "Mirpur/AJK",
+    "subdiv": "JK",
+    "function": "--3-----",
+    "coordinates": "3308N 07345E"
+  },
+  {
+    "locode": "PK MGP",
+    "name": "Mogulpura/Lahore",
+    "subdiv": "PB",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MJD",
+    "name": "Mohenjodaro",
+    "subdiv": "SD",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MOR",
+    "name": "Moro",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK BQM",
+    "name": "Muhammad Bin Qasim/Karachi",
+    "subdiv": "SD",
+    "function": "1-------",
+    "coordinates": "2446N 06720E"
+  },
+  {
+    "locode": "PK MUX",
+    "name": "Multan",
+    "subdiv": "PB",
+    "function": "-234-6--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MUL",
+    "name": "Multan Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MXC",
+    "name": "Multan City",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MDK",
+    "name": "Muridke",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MFG",
+    "name": "Muzaffarabad",
+    "subdiv": "JK",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK MZJ",
+    "name": "Muzaffargarh",
+    "subdiv": "PB",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK NNS",
+    "name": "Nankana Sahib",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK NRW",
+    "name": "Narowal",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WNS",
+    "name": "Nawabshah",
+    "subdiv": "SD",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK NZB",
+    "name": "Nazimabad",
+    "subdiv": "SD",
+    "function": "--3-----",
+    "coordinates": "2554N 06701E"
+  },
+  {
+    "locode": "PK NDD",
+    "name": "Nok Kundi",
+    "subdiv": "BA",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK NSR",
+    "name": "Nowshera",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK NHS",
+    "name": "Nushki",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK OKR",
+    "name": "Okara",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK OKC",
+    "name": "Okara Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ORW",
+    "name": "Ormara",
+    "subdiv": "BA",
+    "function": "1-34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PBI",
+    "name": "Pabbi",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PCT",
+    "name": "Pakistan International Container Terminal/Karachi",
+    "subdiv": "",
+    "function": "1-------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PJG",
+    "name": "Panjgur",
+    "subdiv": "BA",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PNL",
+    "name": "Pano Aqil",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PAJ",
+    "name": "Para Chinar",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PSI",
+    "name": "Pasni",
+    "subdiv": "BA",
+    "function": "1-34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PTO",
+    "name": "Pattoki",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PEW",
+    "name": "Peshawar",
+    "subdiv": "KP",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PSC",
+    "name": "Peshawar Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PSH",
+    "name": "Peshawar City",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PON",
+    "name": "Poonch/AJK",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK QCT",
+    "name": "Qasim International Container Terminal/Karachi",
+    "subdiv": "",
+    "function": "1-------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK QSM",
+    "name": "Qasimabad",
+    "subdiv": "PB",
+    "function": "--3-----",
+    "coordinates": "3030N 07236E"
+  },
+  {
+    "locode": "PK QSP",
+    "name": "Qila Sheikhupura",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK UET",
+    "name": "Quetta",
+    "subdiv": "BA",
+    "function": "-23456--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK RYK",
+    "name": "Rahim Yar Khan",
+    "subdiv": "PB",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK RND",
+    "name": "Raiwind",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK RJP",
+    "name": "Rajanpur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK RAZ",
+    "name": "Rawala Kot",
+    "subdiv": "JK",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK RWP",
+    "name": "Rawalpindi",
+    "subdiv": "PB",
+    "function": "-23456--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK REQ",
+    "name": "Reko Diq",
+    "subdiv": "JK",
+    "function": "---4----",
+    "coordinates": "2849N 06442E"
+  },
+  {
+    "locode": "PK RCS",
+    "name": "Risalpur Cantt",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ROH",
+    "name": "Rohri",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SDK",
+    "name": "Sadikabad",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SWN",
+    "name": "Sahiwal",
+    "subdiv": "",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SDT",
+    "name": "Saidu Sharif",
+    "subdiv": "KP",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SMA",
+    "name": "Samasata",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SMB",
+    "name": "Sambrial",
+    "subdiv": "",
+    "function": "--3--6--",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SMD",
+    "name": "Sammundri",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SNG",
+    "name": "Sanghar",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SLL",
+    "name": "Sangla Hill",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SGI",
+    "name": "Sargodha",
+    "subdiv": "",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ZEO",
+    "name": "Savi Ragha",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SAW",
+    "name": "Sawan",
+    "subdiv": "SD",
+    "function": "--3-----",
+    "coordinates": "2433N 06737E"
+  },
+  {
+    "locode": "PK SYW",
+    "name": "Sehwen Sharif",
+    "subdiv": "",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SXG",
+    "name": "Serai Alamgir",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SQR",
+    "name": "Shabqadar",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SHK",
+    "name": "Shahdadkot",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SDU",
+    "name": "Shahdadpur",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SDR",
+    "name": "Shahdara Bagh",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SHI",
+    "name": "Shamsi Airfield",
+    "subdiv": "BA",
+    "function": "--34----",
+    "coordinates": "2751N 06510E"
+  },
+  {
+    "locode": "PK SKP",
+    "name": "Sheikhupura",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SWV",
+    "name": "Shikarpur",
+    "subdiv": "",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SRK",
+    "name": "Shorkot",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SKO",
+    "name": "Shorkot Cantt",
+    "subdiv": "",
+    "function": "-2------",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SKT",
+    "name": "Sialkot",
+    "subdiv": "PB",
+    "function": "-234-6--",
+    "coordinates": "3230N 07431E"
+  },
+  {
+    "locode": "PK SBQ",
+    "name": "Sibi",
+    "subdiv": "",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK KDU",
+    "name": "Skardu",
+    "subdiv": "JK",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SUL",
+    "name": "Sui",
+    "subdiv": "BA",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SKZ",
+    "name": "Sukkur",
+    "subdiv": "SD",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SWB",
+    "name": "Swabi",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK SWT",
+    "name": "Swat",
+    "subdiv": "KP",
+    "function": "--3-----",
+    "coordinates": "3406N 07142E"
+  },
+  {
+    "locode": "PK TFT",
+    "name": "Taftan",
+    "subdiv": "BA",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TLG",
+    "name": "Talagang",
+    "subdiv": "PB",
+    "function": "--3-----",
+    "coordinates": "3255N 07225E"
+  },
+  {
+    "locode": "PK TNA",
+    "name": "Tando Adam",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TDA",
+    "name": "Tando Allahyar",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TLB",
+    "name": "Tarbela",
+    "subdiv": "KP",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TXA",
+    "name": "Taxilla",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK THT",
+    "name": "Thatta",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TMG",
+    "name": "Timargara",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TTS",
+    "name": "Toba Tek Singh",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TOR",
+    "name": "Torkham",
+    "subdiv": "KP",
+    "function": "-23----B",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK TUK",
+    "name": "Turbat",
+    "subdiv": "BA",
+    "function": "--34----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK VHR",
+    "name": "Vehari",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WGH",
+    "name": "Wagah",
+    "subdiv": "PB",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WAH",
+    "name": "Wah",
+    "subdiv": "",
+    "function": "-23-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WAF",
+    "name": "Wana",
+    "subdiv": "",
+    "function": "---4----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK WSK",
+    "name": "Warsak",
+    "subdiv": "TA",
+    "function": "--3-----",
+    "coordinates": "3410N 07125E"
+  },
+  {
+    "locode": "PK WZA",
+    "name": "Wazirabad",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK PZH",
+    "name": "Zhob",
+    "subdiv": "BA",
+    "function": "-234----",
+    "coordinates": ""
+  },
+  {
+    "locode": "PK ZRT",
+    "name": "Ziarat",
+    "subdiv": "",
+    "function": "--3-----",
+    "coordinates": ""
+  }
+]

@@ -13,9 +13,6 @@ const AutocompleteUtils = {
         { name: "Berlin", country: "DE", lat: 52.5200, lon: 13.4050 },
         { name: "Toronto", country: "CA", lat: 43.6532, lon: -79.3832 },
         { name: "Mumbai", country: "IN", lat: 19.0760, lon: 72.8777 },
-        { name: "Islamabad", country: "PK", lat: 33.6844, lon: 73.0479 },
-        { name: "Karachi", country: "PK", lat: 24.8607, lon: 67.0011 },
-        { name: "Lahore", country: "PK", lat: 31.5204, lon: 74.3587 },
         { name: "Beijing", country: "CN", lat: 39.9042, lon: 116.4074 },
         { name: "Moscow", country: "RU", lat: 55.7558, lon: 37.6173 },
         { name: "Rome", country: "IT", lat: 41.9028, lon: 12.4964 },
@@ -52,11 +49,6 @@ const AutocompleteUtils = {
         { name: "Lisbon", country: "PT", lat: 38.7223, lon: -9.1393 },
         { name: "Dublin", country: "IE", lat: 53.3498, lon: -6.2603 },
         { name: "Copenhagen", country: "DK", lat: 55.6761, lon: 12.5683 },
-        { name: "Rawalpindi", country: "PK", lat: 33.5651, lon: 73.0169 },
-        { name: "Multan", country: "PK", lat: 30.1575, lon: 71.5249 },
-        { name: "Peshawar", country: "PK", lat: 34.0151, lon: 71.5249 },
-        { name: "Quetta", country: "PK", lat: 30.1798, lon: 66.9750 },
-        { name: "Faisalabad", country: "PK", lat: 31.4504, lon: 73.1350 }
     ],
 
     initAutocomplete(searchInput, searchResults, onSelectCallback) {
@@ -194,6 +186,26 @@ const AutocompleteUtils = {
             });
         }
         searchResults.classList.remove('d-none');
+    },
+    async loadPakistanCities() {
+        try {
+            const res = await fetch('/assets/pakistan_cities.json');
+            if (res.ok) {
+                const cities = await res.json();
+                cities.forEach(city => {
+                     // Check if already in dataset to avoid duplicates
+                     const exists = this.CITY_DATASET.some(c => c.name === city.name && c.country === city.country);
+                     if (!exists) {
+                         this.CITY_DATASET.push(city);
+                     }
+                });
+                console.log("Loaded Pakistan cities:", cities.length);
+            }
+        } catch (e) {
+            console.error("Failed to load Pakistan cities:", e);
+        }
     }
 };
 window.AutocompleteUtils = AutocompleteUtils;
+// Load external data immediately
+AutocompleteUtils.loadPakistanCities();
