@@ -14,6 +14,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/assets/logo/icon-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -79,8 +85,10 @@
       "screenshots": [],
       "icons": [
         {
-          "src": "/assets/logo/logo-small.png",
-          "sizes": "512x512"
+          "src": "/assets/logo/icon-512.png?v=2",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any maskable"
         }
       ]
     }
