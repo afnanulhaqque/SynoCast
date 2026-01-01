@@ -568,6 +568,21 @@ def health_check():
         }
     })
 
+@app.context_processor
+def inject_global_news():
+    """Inject breaking weather news into all templates for the global ticker."""
+    try:
+        # Fetch a few global headlines for the ticker
+        headlines = utils.fetch_weather_news(
+            query="weather breaking", 
+            page_size=5, 
+            api_key=NEWS_API_KEY
+        )
+        return dict(global_headlines=headlines)
+    except Exception as e:
+        app.logger.error(f"Error injecting global news: {e}")
+        return dict(global_headlines=[])
+
 @app.route("/")
 def home():
     dt_info = utils.get_local_time_string()

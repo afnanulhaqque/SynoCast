@@ -3804,7 +3804,9 @@ body {
 .btn-outline-search {
   border: 2px solid #e9ecef !important;
 }
-.initially-hidden { display: none; }
+.initially-hidden {
+  display: none;
+}
 /* =========================================
    Weather Page Styles
    ========================================= */
@@ -3986,4 +3988,84 @@ body {
 
 .font-size-sm-custom {
   font-size: 0.95rem;
+}
+
+/* News Ticker Styles */
+.news-ticker-wrapper {
+  display: flex;
+  background-color: var(--primary-color);
+  color: white;
+  height: 40px;
+  overflow: hidden;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ticker-title {
+  background-color: #dc3545; /* Bootstrap danger / Breaking news red */
+  color: white;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.ticker-content {
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.ticker-items {
+  display: flex;
+  animation: ticker-scroll 40s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-items:hover {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 50px;
+}
+
+.ticker-item a {
+  color: #e0e0e0;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.ticker-item a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.ticker-time {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-right: 8px;
+  color: #aaa;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

@@ -159,6 +159,33 @@
             </div>
         </nav>
 
+        {% if global_headlines %}
+        <div class="news-ticker-wrapper">
+            <div class="ticker-title">Breaking News</div>
+            <div class="ticker-content">
+                <div class="ticker-items">
+                    {% for article in global_headlines %}
+                    <div class="ticker-item">
+                        <a href="{{ article.url }}" target="_blank">
+                            <span class="ticker-time">{{ article.publishedAt[:10] }}</span>
+                            {{ article.title }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                    <!-- Duplicate for seamless loop -->
+                    {% for article in global_headlines %}
+                    <div class="ticker-item">
+                        <a href="{{ article.url }}" target="_blank">
+                            <span class="ticker-time">{{ article.publishedAt[:10] }}</span>
+                            {{ article.title }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% block body %}
 
         {% endblock body %}
