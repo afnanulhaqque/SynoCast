@@ -207,6 +207,78 @@ def fetch_weather_news(query="weather", country=None, page_size=10, api_key=None
         logger.error(f"News fetch error: {e}")
         return []
 
+def fetch_gnews_weather(query="weather", page_size=10, api_key=None):
+    """
+    Fetch weather news using GNews API.
+    Used specifically for Pakistan weather news as per user request.
+    """
+    if not api_key:
+        logger.warning("No GNews API key provided.")
+        return get_dummy_news()
+
+    cache_key = f"gnews_{query}_{page_size}"
+    if cache_key in NEWS_CACHE:
+        cached = NEWS_CACHE[cache_key]
+        if datetime.now().timestamp() - cached["timestamp"] < NEWS_CACHE_DURATION:
+            return cached["articles"]
+
+    try:
+        # GNews endpoint
+        url = "https://gnews.io/api/v4/search"
+        
+        # Construct query: ensure 'Pakistan' and 'weather' are prioritized
+        # The user specifically requested "Pakistani Weather news"
+        if "pakistan" not in query.lower():
+            q = f"{query} AND Pakistan"
+        else:
+            q = query
+            
+        params = {
+            "q": q,
+            "lang": "en",
+            "max": page_size,
+            "apikey": api_key,
+            "country": "pk" # Prioritize Pakistan
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if not response.ok:
+            logger.error(f"GNews API error: {response.status_code} - {response.text}")
+            return get_dummy_news()
+            
+        data = response.json()
+        raw_articles = data.get("articles", [])
+        
+        formatted_articles = []
+        for a in raw_articles:
+            formatted_articles.append({
+                "title": a.get("title"),
+                "description": a.get("description"),
+                "url": a.get("url"),
+                "urlToImage": a.get("image"), # GNews uses 'image' instead of 'urlToImage'
+                "publishedAt": a.get("publishedAt"),
+                "source": {"name": a.get("source", {}).get("name")},
+                "location": "Pakistan", # Explicitly set for Pakistan news
+                "urgency": "Medium" # Default urgency
+            })
+            
+        # Cache results
+        NEWS_CACHE[cache_key] = {
+            "timestamp": datetime.now().timestamp(),
+            "articles": formatted_articles
+        }
+        
+        if not formatted_articles:
+             return get_dummy_news()
+             
+        return formatted_articles
+
+    except Exception as e:
+        logger.error(f"GNews fetch error: {e}")
+        return get_dummy_news()
+
+
 def categorize_news_with_ai(articles, api_key):
     """
     Uses Gemini to filter for weather-only content and categorize articles.

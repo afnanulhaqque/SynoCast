@@ -604,8 +604,11 @@ def home():
     }
     
     # Latest Headlines
-    raw_latest = utils.fetch_weather_news(query=local_query, page_size=15, api_key=news_key)
-    # If local news empty, try general weather news
+    # Latest Headlines - Specifcally Pakistan Weather via GNews as per request
+    gnews_key = os.environ.get("GNEWS_API_KEY")
+    raw_latest = utils.fetch_gnews_weather(query="Pakistan weather", page_size=10, api_key=gnews_key)
+    
+    # Fallback to general news if GNews returns empty (though fetch_gnews_weather already has a fallback)
     if not raw_latest:
         raw_latest = utils.fetch_weather_news(query="weather news headlines breaking", page_size=10, api_key=news_key)
         
@@ -636,7 +639,15 @@ def news():
     }
     
     # Fetch a larger pool of news to categorize and filter
-    raw_news = utils.fetch_weather_news(query="weather news headlines breaking global", page_size=20, api_key=NEWS_API_KEY)
+    gnews_key = os.environ.get("GNEWS_API_KEY")
+    
+    # Fetch a larger pool of news to categorize and filter
+    # User requested 'news page where class is Latest Headlines' to use GNews with Pakistan filter.
+    # Assuming the main news feed is the target.
+    raw_news = utils.fetch_gnews_weather(query="Pakistan weather", page_size=15, api_key=gnews_key)
+    # Fallback to NewsAPI if needed 
+    if not raw_news or (raw_news and raw_news[0].get('source', {}).get('name') == 'SynoNews'):
+         raw_news = utils.fetch_weather_news(query="weather news headlines breaking global", page_size=20, api_key=NEWS_API_KEY)
     all_categorized = utils.categorize_news_with_ai(raw_news, gemini_key)
     
     # Breaking News: High/Critical urgency
