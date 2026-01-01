@@ -604,7 +604,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const forecastAnalyticsEl = document.getElementById('forecast-analytics');
     const forecastExtendedEl = document.getElementById('forecast-extended');
     const forecastInsightsEl = document.getElementById('forecast-insights');
+    const forecastGlobalEl = document.getElementById('forecast-global');
     const tabInsights = document.getElementById('tab-insights');
+    const tabGlobal = document.getElementById('tab-global');
     
     // Analytics Chart Instances
     let analyticsTempChart = null;
@@ -625,12 +627,14 @@ document.addEventListener('DOMContentLoaded', function() {
         resetTab(tabAnalytics);
         resetTab(tabExtended);
         resetTab(tabInsights);
+        resetTab(tabGlobal);
 
         forecastTodayEl?.classList.add('d-none');
         forecastWeekEl?.classList.add('d-none');
         forecastAnalyticsEl?.classList.add('d-none');
         forecastExtendedEl?.classList.add('d-none');
         forecastInsightsEl?.classList.add('d-none');
+        forecastGlobalEl?.classList.add('d-none');
 
         if (tab === 'today') {
             forecastTodayEl?.classList.remove('d-none');
@@ -678,6 +682,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentData) {
                 fetchAIInsights(currentData.coord.lat, currentData.coord.lon);
             }
+        } else if (tab === 'global') {
+            forecastGlobalEl?.classList.remove('d-none');
+            if (tabGlobal) {
+                tabGlobal.classList.remove('text-muted');
+                tabGlobal.classList.add('text-dark');
+                tabGlobal.style.opacity = '1';
+            }
         }
     }
 
@@ -686,6 +697,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabAnalytics) tabAnalytics.addEventListener('click', () => switchTab('analytics'));
     if (tabExtended) tabExtended.addEventListener('click', () => switchTab('extended'));
     if (tabInsights) tabInsights.addEventListener('click', () => switchTab('insights'));
+    if (tabGlobal) tabGlobal.addEventListener('click', () => switchTab('global'));
 
     // --- Alignment Fix for Analytics ---
     // Ensure charts resize correctly if container changes

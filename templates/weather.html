@@ -14,6 +14,113 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <div class="container weather-page mt-5 mb-5">
+  <style>
+    /* Global Explorer Styles */
+    .city-card {
+      transition: transform 0.2s;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .city-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .weather-icon-large {
+      width: 60px;
+      height: 60px;
+    }
+
+    .temp-large {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .alphabet-filter {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+
+    .letter-btn {
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      cursor: pointer;
+      font-weight: 600;
+      color: #555;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .letter-btn:hover {
+      background-color: #f0f0f0;
+      border-color: #ccc;
+    }
+
+    .letter-btn.active {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .letter-btn.disabled {
+      opacity: 0.5;
+      cursor: default;
+      background-color: #f9f9f9;
+      pointer-events: none;
+    }
+
+    /* Pagination & Skeleton Styles */
+    .pagination .page-link {
+      color: var(--primary-color);
+      border: none;
+      margin: 0 2px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+      color: #ccc;
+      pointer-events: none;
+    }
+
+    .loading-skeleton {
+      animation: skeleton-loading 1s linear infinite alternate;
+      background-color: #e0e0e0;
+      color: transparent;
+      border-radius: 4px;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-color: #e0e0e0;
+      }
+
+      100% {
+        background-color: #f5f5f5;
+      }
+    }
+  </style>
+
   <div class="row align-items-center mb-4 g-3">
     <div class="col-md-7 col-lg-8">
       <h2 class="fw-bold mb-1" data-t="weather_forecast">Weather Forecast</h2>
@@ -96,17 +203,19 @@
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 forecast-header-controls">
       <div class="d-flex gap-4 align-items-baseline" role="tablist">
-        <h4 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1"
+        <h5 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1"
           role="tab" aria-selected="true" aria-controls="forecast-today" tabindex="0">
-          Today</h4>
-        <h4 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
-          aria-selected="false" aria-controls="forecast-week" tabindex="0">Weekly</h4>
-        <h4 id="tab-analytics" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
-          aria-selected="false" aria-controls="forecast-analytics" tabindex="0">Analytics</h4>
-        <h4 id="tab-extended" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
-          aria-selected="false" aria-controls="forecast-extended" tabindex="0">Extended</h4>
-        <h4 id="tab-insights" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
-          aria-selected="false" aria-controls="forecast-insights" tabindex="0">AI Insights</h4>
+          Today</h5>
+        <h5 id="tab-week" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-week" tabindex="0">Weekly</h5>
+        <h5 id="tab-analytics" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-analytics" tabindex="0">Analytics</h5>
+        <h5 id="tab-extended" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-extended" tabindex="0">Extended</h5>
+        <h5 id="tab-insights" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-insights" tabindex="0">AI Insights</h5>
+        <h5 id="tab-global" class="fw-bold mb-0 text-muted cursor-pointer opacity-50 pb-1" role="tab"
+          aria-selected="false" aria-controls="forecast-global" tabindex="0">Global Explorer</h5>
       </div>
       <div class="unit-toggle-group">
         <button id="btn-celsius" class="btn btn-unit active">°C</button>
@@ -301,6 +410,56 @@
   </div>
 
 
+  <!-- Global Explorer Section -->
+  <div id="forecast-global" class="d-none mb-5">
+    <div class="row mb-4 justify-content-center">
+      <div class="col-md-5 mb-3 mb-md-0">
+        <select id="ge-countrySelect" class="form-select form-select-lg" aria-label="Select Country">
+          <option value="" selected disabled>Select a Country...</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <div class="input-group input-group-lg">
+          <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+          <input type="text" id="ge-citySearch" class="form-control border-start-0 ps-0" placeholder="Filter cities..."
+            disabled>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alphabet Filter -->
+    <div class="row mb-5 justify-content-center d-none" id="ge-alphabetRow">
+      <div class="col-12">
+        <div class="alphabet-filter" id="ge-alphabetFilter"></div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="ge-loader" class="text-center d-none my-5">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+      <p class="mt-2 text-muted" id="ge-loaderText">Loading cities...</p>
+    </div>
+
+    <!-- Cities Grid -->
+    <div class="row g-4" id="ge-citiesGrid"></div>
+
+    <!-- Empty State -->
+    <div id="ge-emptyState" class="text-center my-5">
+      <div class="display-1 text-muted mb-3"><i class="fas fa-globe-americas"></i></div>
+      <h4>Start Exploring</h4>
+      <p class="text-muted">Select a country to view weather.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-5 d-none" id="ge-paginationContainer">
+      <div class="col-12 d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+          <ul class="pagination" id="ge-pagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
 
 
 
@@ -483,6 +642,7 @@
 </div>
 
 <script src="/assets/js/weather.js"></script>
+<script src="/assets/js/global_weather_tab.js"></script>
 
 
 {% endblock body %}
