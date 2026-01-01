@@ -385,7 +385,7 @@ def init_db():
                 """
             )
             
-            # Weather reports table removed
+
 
             
             # User preferences for alerts and global settings
@@ -434,10 +434,10 @@ def init_db():
                 
             conn.commit()
 
-            # Check weather_reports columns removed
 
 
-            # Weather Photos Table removed
+
+
 
             
             # Favorite Locations Table
@@ -502,7 +502,7 @@ def init_db():
                 """
             )
 
-            # Gamification Tables removed
+
 
 
 
@@ -905,7 +905,7 @@ def api_learn_trivia():
         {"q": "Where is the wettest place on Earth?", "options": ["Mawsynram, India", "Cherrapunji, India", "Kauai, Hawaii"], "a": 0, "expl": "Mawsynram receives the highest average annual rainfall."},
         {"q": "What is the calm center of a hurricane called?", "options": ["The Eye", "The Core", "The Hub"], "a": 0, "expl": "The eye is a region of mostly calm weather at the center of strong tropical cyclones."}
     ]
-    import random
+
     return jsonify(random.choice(questions))
 
 

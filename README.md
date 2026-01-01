@@ -12,53 +12,85 @@
 
 ---
 
+## 🚀 Why SynoCast? What Makes Us Different?
+
+Most weather apps just dump numbers on you—"25°C, 60% humidity." SynoCast is different because it **understands** the weather.
+
+### 🧠 1. AI-Driven Storytelling, Not Just Data
+
+Instead of static icons, SynoCast uses **Gemini 2.0 Flash** to analyze complex weather metrics in real-time. It tells you _what_ the weather means for your day:
+
+- **"Is it safe to drive?"**: It analyzes wind, rain, and visibility to give safety ratings.
+- **Health Insights**: It correlates pressure, humidity, and UV levels to warn about migraines, arthritis flare-ups, or respiratory risks.
+- **Smart News**: It reads hundreds of global articles and filters out the noise, presenting only the "Critical" or "High Impact" climate stories relevant to you.
+
+### 🌍 2. Global Context & Travel Intelligence
+
+We don't just show you the weather in Paris; we help you **plan your trip** there:
+
+- **Smart Packing Lists**: Generates custom packing checklists based on the specific forecast (e.g., "Bring a heavy coat, snow expected").
+- **Currency & Culture**: Integrated real-time currency conversion and local weather idioms to help you blend in.
+- **3D Weather Exploration**: Explore global weather patterns (wind, clouds, rain) on an interactive 3D globe.
+
+### ⏱️ 3. Deep Historical Context
+
+Is today unusually hot? SynoCast checks **30 years of climate comparisons** to tell you if what you're experiencing is normal or a climate anomaly.
+
+---
+
 ## 🌟 Key Features
-
-### 🧠 AI-Powered Insights (SynoBot)
-
-- **Context-Aware Chat:** Ask "What should I wear for my evening run?" or "Is it safe to drive to the coast?" and get answers based on real-time weather conditions.
-- **Smart News Delivery:** We analyze hundreds of global articles to filter out noise, categorizing news into "Severe Alerts," "Climate Events," and "Impact Stories" with an AI-assigned urgency score.
-- **Crisis Advice:** When severe weather strikes, the AI generates specific, actionable safety advice for your exact location.
 
 ### 🔮 Advanced Forecasting
 
-- **Extended Precision:** 8-day daily forecasts and 48-hour hourly breakdowns.
-- **Astronomy Studio:** Track Golden Hours for photography, Moon Phases, and precise Sunrise/Sunset times.
-- **Climate Context:** Compare today's weather with 30-year climate normals to see if it's unseasonably hot or cold (powered by Open-Meteo).
-- **Interactive Maps:** Layered visualization for clouds, precipitation, temperature, and wind speed.
+- **Extended Precision**: 8-day daily forecasts and 48-hour hourly breakdowns.
+- **Astronomy Studio**: Track Golden Hours for photography, Moon Phases, and precise Sunrise/Sunset times.
+- **Interactive Maps**: Layered visualization for clouds, precipitation, temperature, and wind speed.
 
-### ✈️ Global Travel Mode
+### 🤖 SynoBot
 
-- **Currency Intelligence:** Real-time exchange rates integrated with travel weather planning.
-- **Cultural Wisdom:** Discover local weather idioms and sayings relevant to the current conditions and language.
-- **Timezone Sync:** Automatic timezone detection and adjustment for any location worldwide.
+- **Context-Aware Chat**: specialized AI chatbot that knows your current location's weather context. Ask it anything from "Can I BBQ tonight?" to "Explain the jet stream."
 
-### 👤 User & Community
+### ✈️ Travel Mode
 
-- **Personalized Dashboard:** Customize your experience with preferred units, activity interests (hiking, photography, etc.), and alert thresholds.
-- **Location Bookmarks:** Save and manage favorite locations for quick access.
-- **Crowdsourced Reports:** Contribute to community weather accuracy by verifying conditions on the ground.
-- **Smart Alerts:** Subscribe to email or push notifications for specific triggers (Rain, Temperature spikes, Air Quality).
+- **Destination dashboard**: Weather, packing tips, and local insights in one view.
+- **Timezone Sync**: Automatic timezone detection and adjustment.
 
 ### 📱 Progressive Web App (PWA)
 
-- **Offline Capable:** View cached forecasts and basic data even without an internet connection.
-- **Installable:** Add to your home screen for a native app-like experience on mobile and desktop.
-- **Background Sync:** Keep data fresh with periodic background synchronization (supported browsers only).
+- **Installable**: Works like a native app on mobile and desktop.
+- **Offline Capable**: View cached forecasts even without internet.
+- **Push Notifications**: Receive critical weather alerts and daily summaries.
+
+---
+
+## 📂 Project Structure
+
+```
+SynoCast/
+├── app.py              # Main Flask application entry point
+├── utils.py            # Helper functions, AI logic, and data processing
+├── scrape_cities.py    # Utility to scrape city data
+├── assets/             # Static files
+│   ├── css/            # Modern CSS with glassmorphism design
+│   ├── js/             # Frontend logic (Chart.js, Maps, PWA)
+│   └── icons/          # Weather icons and assets
+├── templates/          # Jinja2 HTML templates
+│   ├── home.html       # Main dashboard
+│   ├── weather.html    # Detailed local forecast
+│   ├── map.html        # 3D Globe view
+│   └── ...
+└── subscriptions.db    # SQLite database for user prefs and alerts
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Python (Flask), SQLite
-- **Frontend:** HTML5, Modern CSS (Glassmorphism), JavaScript (Vanilla ES6+)
-- **AI Engine:** Google Generative AI (Gemini 2.0 Flash Exp)
-- **APIs & Data Sources:**
-  - **Weather:** OpenWeatherMap (One Call 3.0 & Standard), Open-Meteo (Historical/Climate)
-  - **News:** NewsAPI.org
-  - **Geocoding:** Nominatim (OSM), ipapi.co
-  - **Communication:** Resend (Email), PyWebPush (Push Notifications)
-- **Security:** Flask-SeaSurf (CSRF), Flask-Talisman (CSP), Flask-Limiter
+- **Backend**: Python (Flask), SQLite
+- **Frontend**: HTML5, Modern CSS (Glassmorphism), JavaScript (Vanilla ES6+)
+- **AI Engine**: Google Generative AI (Gemini 2.0 Flash Exp)
+- **APIs & Data Sources**: OpenWeatherMap, Open-Meteo, NewsAPI, Nominatim
+- **Security**: Flask-SeaSurf (CSRF), Flask-Talisman (CSP), Flask-Limiter
 
 ---
 
@@ -68,6 +100,7 @@
 
 - Python 3.10 or higher
 - A standard terminal or PowerShell
+- API Keys for OpenWeatherMap, Google Gemini, and NewsAPI.
 
 ### Installation
 
@@ -82,10 +115,8 @@
 
    ```bash
    python -m venv .venv
-
    # Windows
    .venv\Scripts\activate
-
    # macOS/Linux
    source .venv/bin/activate
    ```
@@ -96,32 +127,30 @@
    pip install -r requirements.txt
    ```
 
-4. **Configuration**
-   Create a `.env` file in the root directory:
+4. **Configuration (.env)**
+   Create a `.env` file in the root directory. You can use the example below:
 
    ```env
-   # Core
-   FLASK_SECRET_KEY=your_secure_random_string
+   # Core Security
+   FLASK_SECRET_KEY=your_secure_random_string_here
 
-   # APIs
+   # External APIs (Required)
    OPENWEATHER_API_KEY=your_owm_key
    GEMINI_API_KEY=your_google_ai_studio_key
    NEWS_API_KEY=your_newsapi_key
 
-   # Email & Push
-   RESEND_API_KEY=your_resend_key
+   # Email & Push (Optional - for alerts)
+   RESEND_API_KEY=your_resend_email_key
    REPLY_TO_EMAIL=support@yourdomain.com
    VAPID_PRIVATE_KEY=your_generated_private_key
    VAPID_PUBLIC_KEY=your_generated_public_key
    ```
 
-   > **Note:** VAPID keys are required for Push Notifications. You can generate them using `pywebpush`.
-
 5. **Run the Application**
    ```bash
    python app.py
    ```
-   Access at `http://127.0.0.1:5000`.
+   Access the app at `http://127.0.0.1:5000`.
 
 ---
 
@@ -129,31 +158,11 @@
 
 SynoCast exposes several internal endpoints used by the frontend:
 
-### Weather & Data
-
-- `GET /api/weather?lat={lat}&lon={lon}` - Current, 5-day forecast, and pollution data.
-- `GET /api/weather/extended?lat={lat}&lon={lon}` - 8-day daily, 48-hour hourly, and astronomy data.
-- `GET /api/weather/history?lat={lat}&lon={lon}` - Historical weather trends.
-- `GET /api/weather/analytics?lat={lat}&lon={lon}` - Aggregated data for charts.
-
-### AI & Intelligence
-
-- `POST /api/ai_chat` - Send a message to SynoBot with location context.
-- `GET /api/idioms` - Get weather-related cultural sayings.
-
-### Utilities
-
-- `GET /api/geocode/search?q={query}` - Forward geocoding.
-- `GET /api/geocode/reverse?lat={lat}&lon={lon}` - Reverse geocoding.
-- `GET /api/currency/rates` - Latest exchange rates.
-
----
-
-## ⚠️ Troubleshooting
-
-- **One Call API Errors:** The "Extended" forecast relies on OpenWeatherMap's One Call 3.0 subscription. If you are on a free tier, the app automatically falls back to a simulated mode using standard forecast data.
-- **Database Locks:** SQLite handles local concurrency well but may lock during heavy write operations. Ensure no other tool is holding the DB open.
-- **Offline Mode:** Requires HTTPS (or localhost) for Service Workers to register.
+- `GET /api/weather?lat={lat}&lon={lon}`: Current weather & forecast.
+- `GET /api/weather/health?lat={lat}&lon={lon}`: AI-generated health insights.
+- `GET /api/weather/extended?lat={lat}&lon={lon}`: 8-day forecast & astronomy.
+- `GET /api/weather/analytics?lat={lat}&lon={lon}`: Aggregated data for charts.
+- `GET /api/travel/packing-list?destination={city}`: AI-generated packing list.
 
 ---
 
