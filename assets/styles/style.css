@@ -767,28 +767,7 @@ a.footer-text-link:hover {
 
 /* Small-screen adjustments */
 @media (max-width: 480px) {
-  .chatbot_form {
-    flex-wrap: wrap;
-    justify-content: flex-end; /* Align buttons to right */
-    padding: 1rem;
-  }
-
-  .chatbot_form .form-control {
-    width: 100%; /* Input takes full width */
-    margin-bottom: 0.5rem; /* Space below input */
-  }
-
-  /* Reset buttons to auto width so they sit inline */
-  .chatbot_form .modal_primary_btn,
-  .chatbot_form #chatbot_voice_btn {
-    width: auto !important;
-    margin-top: 0 !important; /* Reset margin */
-  }
-
-  .chatbot_form #chatbot_voice_btn {
-    margin-left: 0 !important;
-    margin-right: 0.5rem !important; /* Spacing between voice and send */
-  }
+  /* Removed chatbot_form mobile overrides to maintain single-row layout */
   .chatbot-modal-dialog {
     width: 100%;
     right: 0;

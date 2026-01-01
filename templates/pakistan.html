@@ -45,7 +45,7 @@
 
 <script>
     // Embed the cities data passed from Flask
-    const ALL_CITIES = {{ cities_json | safe }};
+    const ALL_CITIES = {{ cities_json | default ('[]') | safe }};
     const ITEMS_PER_PAGE = 12;
     let currentPage = 1;
     let filteredCities = [...ALL_CITIES];
