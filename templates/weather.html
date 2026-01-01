@@ -14,112 +14,7 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <div class="container weather-page mt-5 mb-5">
-  <style>
-    /* Global Explorer Styles */
-    .city-card {
-      transition: transform 0.2s;
-      height: 100%;
-      border: none;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
 
-    .city-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .weather-icon-large {
-      width: 60px;
-      height: 60px;
-    }
-
-    .temp-large {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #333;
-    }
-
-    .alphabet-filter {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 5px;
-      margin-bottom: 20px;
-    }
-
-    .letter-btn {
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background-color: white;
-      cursor: pointer;
-      font-weight: 600;
-      color: #555;
-      transition: all 0.2s;
-      user-select: none;
-    }
-
-    .letter-btn:hover {
-      background-color: #f0f0f0;
-      border-color: #ccc;
-    }
-
-    .letter-btn.active {
-      background-color: var(--primary-color);
-      color: white;
-      border-color: var(--primary-color);
-    }
-
-    .letter-btn.disabled {
-      opacity: 0.5;
-      cursor: default;
-      background-color: #f9f9f9;
-      pointer-events: none;
-    }
-
-    /* Pagination & Skeleton Styles */
-    .pagination .page-link {
-      color: var(--primary-color);
-      border: none;
-      margin: 0 2px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .pagination .page-item.active .page-link {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .pagination .page-item.disabled .page-link {
-      color: #ccc;
-      pointer-events: none;
-    }
-
-    .loading-skeleton {
-      animation: skeleton-loading 1s linear infinite alternate;
-      background-color: #e0e0e0;
-      color: transparent;
-      border-radius: 4px;
-    }
-
-    @keyframes skeleton-loading {
-      0% {
-        background-color: #e0e0e0;
-      }
-
-      100% {
-        background-color: #f5f5f5;
-      }
-    }
-  </style>
 
   <div class="row align-items-center mb-4 g-3">
     <div class="col-md-7 col-lg-8">
@@ -136,20 +31,18 @@
           <input type="text" id="weather-search-input" class="form-control border-0 py-2 pe-3"
             placeholder="Search city (e.g., New York)" autocomplete="off">
         </div>
-        <div id="weather-search-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
-          style="z-index: 1050; background: white; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 15px;">
+        <div id="weather-search-results" class="position-absolute w-100 shadow-lg mt-1 d-none search-results-dropdown">
         </div>
       </div>
     </div>
   </div>
 
   <div id="weather-hero-card"
-    class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card weather-bg-transition shadow-lg"
-    style="min-height: 350px;" role="region" aria-label="Current Weather Summary">
+    class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card weather-bg-transition shadow-lg weather-hero-min-h"
+    role="region" aria-label="Current Weather Summary">
     <div id="weather-bg-overlay" class="weather-bg-overlay"></div>
     <img id="weather-hero-img" src="/assets/images/banner-home.png"
-      class="position-absolute w-100 h-100 object-fit-cover" alt="" style="filter: brightness(0.75);"
-      fetchpriority="high">
+      class="position-absolute w-100 h-100 object-fit-cover brightness-75" alt="" fetchpriority="high">
     <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
 
       <div class="row h-100">
@@ -159,8 +52,8 @@
               <h1 id="weather-city" class="display-4 fw-bold mb-0 skeleton">---</h1>
               <!-- Favorite Heart Button -->
               <button id="btn-favorite"
-                class="btn btn-link text-white p-0 opacity-50 hover-opacity-100 transition-opacity"
-                title="Add to Favorites" style="display: none;">
+                class="btn btn-link text-white p-0 opacity-50 hover-opacity-100 transition-opacity initially-hidden"
+                title="Add to Favorites">
                 <i class="far fa-heart fa-2x"></i>
               </button>
             </div>
@@ -236,7 +129,7 @@
         <div class="col-md-6">
           <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
             <h5 class="fw-bold mb-3">Temperature Trend (5 Days)</h5>
-            <div class="chart-container" style="position: relative; height: 250px;">
+            <div class="chart-container chart-container-lg">
               <canvas id="analyticsTempChart"></canvas>
             </div>
           </div>
@@ -244,7 +137,7 @@
         <div class="col-md-6">
           <div class="card border-0 rounded-4 shadow-sm p-4 h-100">
             <h5 class="fw-bold mb-3">Precipitation Probability</h5>
-            <div class="chart-container" style="position: relative; height: 250px;">
+            <div class="chart-container chart-container-lg">
               <canvas id="analyticsPrecipChart"></canvas>
             </div>
           </div>
@@ -252,7 +145,7 @@
         <div class="col-12">
           <div class="card border-0 rounded-4 shadow-sm p-4">
             <h5 class="fw-bold mb-3">Expected Rainfall Volume (Total)</h5>
-            <div class="chart-container" style="position: relative; height: 200px;">
+            <div class="chart-container chart-container-sm">
               <canvas id="analyticsRainChart"></canvas>
             </div>
           </div>
@@ -338,7 +231,7 @@
         <h5 class="fw-bold mb-4"><i class="fas fa-chart-line text-primary me-2"></i>Weather Impact Predictions</h5>
         <div class="row g-4" id="impact-container">
           <div class="col-md-4">
-            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #f0f7fc;">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card bg-impact-traffic">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold mb-0">Traffic Impact</h6>
                 <i class="fas fa-car-side text-primary"></i>
@@ -349,7 +242,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #e8f5e9;">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card bg-impact-aqi">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold mb-0">Air Quality Index</h6>
                 <i class="fas fa-wind text-success"></i>
@@ -360,7 +253,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card" style="background: #fff8e1;">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100 impact-card bg-impact-pollen">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold mb-0">Pollen Count</h6>
                 <i class="fas fa-seedling text-warning"></i>
@@ -502,16 +395,15 @@
         </div>
 
         <!-- Comparison View (Hidden initially) -->
-        <div id="comparison-result-view" style="display: none;">
+        <div id="comparison-result-view" class="initially-hidden">
           <div class="row g-4 mb-4">
             <!-- City 1 Card -->
             <div class="col-md-6">
-              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3"
-                style="border-top: 4px solid var(--primary-color) !important;">
+              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3 border-top-primary-4">
                 <h5 class="fw-bold mb-0" id="cmp-c1-name">--</h5>
                 <p class="text-muted small" id="cmp-c1-country">--</p>
 
-                <img id="cmp-c1-icon" src="" alt="" class="mx-auto my-2" style="width: 60px;">
+                <img id="cmp-c1-icon" src="" alt="" class="mx-auto my-2 cmp-icon">
 
                 <h3 class="fw-bold mb-0 text-primary" id="cmp-c1-temp">--°</h3>
                 <p class="small text-muted" id="cmp-c1-cond">--</p>
@@ -525,12 +417,11 @@
 
             <!-- City 2 Card -->
             <div class="col-md-6">
-              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3"
-                style="border-top: 4px solid var(--accent-news) !important;">
+              <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-3 border-top-accent-4">
                 <h5 class="fw-bold mb-0" id="cmp-c2-name">--</h5>
                 <p class="text-muted small" id="cmp-c2-country">--</p>
 
-                <img id="cmp-c2-icon" src="" alt="" class="mx-auto my-2" style="width: 60px;">
+                <img id="cmp-c2-icon" src="" alt="" class="mx-auto my-2 cmp-icon">
 
                 <h3 class="fw-bold mb-0 text-danger" id="cmp-c2-temp">--°</h3>
                 <p class="small text-muted" id="cmp-c2-cond">--</p>
@@ -561,7 +452,7 @@
       <h4 class="fw-bold mb-4">Daily Statistics</h4>
       <div class="row g-4">
         <div class="col-md-4">
-          <div class="card border-0 rounded-4 p-4 shadow-sm h-100" style="background: #f8f9fa;">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100 bg-stats-card">
             <p id="weather-highlight-date" class="fw-bold small text-muted mb-3">Today's Range</p>
             <div class="d-flex justify-content-between">
               <div class="text-center">
@@ -578,7 +469,7 @@
         </div>
 
         <div class="col-md-4">
-          <div class="card border-0 rounded-4 p-4 shadow-sm h-100" style="background: #f8f9fa;">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100 bg-stats-card">
             <p class="fw-bold small text-muted mb-2">Variation</p>
             <h3 id="weather-highlight-variation" class="fw-bold mb-0">--°</h3>
             <small class="text-muted">Temperature delta today</small>
@@ -586,8 +477,7 @@
         </div>
 
         <div class="col-md-4">
-          <div class="card border-0 rounded-4 p-4 shadow-sm h-100"
-            style="background: #f0f7fc; border-left: 5px solid var(--primary-color) !important;">
+          <div class="card border-0 rounded-4 p-4 shadow-sm h-100 border-left-primary-5">
             <div class="d-flex align-items-center mb-2">
               <i class="fas fa-wind text-primary me-2"></i>
               <p class="fw-bold small text-muted mb-0">Air Quality</p>
@@ -599,8 +489,7 @@
 
         <!-- Health Insights Section -->
         <div class="col-12 mt-4">
-          <div class="card border-0 rounded-4 p-4 shadow-sm"
-            style="background: #fffcf8; border-left: 5px solid var(--accent-news) !important;">
+          <div class="card border-0 rounded-4 p-4 shadow-sm border-left-accent-5">
             <div class="d-flex align-items-center mb-3">
               <i class="fas fa-hand-holding-medical text-warning me-2"></i>
               <p class="fw-bold small text-muted mb-0">Health & Wellness</p>

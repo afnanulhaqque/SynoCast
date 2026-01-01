@@ -5,16 +5,15 @@
 
 {% block body %}
 
-<div class="position-relative w-100 home-banner-container" style="height: 50vh;">
-  <img src="/assets/images/banner-home-real.png" class="w-100 h-100 position-absolute top-0 start-0" alt="Banner"
-    style="z-index: -1; object-fit: cover; object-position: center; filter: blur(3px) brightness(0.9);"
-    fetchpriority="high">
-  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="z-index: -1; opacity: 0.2;"></div>
+<div class="position-relative w-100 home-banner-container home-banner-h">
+  <img src="/assets/images/banner-home-real.png" class="w-100 h-100 position-absolute top-0 start-0 banner-bg-img"
+    alt="Banner" fetchpriority="high">
+  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark banner-overlay"></div>
 
   <div class="container h-100">
     <div class="row h-100 align-items-center">
       <div class="col-lg-6 text-white pb-5">
-        <h1 class="fw-bold display-3 mb-3" style="text-shadow: 0 2px-10px rgba(0,0,0,0.3);">SynoCast</h1>
+        <h1 class="fw-bold display-3 mb-3 shadow-text-lg">SynoCast</h1>
         <p class="fs-4 fw-light lh-sm">
           Your Weather, Your Journey: Always a Step Ahead with Our
           <span class="fw-bold">Weather Forecasting App!</span>
@@ -24,10 +23,10 @@
   </div>
 </div>
 
-<div class="container position-relative" style="margin-top: -250px; z-index: 10;">
+<div class="container position-relative home-content-container">
   <div class="row">
-    <div class="col-lg-6" style="padding-top: 280px;">
-      <div style="max-width: 450px;">
+    <div class="col-lg-6 pt-280">
+      <div class="mw-450">
         <h2 class="h3 mb-4 lh-base">Stay prepared for upcoming weather with <span class="fw-bold">daily weather
             news.</span></h2>
         <a href="/news" class="btn btn_explore rounded-pill border-2 fw-semibold text-decoration-none">Explore</a>
@@ -35,13 +34,12 @@
     </div>
 
     <div class="col-lg-6 d-flex flex-column align-items-center align-items-lg-end">
-      <div class="bg-white rounded-4 shadow-lg p-0 mb-5 overflow-hidden" style="width: 350px;">
+      <div class="bg-white rounded-4 shadow-lg p-0 mb-5 overflow-hidden w-350">
         {% include 'sub_banner_card.html' %}
       </div>
 
       <!-- AI Recommendations Widget -->
-      <div id="ai-recs-widget" class="card border-0 rounded-4 shadow-lg p-4 mb-5 d-none"
-        style="width: 350px; background: var(--primary-color); color: white;">
+      <div id="ai-recs-widget" class="card border-0 rounded-4 shadow-lg p-4 mb-5 d-none ai-recs-widget">
         <div class="d-flex align-items-center mb-3">
           <i class="fas fa-robot me-2"></i>
           <h5 class="fw-bold mb-0">AI Insights</h5>
@@ -51,7 +49,7 @@
         </div>
       </div>
 
-      <div class="text-center text-lg-end mt-4" style="max-width: 400px;">
+      <div class="text-center text-lg-end mt-4 mw-400">
         <h2 class="h3 fw-bold mb-3">Don't guess the weather.</h2>
         <p class="text-muted mb-4">Real-time forecasts and AI insights for your location and across the world.</p>
         <a href="/weather" class="btn btn_get_started rounded-pill fw-semibold text-decoration-none">Get started</a>
@@ -61,8 +59,7 @@
 </div>
 
 <div class="position-relative mt-5">
-  <img src="/assets/images/banner-news-dark.png" class="img-fluid banner_image w-100" alt="Banner"
-    style="max-height: 400px; object-fit: cover; filter: blur(3px) brightness(0.9);" />
+  <img src="/assets/images/banner-news-dark.png" class="img-fluid banner_image w-100 news-banner-img" alt="Banner" />
   <div
     class="position-absolute bottom-0 start-50 translate-middle-x text-white banner_image_text banner_image_text_news">
     <h2 class="fw-bold lh-1">SynoCast<span class="fs-6">.news</span></h2>
@@ -97,8 +94,7 @@
         <div class="position-relative">
           <img
             src="{{ latest_news[0].urlToImage if latest_news[0].urlToImage else '/assets/images/sub-banner-news.png' }}"
-            class="card-img-top" alt="{{ latest_news[0].title }}" style="height: 400px; object-fit: cover;"
-            loading="lazy" decoding="async">
+            class="card-img-top news-card-img-lg" alt="{{ latest_news[0].title }}" loading="lazy" decoding="async">
           <div class="position-absolute top-0 start-0 m-3">
             <span
               class="badge rounded-pill bg-{{ 'danger' if latest_news[0].urgency == 'Critical' else 'warning' if latest_news[0].urgency == 'High' else 'info' if latest_news[0].urgency == 'Medium' else 'secondary' }} px-3">
@@ -126,7 +122,7 @@
           <div class="row g-0 align-items-center">
             <div class="col-4">
               <img src="{{ article.urlToImage if article.urlToImage else '/assets/images/breaking-news-1.png' }}"
-                class="img-fluid" alt="News" style="height: 120px; width: 100%; object-fit: cover;" loading="lazy">
+                class="img-fluid news-card-img-sm" alt="News" loading="lazy">
             </div>
             <div class="col-8">
               <div class="card-body p-3">
@@ -135,7 +131,7 @@
                     }}</span>
                   <span class="x-small text-muted">{{ article.publishedAt[:10] }}</span>
                 </div>
-                <h6 class="fw-bold mb-1" style="font-size: 0.95rem;">{{ article.title[:85] }}...</h6>
+                <h6 class="fw-bold mb-1 font-size-sm-custom">{{ article.title[:85] }}...</h6>
                 <a href="{{ article.url }}" target="_blank"
                   class="text-primary fw-bold text-decoration-none x-small">Read More →</a>
               </div>

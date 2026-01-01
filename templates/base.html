@@ -251,7 +251,7 @@
                     <div class="chatbot_wrapper">
                         <div class="chatbot_messages" id="chatbot_messages" aria-live="polite">
                             <!-- Messages will appear here -->
-                            <div class="typing-indicator" id="modal-typing-indicator" style="display: none;">
+                            <div class="typing-indicator initially-hidden">
                                 <span></span><span></span><span></span>
                             </div>
                         </div>
@@ -301,14 +301,13 @@
     <!-- Location Permission Modal -->
     <div class="modal fade" id="locationPermissionModal" tabindex="-1" aria-labelledby="locationPermissionModalLabel"
         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-            <div class="modal-content text-center p-3 p-md-4 border-0 shadow-lg" style="border-radius: 24px;">
+        <div class="modal-dialog modal-dialog-centered location-modal-dialog">
+            <div class="modal-content text-center p-3 p-md-4 border-0 shadow-lg location-modal-content">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <div class="bg-light-purple rounded-circle d-inline-flex align-items-center justify-content-center"
-                            style="width: 70px; height: 70px;">
-                            <span class="material-icons text-primary"
-                                style="font-size: 2.5rem; color: var(--primary-color) !important;">&#xe0c8;</span>
+                        <div
+                            class="bg-light-purple rounded-circle d-inline-flex align-items-center justify-content-center location-icon-circle">
+                            <span class="material-icons text-primary location-icon-lg">&#xe0c8;</span>
                         </div>
                     </div>
                     <h4 class="modal-title mb-2 fw-bold" id="locationPermissionModalLabel">Enable Location</h4>
@@ -319,12 +318,12 @@
                     </p>
                     <div class="d-grid gap-2">
                         <button type="button" class="btn modal_primary_btn w-100" id="btn-enable-location">
-                            <span class="material-icons me-2"
-                                style="font-size: 1.2rem; vertical-align: middle;">&#xe1b4;</span>
+                            <span class="material-icons me-2 location-btn-icon">&#xe1b4;</span>
                             Enable Location
                         </button>
-                        <button type="button" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-medium"
-                            id="btn-search-manually" data-bs-dismiss="modal" style="border: 2px solid #e9ecef;">
+                        <button type="button"
+                            class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-medium btn-outline-search"
+                            id="btn-search-manually" data-bs-dismiss="modal">
                             Search Manually
                         </button>
                         <button type="button" class="btn btn-link text-decoration-none text-muted"

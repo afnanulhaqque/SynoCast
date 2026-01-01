@@ -355,7 +355,7 @@ NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
 VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY")
 VAPID_CLAIMS = {
-    "sub": f"mailto:{os.environ.get('REPLY_TO_EMAIL', 'admin@synocast.app')}"
+    "sub": f"mailto:{os.environ.get('REPLY_TO_EMAIL', 'support@synocast.app')}"
 }
 
 @contextmanager
@@ -3411,27 +3411,11 @@ def unhandled_exception(e):
     return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
 
 
-import scrape_cities
 
-@app.route("/admin")
-def admin_dashboard():
-    # In a real app, add auth check here!
-    # if 'user_email' not in session or not is_admin(session['user_email']):
-    #     return redirect(url_for('home'))
-    return render_template("admin.html", active_page="admin", date_time_info=utils.get_local_time_string())
 
-@app.route("/api/admin/scrape", methods=["POST"])
-def api_admin_scrape():
-    # Trigger scraping
-    try:
-        result = scrape_cities.scrape_cities()
-        if result["success"]:
-            return jsonify(result)
-        else:
-            return jsonify(result), 500
-    except Exception as e:
-        app.logger.error(f"Scraping error: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+
+
+
 
 if __name__ == "__main__":
     # Start weather alert background task (only in local development)
@@ -3443,8 +3427,6 @@ if __name__ == "__main__":
         daily_thread = threading.Thread(target=trigger_daily_forecast_webhooks, daemon=True)
         daily_thread.start()
         
-        # Auto-scrape on startup (Background)
-        scrape_thread = threading.Thread(target=scrape_cities.scrape_cities, daemon=True)
-        scrape_thread.start()
+
         
     app.run(debug=True)
