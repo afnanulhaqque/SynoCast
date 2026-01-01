@@ -338,6 +338,7 @@ talisman = Talisman(
 )
 
 WEATHER_CACHE = {}
+CITY_CACHE = {}
 CACHE_DURATION = 600
 
 if os.environ.get("VERCEL"):
@@ -741,6 +742,41 @@ def api_travel_search():
     except Exception as e:
          app.logger.error(f"Travel API Error: {e}")
          return jsonify({"error": "Failed to fetch weather data"}), 500
+
+
+@app.route('/api/proxy/cities', methods=['POST'])
+def api_proxy_cities():
+    """Proxy for countriesnow.space city data to avoid CORS"""
+    data = request.json
+    country = data.get('country')
+    if not country:
+        return jsonify({"error": "Country is required"}), 400
+
+    # Cache key
+    cache_key = f"cities_{country.lower()}"
+    if cache_key in CITY_CACHE:
+         app.logger.info(f"Serving cities for {country} from cache")
+         return jsonify({"data": CITY_CACHE[cache_key]})
+
+    try:
+        url = "https://countriesnow.space/api/v0.1/countries/cities"
+        res = requests.post(url, json={"country": country}, timeout=10)
+        
+        if res.ok:
+            json_data = res.json()
+            if not json_data.get('error'):
+                cities = json_data.get('data', [])
+                # Cache it
+                CITY_CACHE[cache_key] = cities
+                return jsonify({"data": cities})
+            else:
+                return jsonify({"error": json_data.get("msg")}), 400
+        else:
+             return jsonify({"error": "Failed to fetch from upstream"}), res.status_code
+             
+    except Exception as e:
+        app.logger.error(f"City Proxy Error: {e}")
+        return jsonify({"error": "Internal Proxy Error"}), 500
 
 
 @app.route('/api/currency/convert')
@@ -1170,29 +1206,19 @@ def api_user_favorites():
         return jsonify({"success": True})
 
 
-@app.route("/pakistan")
-def pakistan_weather():
+@app.route("/global-weather")
+def global_weather():
     dt_info = utils.get_local_time_string()
     
-    cities_file = os.path.join(app.root_path, 'assets', 'pakistan_cities.json')
-    cities_data = []
-    try:
-        with open(cities_file, 'r', encoding='utf-8') as f:
-            cities_data = json.load(f)
-    except Exception as e:
-        app.logger.error(f"Error loading cities data: {e}")
-        
     seo_meta = {
-        "description": "Live weather updates for all major cities in Pakistan.",
-        "keywords": "Pakistan weather, Islamabad weather, Karachi weather, Lahore weather"
+        "description": "Explore real-time weather updates for any city in the world.",
+        "keywords": "Global weather, world weather, city forecast, international weather"
     }
     
-    # Pass data as JSON string for JS
     return render_template(
-        "pakistan.html", 
-        active_page="pakistan", 
+        "global_weather.html", 
+        active_page="global_weather", 
         date_time_info=dt_info,
-        cities_json=json.dumps(cities_data),
         meta=seo_meta
     )
 
@@ -3465,6 +3491,28 @@ def unhandled_exception(e):
     return render_template("500.html", date_time_info=utils.get_local_time_string(), active_page="404"), 500
 
 
+import scrape_cities
+
+@app.route("/admin")
+def admin_dashboard():
+    # In a real app, add auth check here!
+    # if 'user_email' not in session or not is_admin(session['user_email']):
+    #     return redirect(url_for('home'))
+    return render_template("admin.html", active_page="admin", date_time_info=utils.get_local_time_string())
+
+@app.route("/api/admin/scrape", methods=["POST"])
+def api_admin_scrape():
+    # Trigger scraping
+    try:
+        result = scrape_cities.scrape_cities()
+        if result["success"]:
+            return jsonify(result)
+        else:
+            return jsonify(result), 500
+    except Exception as e:
+        app.logger.error(f"Scraping error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 if __name__ == "__main__":
     # Start weather alert background task (only in local development)
     # Note: Background threads don't work on Vercel's serverless platform
@@ -3474,4 +3522,9 @@ if __name__ == "__main__":
         
         daily_thread = threading.Thread(target=trigger_daily_forecast_webhooks, daemon=True)
         daily_thread.start()
+        
+        # Auto-scrape on startup (Background)
+        scrape_thread = threading.Thread(target=scrape_cities.scrape_cities, daemon=True)
+        scrape_thread.start()
+        
     app.run(debug=True)

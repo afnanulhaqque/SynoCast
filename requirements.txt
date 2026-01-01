@@ -7,3 +7,4 @@ flask-talisman
 flask-limiter
 flask-seasurf
 pywebpush
+beautifulsoup4

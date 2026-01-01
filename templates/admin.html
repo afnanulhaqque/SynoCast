@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-dark mb-3">Admin Dashboard</h1>
+            <p class="lead text-muted">Manage system tasks and data automation.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="card-title fw-bold mb-4"><i class="fas fa-database me-2 text-primary"></i> Data
+                        Management</h3>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">Pakistan Cities Data</h5>
+                            <p class="mb-0 text-muted small">Source: UNECE (LOCODE)</p>
+                        </div>
+                        <div class="text-end">
+                            <button id="btnScrape" class="btn btn-primary px-4 fw-bold">
+                                <i class="fas fa-sync-alt me-2"></i> Update Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="scrapeStatus" class="alert d-none" role="alert">
+                        <!-- Status messages injected here -->
+                    </div>
+
+                    <hr class="my-4">
+
+                    <p class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Updating will fetch the latest city list from the official UNECE website and overwrite the
+                        existing local database (`assets/pakistan_cities.json`). This process runs in the background.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('btnScrape').addEventListener('click', async function () {
+        const btn = this;
+        const statusDiv = document.getElementById('scrapeStatus');
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
+
+        statusDiv.className = 'alert alert-info';
+        statusDiv.textContent = 'Scraping process started... This may take a few seconds.';
+        statusDiv.classList.remove('d-none');
+
+        try {
+            const res = await fetch('/api/admin/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                statusDiv.className = 'alert alert-success';
+                statusDiv.innerHTML = `<i class="fas fa-check-circle me-2"></i> Success! Found ${data.count} cities.`;
+            } else {
+                throw new Error(data.message || 'Unknown error');
+            }
+        } catch (err) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> Error: ${err.message}`;
+        } finally {
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Update Now';
+        }
+    });
+</script>
+{% endblock %}
