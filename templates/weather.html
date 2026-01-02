@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import news_card, weather_news_card, forecast_skeleton %}
+{% from "macros.html" import news_card, weather_news_card, forecast_skeleton, ad_banner %}
 
 {% block title %} Weather Forecast {% endblock title %}
 
@@ -446,6 +446,8 @@
       </div>
     </div>
   </div>
+
+  {{ ad_banner('weather-mid-ad', 'Sponsored Forecast') }}
 
   <div class="row g-5 mb-5">
     <div class="col-lg-12">

@@ -80,3 +80,29 @@
 </div>
 {% endfor %}
 {% endmacro %}
+
+{% macro ad_card(slot_id='default-sidebar', label='Advertisement') %}
+<div class="ad-container ad-card mb-4" data-ad-slot="{{ slot_id }}">
+    <div class="ad-placeholder">
+        <span class="ad-label">{{ label }}</span>
+        <div class="ad-content">
+            <!-- Replace this with actual ad code later -->
+            <p>Ad Space</p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro ad_banner(slot_id='default-banner', label='Advertisement') %}
+<div class="container mb-5">
+    <div class="ad-container ad-banner" data-ad-slot="{{ slot_id }}">
+        <div class="ad-placeholder">
+            <span class="ad-label">{{ label }}</span>
+            <div class="ad-content">
+                <!-- Replace this with actual ad code later -->
+                <p>Ad Banner Space</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

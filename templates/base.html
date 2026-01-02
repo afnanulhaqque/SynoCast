@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ date_time_info.lang if date_time_info is defined and date_time_info.lang else 'en' }}">
+{% from "macros.html" import ad_banner %}
 
 <head>
     <meta charset="UTF-8">
@@ -75,6 +76,8 @@
     <link rel="icon" href="/assets/logo/logo-small.svg" type="image/x-icon">
     <link rel="manifest" href="/assets/manifest.json">
     <script src="{{ url_for('static', filename='js/dynamic_time_update.js') }}"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1850326999292699"
+        crossorigin="anonymous"></script>
 
     {% block head %}
     {% endblock %}
@@ -190,6 +193,11 @@
         {% block body %}
 
         {% endblock body %}
+
+
+        {% if active_page != '404' %}
+        {{ ad_banner('footer-ad', 'Advertisement') }}
+        {% endif %}
 
         <div class="{% if active_page != '404' %}mt-5{% endif %}">
             <div class="card header_card">

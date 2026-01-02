@@ -540,6 +540,11 @@ def robots_txt():
     from flask import send_from_directory
     return send_from_directory('.', 'robots.txt')
 
+@app.route('/ads.txt')
+def ads_txt():
+    from flask import send_from_directory
+    return send_from_directory('.', 'ads.txt')
+
 @app.route('/sitemap.xml')
 def sitemap_xml():
     from flask import send_from_directory

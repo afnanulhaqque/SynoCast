@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import news_card, weather_news_card %}
+{% from "macros.html" import news_card, weather_news_card, ad_card %}
 
 {% block title %} News {% endblock title %}
 
@@ -60,7 +60,9 @@
           </div>
         </div>
         {% endfor %}
+
       </div>
+      {{ ad_card('news-sidebar-ad', 'Promoted') }}
     </div>
     {% else %}
     <div class="col-12 py-5 text-center">
