@@ -130,7 +130,7 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/assets/logo/icon-512.png',
+      icon: '/assets/logo/logo_about.png',
       badge: '/assets/logo/logo-small.png',
       vibrate: [200, 100, 200],
       data: {

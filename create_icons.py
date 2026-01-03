@@ -29,5 +29,5 @@ logo_path = 'd:/SynoCast/assets/logo/logo.png'
 # Use logo.png as source as it is higher res
    
 # Targets
-make_square(logo_path, (192, 192), 'd:/SynoCast/assets/logo/icon-192.png')
+make_square(logo_path, (192, 192), 'd:/SynoCast/assets/logo/logo_about.png')
 make_square(logo_path, (512, 512), 'd:/SynoCast/assets/logo/icon-512.png')

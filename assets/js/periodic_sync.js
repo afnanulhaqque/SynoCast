@@ -190,7 +190,7 @@ async function sendWeatherNotification(weatherData) {
     const { location, current } = weatherData;
     
     // Get weather icon
-    const iconUrl = `/assets/logo/icon-512.png`;
+    const iconUrl = `/assets/logo/logo_about.png`;
     
     // Create notification title and body
     const title = `${current.temp}°C in ${location.city}`;

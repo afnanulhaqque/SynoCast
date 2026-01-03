@@ -16,7 +16,7 @@
       "purpose": "any"
     },
     {
-      "src": "/assets/logo/icon-512.png?v=2",
+      "src": "/assets/logo/logo_about.png?v=2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -85,7 +85,7 @@
       "screenshots": [],
       "icons": [
         {
-          "src": "/assets/logo/icon-512.png?v=2",
+          "src": "/assets/logo/logo_about.png?v=2",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any maskable"
