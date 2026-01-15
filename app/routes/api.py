@@ -9,9 +9,9 @@ from flask import Blueprint, request, jsonify, abort, Response, current_app, ses
 from google import genai
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import utils
-from extensions import limiter, csrf
-from database import get_db
+from app import utils
+from app.extensions import limiter, csrf
+from app.database import get_db
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 

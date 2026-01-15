@@ -4,8 +4,8 @@ import sqlite3
 import requests
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session, current_app, render_template
-import utils
-from database import get_db
+from app import utils
+from app.database import get_db
 
 auth_bp = Blueprint('auth', __name__)
 
