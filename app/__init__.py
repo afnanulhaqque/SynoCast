@@ -19,17 +19,19 @@ def create_app(test_config=None):
 
     # Talisman Config
     csp = {
-        'default-src': ["'self'", "https://*.googleapis.com"],
+        'default-src': ["'self'", "https://*.googleapis.com", "https://*.google.com"],
         'script-src': ["'self'", "'unsafe-inline'", "https://*.googleapis.com", 
-                       "https://*.gstatic.com", "https://maps.googleapis.com", 
+                       "https://*.gstatic.com", "https://*.google.com", "https://maps.googleapis.com", 
                        "https://unpkg.com", "https://cdnjs.cloudflare.com",
-                       "https://cdn.jsdelivr.net", "https://pagead2.googlesyndication.com"],
+                       "https://cdn.jsdelivr.net", "https://*.googlesyndication.com",
+                       "https://*.adtrafficquality.google", "https://*.googleadservices.com"],
         'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", 
                       "https://unpkg.com", "https://cdnjs.cloudflare.com",
-                      "https://cdn.jsdelivr.net"],
+                      "https://cdn.jsdelivr.net", "https://*.google.com"],
         'img-src': ["'self'", "data:", "https://*.openweathermap.org", 
                     "https://tile.openstreetmap.org", "https://*.unsplash.com", 
                     "https://flagcdn.com", "https://*.ggpht.com",
+                    "https://*.google.com", "https://*.gstatic.com",
                     "https://openweathermap.org", "https://www.bolnews.com", 
                     "https://www.nation.com.pk", "https://*.theatlantic.com",
                     "https://www.aljazeera.com", "https://s.yimg.com",
@@ -40,9 +42,9 @@ def create_app(test_config=None):
                         "https://api.exchangerate-api.com",
                         "https://generativelanguage.googleapis.com",
                         "https://ip-api.com", "https://cdn.jsdelivr.net",
-                        "https://ep1.adtrafficquality.google"],
+                        "https://*.google.com", "https://*.adtrafficquality.google"],
         'font-src': ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-        'frame-src': ["'self'", "https://googleads.g.doubleclick.net"]
+        'frame-src': ["'self'", "https://*.google.com", "https://*.doubleclick.net", "https://*.googlesyndication.com"]
     }
 
     if not os.environ.get("VERCEL"):
