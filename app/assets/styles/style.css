@@ -203,7 +203,7 @@ main {
   position: relative;
   font-weight: 400;
   line-height: 100%;
-  font-size: 16px;
+  font-size: var(--fs-base);
 }
 
 .synocast_logo {
@@ -324,7 +324,7 @@ a.footer-text-link:hover {
 }
 
 .card .card-link {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 400;
   text-decoration: none;
   color: var(--primary-color) !important;
@@ -332,7 +332,7 @@ a.footer-text-link:hover {
 
 .news_sub_banner .col-8 .card .card-body .card-title,
 .news_sub_banner .col-4 .card .card-body .card-title {
-  font-size: 16px;
+  font-size: var(--fs-base);
   font-weight: 600;
 }
 
@@ -343,7 +343,7 @@ a.footer-text-link:hover {
 .home_banner_2.sub_heading {
   font-weight: 400;
   font-style: Regular;
-  font-size: 20px;
+  font-size: var(--fs-md);
   line-height: 100%;
   letter-spacing: 0%;
 }
@@ -351,7 +351,7 @@ a.footer-text-link:hover {
 .home_banner_2 .sub_heading_2 {
   font-weight: 400;
   font-style: Regular;
-  font-size: 24px;
+  font-size: var(--fs-lg);
   line-height: 100%;
   letter-spacing: 0%;
 }

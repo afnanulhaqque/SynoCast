@@ -1,0 +1,127 @@
+:root {
+  /* Fluid Font Sizes using clamp() */
+  /* Min viewport: 320px, Max viewport: 1200px */
+
+  /* Small text */
+  --fs-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+
+  /* Body text */
+  --fs-sm: clamp(0.875rem, 0.8rem + 0.37vw, 1rem); /* 14px -> 16px */
+  --fs-base: clamp(1rem, 0.93rem + 0.35vw, 1.125rem); /* 16px -> 18px */
+
+  /* Headings */
+  --fs-md: clamp(1.125rem, 1.05rem + 0.37vw, 1.35rem); /* 18px -> 21.6px */
+  --fs-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem); /* 20px -> 24px */
+  --fs-xl: clamp(1.5rem, 1.35rem + 0.75vw, 2rem); /* 24px -> 32px */
+  --fs-xxl: clamp(2rem, 1.7rem + 1.5vw, 2.75rem); /* 32px -> 44px */
+  --fs-huge: clamp(2.5rem, 2rem + 2.5vw, 4rem); /* 40px -> 64px */
+}
+
+/* Base Root Adjustments */
+html {
+  font-size: 16px; /* Browser default base */
+}
+
+@media (max-width: 992px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+body {
+  font-size: var(--fs-base);
+  line-height: 1.6;
+}
+
+/* Typography Overrides */
+h1,
+.h1 {
+  font-size: var(--fs-xxl);
+  line-height: 1.2;
+}
+h2,
+.h2 {
+  font-size: var(--fs-xl);
+  line-height: 1.3;
+}
+h3,
+.h3 {
+  font-size: var(--fs-lg);
+  line-height: 1.3;
+}
+h4,
+.h4 {
+  font-size: var(--fs-md);
+  line-height: 1.4;
+}
+h5,
+.h5 {
+  font-size: var(--fs-base);
+  line-height: 1.5;
+}
+h6,
+.h6 {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+/* Display Classes */
+.display-1 {
+  font-size: var(--fs-huge) !important;
+}
+.display-2 {
+  font-size: var(--fs-xxl) !important;
+}
+.display-3 {
+  font-size: var(--fs-xl) !important;
+}
+.display-4 {
+  font-size: var(--fs-lg) !important;
+}
+
+/* Utility Classes */
+.text-xs {
+  font-size: var(--fs-xs) !important;
+}
+.text-sm {
+  font-size: var(--fs-sm) !important;
+}
+.text-base {
+  font-size: var(--fs-base) !important;
+}
+.text-md {
+  font-size: var(--fs-md) !important;
+}
+.text-lg {
+  font-size: var(--fs-lg) !important;
+}
+.text-xl {
+  font-size: var(--fs-xl) !important;
+}
+
+/* Specific Component Fixes */
+.card-title {
+  font-size: var(--fs-md);
+}
+
+.card-text {
+  font-size: var(--fs-sm);
+}
+
+.nav-link {
+  font-size: var(--fs-base);
+}
+
+.btn {
+  font-size: var(--fs-base);
+}
+
+.footer_item p {
+  font-size: var(--fs-sm);
+}
