@@ -8,9 +8,11 @@ main_bp = Blueprint('main', __name__)
 @main_bp.context_processor
 def inject_common_data():
     """Inject common data into all templates."""
+    from datetime import datetime
     data = {
         "date_time_info": utils.get_local_time_string(),
-        "global_headlines": []
+        "global_headlines": [],
+        "current_year": datetime.now().year
     }
     
     try:
