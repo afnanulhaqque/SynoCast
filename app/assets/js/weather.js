@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let forecastData = null;
     let currentUnit = 'C'; 
     let extendedData = null; // Store extended forecast data
+    let historicalTrendYears = 5;
+    let historicalChart = null;
+    let seasonalTrendsChart = null;
+    let recordTimelineChart = null;
 
     // --- UI Elements ---
     const cityEl = document.getElementById('weather-city');
@@ -525,6 +529,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- History Chart & Export Logic ---
+    async function fetchHistory(lat, lon) {
+        try {
+            const res = await fetch(`/api/weather/history?lat=${lat}&lon=${lon}`);
+            const data = await res.json();
+            if (data.years) {
+                renderHistoryChart(data);
+            }
+        } catch (err) {
+            console.error("History error", err);
+        }
+    }
+
+    function renderHistoryChart(data) {
+        const ctx = document.getElementById('historicalChart');
+        if (!ctx) return;
+
+        if (historicalChart) historicalChart.destroy();
+
+        historicalChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.years,
+                datasets: [{
+                    label: 'Avg Temperature (°C)',
+                    data: data.temps,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+    }
+
+    async function fetchHistoricalTrends(lat, lon, years) {
+        try {
+            const res = await fetch(`/api/weather/trends?lat=${lat}&lon=${lon}&years=${years}`);
+            const data = await res.json();
+            if (data.labels) {
+                renderTrendCharts(data);
+            }
+        } catch (err) {
+            console.error("Trends error", err);
+        }
+    }
+
+    function renderTrendCharts(data) {
+        // Implement trend chart rendering here if needed
+        console.log("Trend data loaded:", data);
+    }
 
 
 

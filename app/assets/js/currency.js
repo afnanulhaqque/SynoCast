@@ -22,7 +22,7 @@ class CurrencyManager {
         try {
             // We can add an API endpoint specifically for rates if needed, 
             // but for now we fetch it through a generic preferences call or a dedicated rates endpoint.
-            const response = await fetch('/api/currency/rates');
+            const response = await fetch('/api/currency/convert');
             if (response.ok) {
                 const data = await response.json();
                 this.rates = data.rates;

@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if os.environ.get("VERCEL"):
     DATABASE = "/tmp/subscriptions.db"
 else:
-    DATABASE = os.path.join(BASE_DIR, "subscriptions.db")
+    DATABASE = os.path.join(BASE_DIR, "..", "subscriptions.db")
 
 @contextmanager
 def get_db():

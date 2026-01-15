@@ -1,7 +1,9 @@
-const CACHE_NAME = 'synocast-v2';
+const CACHE_NAME = 'synocast-v6';
 const ASSETS_TO_CACHE = [
   '/',
-  '/static/styles/style.css',
+  '/assets/styles/style.css',
+  '/assets/styles/weather-animations.css',
+  '/assets/styles/weather-backgrounds.css',
   '/assets/js/weather.js',
   '/assets/js/location_handler.js',
   '/assets/js/weather_utils.js',
@@ -49,7 +51,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-
+  
+  // Only handle http and https requests - avoids errors with chrome-extension:// etc.
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
   // Network-first strategy for API calls
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
@@ -58,8 +64,8 @@ self.addEventListener('fetch', (event) => {
           // Clone the response before caching
           const responseClone = response.clone();
           
-          // Cache successful API responses
-          if (response.ok) {
+          // Cache successful GET API responses only
+          if (response.ok && request.method === 'GET') {
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, responseClone);
             });
@@ -68,21 +74,27 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              console.log('[SW] Serving API from cache:', url.pathname);
-              return cachedResponse;
-            }
-            // Return offline response for failed API calls
-            return new Response(
-              JSON.stringify({ error: 'Offline', cached: false }),
-              {
-                headers: { 'Content-Type': 'application/json' },
-                status: 503
+          // Fallback to cache if network fails (only for GET)
+          if (request.method === 'GET') {
+            return caches.match(request).then((cachedResponse) => {
+              if (cachedResponse) {
+                console.log('[SW] Serving API from cache:', url.pathname);
+                return cachedResponse;
               }
-            );
-          });
+              return new Response(
+                JSON.stringify({ error: 'Offline', cached: false }),
+                {
+                  headers: { 'Content-Type': 'application/json' },
+                  status: 503
+                }
+              );
+            });
+          }
+          // For POST/etc just fail naturally or return a specific error
+          return new Response(
+            JSON.stringify({ error: 'Network failure', method: request.method }), 
+            { status: 503, headers: { 'Content-Type': 'application/json' } }
+          );
         })
     );
     return;
@@ -97,8 +109,8 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(request)
         .then((response) => {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type === 'error') {
+          // Don't cache non-successful responses or non-GET requests
+          if (!response || response.status !== 200 || response.type === 'error' || request.method !== 'GET') {
             return response;
           }
 
@@ -111,10 +123,15 @@ self.addEventListener('fetch', (event) => {
 
           return response;
         })
-        .catch(() => {
+        .catch((err) => {
           // Return offline page for navigation requests
           if (request.mode === 'navigate') {
             return caches.match('/offline');
+          }
+          // For images/scripts, just let them fail or return empty
+          if (request.destination === 'image') {
+             // Return a placeholder or just fail
+             return new Response('', { status: 404 });
           }
           return new Response('Offline', { status: 503 });
         });
