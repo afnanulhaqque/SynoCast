@@ -67,19 +67,18 @@ Is today unusually hot? SynoCast checks **30 years of climate comparisons** to t
 
 ```
 SynoCast/
-├── app.py              # Main Flask application entry point
-├── utils.py            # Helper functions, AI logic, and data processing
-├── scrape_cities.py    # Utility to scrape city data
-├── assets/             # Static files
-│   ├── css/            # Modern CSS with glassmorphism design
-│   ├── js/             # Frontend logic (Chart.js, Maps, PWA)
-│   └── icons/          # Weather icons and assets
-├── templates/          # Jinja2 HTML templates
-│   ├── home.html       # Main dashboard
-│   ├── weather.html    # Detailed local forecast
-│   ├── map.html        # 3D Globe view
-│   └── ...
-└── subscriptions.db    # SQLite database for user prefs and alerts
+├── app/                # Main application package
+│   ├── __init__.py     # App factory (creates the Flask app)
+│   ├── database.py     # Database connection and initialization
+│   ├── utils/          # Modular helper functions (News, Climate, AI, Geo)
+│   ├── routes/         # Route Blueprints (main, api, auth)
+│   ├── templates/      # Jinja2 HTML templates
+│   ├── assets/         # Static files (CSS, JS, Images, PWA assets)
+│   └── tasks.py        # Background worker tasks
+├── api/                # Vercel deployment entry points
+├── scripts/            # Admin & utility scripts
+├── run.py              # Local development entry point
+└── requirements.txt    # Python dependencies
 ```
 
 ---
