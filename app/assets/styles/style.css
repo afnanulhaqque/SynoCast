@@ -3646,10 +3646,6 @@ body {
   transition: all 0.3s ease-in-out;
 }
 
-.synocast_logo_navbar.center-logo {
-  /* No special styles on the image itself, handle on parent if needed or keep it simple */
-}
-
 /* 
    When the navbar is open (body has navbar-active), we want to center the BRAND div
    which contains the logo.
@@ -4136,4 +4132,53 @@ body {
   color: #adb5bd;
   margin-bottom: 0.5rem;
   display: block;
+}
+/* =========================================
+   License Page Styles
+   ========================================= */
+.license-document {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.license-document:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.license-monospace {
+  font-family: "Fira Code", "Courier New", Courier, monospace;
+  line-height: 1.6;
+}
+
+.leading-relaxed {
+  line-height: 1.8;
+}
+
+[data-theme="dark"] .license-document {
+  background: #1a1a2e !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .h1,
+[data-theme="dark"] .h3,
+[data-theme="dark"] .h4,
+[data-theme="dark"] .h5,
+[data-theme="dark"] .text-dark {
+  color: #eee !important;
+}
+
+[data-theme="dark"] .bg-light {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-theme="dark"] .border {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .card-body i.text-primary {
+  color: #4dabff !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.1em;
 }
