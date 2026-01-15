@@ -1,4 +1,5 @@
 import os
+import json
 from app import utils
 from flask import Blueprint, render_template, jsonify, current_app, send_from_directory
 
@@ -22,19 +23,19 @@ def inject_global_news():
 
 @main_bp.route('/sw.js')
 def service_worker():
-    return send_from_directory('.', 'sw.js', mimetype='application/javascript')
+    return send_from_directory(current_app.static_folder, 'sw.js', mimetype='application/javascript')
 
 @main_bp.route('/robots.txt')
 def robots_txt():
-    return send_from_directory('.', 'robots.txt')
+    return send_from_directory(current_app.static_folder, 'robots.txt')
 
 @main_bp.route('/ads.txt')
 def ads_txt():
-    return send_from_directory('.', 'ads.txt')
+    return send_from_directory(current_app.static_folder, 'ads.txt')
 
 @main_bp.route('/sitemap.xml')
 def sitemap_xml():
-    return send_from_directory('.', 'sitemap.xml')
+    return send_from_directory(current_app.static_folder, 'sitemap.xml')
 
 @main_bp.route('/favicon.ico')
 def favicon():
@@ -257,12 +258,7 @@ def offline():
 def pakistan():
     """Pakistan weather exploration page."""
     try:
-        cities_path = os.path.join('assets', 'pakistan_cities.json')
-        # Need to fix path for blueprint? current_app starts at root usually
-        if not os.path.exists(cities_path):
-             # Try absolute path if needed
-             cities_path = os.path.join(current_app.root_path, 'assets', 'pakistan_cities.json')
-            
+        cities_path = os.path.join(current_app.static_folder, 'pakistan_cities.json')
         with open(cities_path, 'r', encoding='utf-8') as f:
             cities = json.load(f)
         
