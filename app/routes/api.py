@@ -9,9 +9,9 @@ from flask import Blueprint, request, jsonify, abort, Response, current_app, ses
 from google import genai
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from .. import utils
-from ..extensions import limiter, csrf
-from ..database import get_db
+import utils
+from extensions import limiter, csrf
+from database import get_db
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -490,115 +490,6 @@ def api_weather_analytics():
     except KeyError as e:
         current_app.logger.error(f"Analytics data parse error: {e}")
         return jsonify({"error": "Invalid weather data format"}), 500
-
-@api_bp.route("/weather/history")
-def api_weather_history():
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    if not lat or not lon:
-        return jsonify({"error": "Missing coordinates"}), 400
-    
-    # Mock historical data for last 5 years based on current climate trends
-    current_year = datetime.utcnow().year
-    years = [str(current_year - i) for i in range(5, 0, -1)]
-    # Base temp simulation
-    base_temp = 20.0 
-    temps = [round(base_temp + random.uniform(-2, 2) + (i * 0.2), 1) for i in range(len(years))]
-    
-    return jsonify({
-        "years": years,
-        "temps": temps,
-        "location": f"{lat}, {lon}"
-    })
-
-@api_bp.route("/weather/trends")
-def api_weather_trends():
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    years = request.args.get('years', default=5, type=int)
-    
-    # Simulated seasonal trends
-    return jsonify({
-        "labels": ["Winter", "Spring", "Summer", "Autumn"],
-        "temp_trend": [8, 18, 28, 15],
-        "precip_trend": [30, 45, 20, 50],
-        "note": "Based on historical average simulations"
-    })
-
-@api_bp.route("/weather/extended")
-def api_weather_extended():
-    lat = request.args.get('lat')
-    lon = request.args.get('lon')
-    if not lat or not lon:
-        return jsonify({"error": "Missing coordinates"}), 400
-
-    api_key = os.environ.get("OPENWEATHER_API_KEY")
-    # OWM 2.5 Forecast only gives 5 days. For 8 days we mock the remaining 3 or use One Call if available.
-    # Since we don't have One Call 3.0 subscription guaranteed, we mock the extension.
-    try:
-        url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={api_key}"
-        res = requests.get(url, timeout=5)
-        data = res.json()
-        
-        # Process first 5 days
-        daily = utils.aggregate_forecast_data(data['list'], data['city']['timezone'])
-        
-        # Extend to 8 days with simulation
-        last_date = datetime.strptime(daily['dates'][-1], '%Y-%m-%d')
-        extended_daily = []
-        for i, date_str in enumerate(daily['dates']):
-            extended_daily.append({
-                "date": date_str,
-                "temp": {"max": daily['max_temps'][i], "min": daily['min_temps'][i]},
-                "weather": {"description": "Partly Cloudy", "icon": "02d"},
-                "pop": daily['precip_probs'][i],
-                "wind_speed": 10,
-                "simulated": False
-            })
-        
-        for i in range(1, 4):
-            new_date = last_date + concurrent.futures.thread.threading.datetime.timedelta(days=i)
-            extended_daily.append({
-                "date": new_date.strftime('%Y-%m-%d'),
-                "temp": {"max": daily['max_temps'][-1] + random.uniform(-2, 2), "min": daily['min_temps'][-1] + random.uniform(-2, 2)},
-                "weather": {"description": "Cloudy", "icon": "03d"},
-                "pop": random.randint(10, 50),
-                "wind_speed": 12,
-                "simulated": True,
-                "astronomy": {
-                    "sunrise": "06:15 AM", "sunset": "06:45 PM",
-                    "moon_phase": {"name": "Waxing Crescent", "illumination": "15%", "emoji": "🌙"}
-                }
-            })
-            
-        return jsonify({
-            "daily": extended_daily,
-            "hourly": [], # Can extend later
-            "note": "Days 6-8 are predicted using seasonal AI models"
-        })
-    except Exception as e:
-        current_app.logger.error(f"Extended forecast error: {e}")
-        return jsonify({"error": "Failed to generate extended forecast"}), 500
-
-@api_bp.route("/weather/impacts")
-def api_weather_impacts():
-    # Simulated impact metrics
-    return jsonify({
-        "traffic": {"score": 75, "level": "Moderate", "advice": "Expect slight delays due to wet roads."},
-        "air_quality": {"current_aqi": 42, "category": "Good", "color": "#28a745", "advice": "Great day for outdoor activities."},
-        "pollen": {"score": 20, "level": "Low", "color": "#28a745", "advice": "Low risk for allergy sufferers.", "type": "Grass"}
-    })
-
-@api_bp.route("/weather/recipes")
-def api_weather_recipes():
-    # Simulated AI recipe suggestions
-    return jsonify({
-        "recipes": [
-            {"name": "Warm Pumpkin Soup", "type": "Comfort", "description": "Perfect for a chilly day.", "time": "30m", "difficulty": "Easy"},
-            {"name": "Honey Ginger Tea", "type": "Wellness", "description": "Boosts immunity in humid weather.", "time": "10m", "difficulty": "Easy"}
-        ]
-    })
-
 
 @api_bp.route("/weather/health")
 @limiter.limit("20 per minute")

@@ -3646,6 +3646,10 @@ body {
   transition: all 0.3s ease-in-out;
 }
 
+.synocast_logo_navbar.center-logo {
+  /* No special styles on the image itself, handle on parent if needed or keep it simple */
+}
+
 /* 
    When the navbar is open (body has navbar-active), we want to center the BRAND div
    which contains the logo.
@@ -4045,57 +4049,91 @@ body {
   }
 }
 
-/* Consolidated Ad Spaces Styles */
+/* Optimization for Ad Spaces */
 .ad-container {
-  width: 100%;
-  margin-bottom: 2rem;
-  display: flex !important;
-  justify-content: center;
   overflow: hidden;
+  background-color: var(--surface-color);
+  border: 1px dashed var(--divider-color);
+  border-radius: 8px;
   position: relative;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .ad-card {
-  min-height: 280px;
+  width: 100%;
+  min-height: 250px; /* Standard sidebar rect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ad-banner {
-  min-height: 120px;
+  width: 100%;
+  min-height: 90px; /* Standard leaderboard */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.ad-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.ad-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  opacity: 0.7;
+}
+
+.ad-content {
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+/* Ad Container Styles */
+.ad-container {
+  width: 100%;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
 }
 
 .ad-placeholder {
   width: 100%;
   max-width: 100%;
-  background-color: var(--surface-color, #f8f9fa);
-  border: 1px dashed var(--divider-color, #ced4da);
+  background-color: #f8f9fa;
+  border: 1px dashed #ced4da;
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
+  min-height: 280px; /* Force visibility even if ad is empty */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+}
+
+.ad-banner .ad-placeholder {
+  min-height: 120px; /* Smaller height for banners */
 }
 
 .ad-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 1px;
-  color: var(--text-secondary, #adb5bd);
-  text-transform: uppercase;
+  color: #adb5bd;
   margin-bottom: 0.5rem;
   display: block;
-  opacity: 0.8;
-}
-
-.ad-content {
-  width: 100% !important;
-  min-width: 300px; /* Standard rect min */
-  font-weight: 500;
-}
-
-@media (max-width: 350px) {
-  .ad-content {
-    min-width: 100%;
-  }
 }

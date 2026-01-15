@@ -89,13 +89,11 @@ const AutocompleteUtils = {
                     const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
                     const apiData = await res.json();
 
-                    const combined = [...localMatches
-                        .filter(m => m.lat !== undefined && m.lon !== undefined)
-                        .map(m => ({
-                            lat: m.lat.toString(),
-                            lon: m.lon.toString(),
-                            display_name: `${m.name}, ${m.country}`
-                        }))];
+                    const combined = [...localMatches.map(m => ({
+                        lat: m.lat.toString(),
+                        lon: m.lon.toString(),
+                        display_name: `${m.name}, ${m.country}`
+                    }))];
 
                     apiData.forEach(item => {
                         const isDuplicate = combined.some(c =>

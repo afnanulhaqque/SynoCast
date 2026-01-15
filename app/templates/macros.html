@@ -85,21 +85,12 @@
 <div class="ad-container ad-card mb-4">
     <div class="ad-placeholder">
         <span class="ad-label">{{ label }}</span>
-        <div class="ad-content text-center w-100">
+        <div class="ad-content text-center">
             <!-- Google AdSense Unit -->
-            <ins class="adsbygoogle" style="display:block; width: 100%; min-width: 250px;"
-                data-ad-client="ca-pub-1850326999292699" data-ad-slot="{{ slot_id }}" data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1850326999292699"
+                data-ad-slot="{{ slot_id }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    setTimeout(function () {
-                        try {
-                            if (window.adsbygoogle) {
-                                (adsbygoogle = window.adsbygoogle || []).push({});
-                            }
-                        } catch (e) { console.error("AdSense push error: ", e); }
-                    }, 1000);
-                });
+                (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
     </div>
@@ -111,21 +102,12 @@
     <div class="ad-container ad-banner">
         <div class="ad-placeholder">
             <span class="ad-label">{{ label }}</span>
-            <div class="ad-content text-center w-100">
+            <div class="ad-content text-center">
                 <!-- Google AdSense Banner -->
-                <ins class="adsbygoogle" style="display:block; width: 100%; min-width: 250px;"
-                    data-ad-client="ca-pub-1850326999292699" data-ad-slot="{{ slot_id }}" data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1850326999292699"
+                    data-ad-slot="{{ slot_id }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        setTimeout(function () {
-                            try {
-                                if (window.adsbygoogle) {
-                                    (adsbygoogle = window.adsbygoogle || []).push({});
-                                }
-                            } catch (e) { console.error("AdSense push error: ", e); }
-                        }, 1000);
-                    });
+                    (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
             </div>
         </div>

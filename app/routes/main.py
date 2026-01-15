@@ -1,5 +1,5 @@
 import os
-from .. import utils
+import utils
 from flask import Blueprint, render_template, jsonify, current_app, send_from_directory
 
 main_bp = Blueprint('main', __name__)
@@ -22,19 +22,19 @@ def inject_global_news():
 
 @main_bp.route('/sw.js')
 def service_worker():
-    return send_from_directory(current_app.static_folder, 'sw.js', mimetype='application/javascript')
+    return send_from_directory('.', 'sw.js', mimetype='application/javascript')
 
 @main_bp.route('/robots.txt')
 def robots_txt():
-    return send_from_directory(current_app.static_folder, 'robots.txt')
+    return send_from_directory('.', 'robots.txt')
 
 @main_bp.route('/ads.txt')
 def ads_txt():
-    return send_from_directory(current_app.static_folder, 'ads.txt')
+    return send_from_directory('.', 'ads.txt')
 
 @main_bp.route('/sitemap.xml')
 def sitemap_xml():
-    return send_from_directory(current_app.static_folder, 'sitemap.xml')
+    return send_from_directory('.', 'sitemap.xml')
 
 @main_bp.route('/favicon.ico')
 def favicon():
