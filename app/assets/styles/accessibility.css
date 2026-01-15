@@ -82,7 +82,7 @@ textarea:focus-visible {
 .nav-link:focus-visible {
   outline: 3px solid var(--accent-weather);
   outline-offset: 2px;
-  background-color: rgba(111, 174, 217, 0.1);
+  background-color: var(--weather-shadow);
 }
 
 /* High Contrast Mode */
@@ -206,7 +206,7 @@ textarea:focus-visible {
 }
 
 .accessibility-option:hover {
-  background-color: rgba(111, 174, 217, 0.1);
+  background-color: var(--weather-shadow);
 }
 
 .accessibility-option label {

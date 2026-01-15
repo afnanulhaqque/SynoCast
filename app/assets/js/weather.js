@@ -287,11 +287,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const aqiDescEl = document.getElementById('weather-aqi-description');
         
         const aqiMap = {
-            1: { label: "Good", color: "#6FAED9", text: "Air is clean and healthy." }, // Muted Blue
-            2: { label: "Fair", color: "#D97706", text: "Acceptable air quality." }, // Burnt Orange
-            3: { label: "Moderate", color: "#6B6B6B", text: "Sensitive groups should take care." }, // Stone Gray
-            4: { label: "Poor", color: "#2F2F2F", text: "Unhealthy for many people." }, // Soft Charcoal
-            5: { label: "Very Poor", color: "#1A1A1A", text: "Health warning of emergency conditions." } // Almost Black
+            1: { label: "Good", color: "#27AE60", text: "Air is clean and healthy." }, // Success Green
+            2: { label: "Fair", color: "#F2C94C", text: "Acceptable air quality." }, // Secondary Yellow
+            3: { label: "Moderate", color: "#F2994A", text: "Sensitive groups should take care." }, // Warning Orange
+            4: { label: "Poor", color: "#EB5757", text: "Unhealthy for many people." }, // Error Red
+            5: { label: "Very Poor", color: "#2B2B2B", text: "Health warning of emergency conditions." } // Dark
         };
         
         const status = aqiMap[aqi] || { label: "Unknown", color: "#adb5bd", text: "Data unavailable" };

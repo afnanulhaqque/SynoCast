@@ -1086,7 +1086,7 @@ a.footer-text-link:hover {
   height: 24px;
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 0.9;
-  color: #2f2f2f;
+  color: #3a5ba0;
 }
 
 .news-banner-icons .icon:hover {
@@ -3320,7 +3320,7 @@ body {
 /* Mobile Hamburger Menu Styling */
 @media (max-width: 991px) {
   .navbar-collapse {
-    background-color: #2f2f2f !important; /* Soft Charcoal */
+    background-color: #3a5ba0 !important;
     padding: 1rem;
     border-radius: 0 0 1rem 1rem;
   }
@@ -3340,7 +3340,7 @@ body {
 
 /* Community Tabs Theming */
 #communityTabs .nav-link {
-  color: #2f2f2f !important; /* Soft Charcoal */
+  color: #3a5ba0 !important;
   background-color: transparent;
   border: 2px solid var(--primary-color);
   transition: all 0.3s ease;
@@ -3487,6 +3487,11 @@ body {
 }
 /* Navbar Overrides for Mobile Full Screen Menu */
 @media (max-width: 991px) {
+  /* Ensure container is relative for absolute positioning of logo */
+  .navbar .container {
+    position: relative;
+  }
+
   .navbar-collapse {
     position: fixed;
     top: 0;
@@ -3495,7 +3500,7 @@ body {
     width: 100vw;
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height for mobile */
-    background-color: var(--bg-color); /* Match theme background */
+    background-color: var(--nav-top-bg); /* Match theme background */
     z-index: 1060; /* Above everything */
     padding-top: 80px; /* Space for logo/close button */
     display: flex;
@@ -3520,7 +3525,7 @@ body {
     left: auto;
     width: 100vw;
     height: 100vh !important;
-    background-color: var(--bg-color);
+    background-color: var(--nav-top-bg);
     z-index: 1060;
     transition: transform 0.3s ease-in-out !important;
     transform: translateX(100%);
@@ -3552,7 +3557,7 @@ body {
     font-size: 16px; /* Adjust size */
     font-weight: 500;
     text-transform: uppercase;
-    color: #6faed9 !important;
+    color: var(--nav-top-text) !important;
     padding: 20px 24px; /* Generous padding */
     width: 100%;
     opacity: 1 !important; /* Full opacity */
@@ -3563,8 +3568,8 @@ body {
   .navbar-nav .nav-link:hover,
   .navbar-nav .nav-link:focus,
   .navbar-nav .nav-link.active {
-    background-color: rgba(0, 0, 0, 0.02);
-    color: #6faed9 !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--secondary-highlight) !important;
   }
 
   /* Special handling for Subscribe button item on mobile */
@@ -3617,7 +3622,7 @@ body {
     height: 2px;
     width: 100%;
     /* Update Hamburger Color */
-    background: #6faed9;
+    background: var(--nav-top-text);
     border-radius: 2px;
     opacity: 1;
     left: 0;
@@ -3655,7 +3660,7 @@ body {
 
   /* Social Icons Color adjustment */
   .mobile-menu-footer .icon-link i {
-    color: #6faed9 !important;
+    color: var(--nav-top-text) !important;
   }
 
   /* Logo adjustment - Revert to Left (Standard) */
@@ -3688,7 +3693,7 @@ body {
     font-weight: 600; /* Bolder */
     font-size: 18px; /* Larger */
     letter-spacing: 1px;
-    color: #6faed9 !important;
+    color: var(--nav-top-text) !important;
     padding: 15px 0;
   }
 
