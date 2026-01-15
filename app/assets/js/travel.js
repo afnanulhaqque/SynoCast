@@ -192,12 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/weather/history?lat=${lat}&lon=${lon}`);
             const data = await res.json();
             
-            // Format for chart: Date vs Temp
-            const labels = data.map(d => {
-                const date = new Date(d.date);
-                return date.getDate(); // Just day number
-            });
-            const temps = data.map(d => d.temp);
+            if (!data.years || !data.temps) throw new Error("Invalid data format");
+
+            const labels = data.years;
+            const temps = data.temps;
             
             new Chart(ctx, {
                 type: 'line',
