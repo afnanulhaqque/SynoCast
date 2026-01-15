@@ -9,9 +9,9 @@ from flask import Blueprint, request, jsonify, abort, Response, current_app, ses
 from google import genai
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import utils
-from extensions import limiter, csrf
-from database import get_db
+from .. import utils
+from ..extensions import limiter, csrf
+from ..database import get_db
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -80,6 +80,25 @@ def award_points(email, points, event_type, description):
         conn.commit()
 
 # --- Routes ---
+
+@api_bp.route('/geocode/reverse')
+def api_geocode_reverse():
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    if not lat or not lon:
+        return jsonify({"error": "Missing params"}), 400
+        
+    try:
+        # User-Agent is required by Nominatim
+        headers = {'User-Agent': 'SynoCast/1.0'}
+        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.ok:
+            return jsonify(res.json())
+        return jsonify({"error": "Geocode failed"}), res.status_code
+    except Exception as e:
+        current_app.logger.error(f"Reverse Geocode Error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @api_bp.route('/geocode/search')
 def api_geocode_search():

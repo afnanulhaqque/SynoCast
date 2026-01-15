@@ -1,5 +1,5 @@
 import os
-import utils
+from .. import utils
 from flask import Blueprint, render_template, jsonify, current_app, send_from_directory
 
 main_bp = Blueprint('main', __name__)

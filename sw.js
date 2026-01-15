@@ -1,7 +1,9 @@
 const CACHE_NAME = 'synocast-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/static/styles/style.css',
+  '/assets/styles/style.css',
+  '/assets/styles/weather-animations.css',
+  '/assets/styles/weather-backgrounds.css',
   '/assets/js/weather.js',
   '/assets/js/location_handler.js',
   '/assets/js/weather_utils.js',
