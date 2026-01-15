@@ -139,6 +139,10 @@ def travel():
 def terms():
     return render_template("terms.html", active_page="terms")
 
+@main_bp.route("/license")
+def license():
+    return render_template("license.html", active_page="license")
+
 @main_bp.route("/map")
 def map_explorer():
     seo_meta = {

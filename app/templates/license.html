@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %} License {% endblock title %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 rounded-4 overflow-hidden" style="box-shadow: none; background: transparent;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <div class="mb-4">
+                            <i class="fas fa-shield-alt text-primary display-1 opacity-25"></i>
+                        </div>
+                        <h1 class="display-4 fw-bold text-primary mb-3">Proprietary License</h1>
+                        <p class="lead text-muted">SynoCast is a proprietary platform. All rights are strictly reserved.
+                        </p>
+                    </div>
+
+                    <div
+                        class="license-container p-4 p-md-5 rounded-4 bg-light border border-opacity-10 position-relative">
+                        <div class="position-absolute top-0 end-0 p-3">
+                            <span class="badge bg-danger rounded-pill px-3 py-2">All Rights Reserved</span>
+                        </div>
+
+                        <div class="license-text"
+                            style="font-family: 'Courier New', Courier, monospace; line-height: 1.8; color: #333;">
+                            <p class="fw-bold mb-4 text-dark">SynoCast Proprietary License</p>
+
+                            <p class="mb-4">Copyright (c) 2026 <strong>Afnan ul Haq</strong>. All rights reserved.</p>
+
+                            <p class="mb-4 text-danger fw-bold">RESTRICTED USE LICENSE</p>
+
+                            <p class="mb-4">
+                                This software and all associated documentation files (the "Software") are the exclusive
+                                property of Afnan ul Haq.
+                                No part of this Software may be reproduced, distributed, or transmitted in any form or
+                                by any means,
+                                including photocopying, recording, or other electronic or mechanical methods, without
+                                the prior written permission of the owner.
+                            </p>
+
+                            <p class="mb-4">
+                                You are strictly prohibited from:
+                            <ul class="list-unstyled ms-3">
+                                <li>• Selling, sublicensing, or commercially exploiting the Software.</li>
+                                <li>• Modifying, creating derivative works, or reverse engineering the Software.</li>
+                                <li>• Distributing the source code to third parties.</li>
+                            </ul>
+                            </p>
+
+                            <p class="mb-0">
+                                THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES. IN NO EVENT SHALL THE OWNER BE
+                                LIABLE FOR ANY DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES ARISING FROM THE USE OF THIS
+                                SOFTWARE.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <p class="text-muted">
+                            Interested in contributing or viewing the source code?
+                            <br>
+                            Visit our <a href="https://github.com/afnanulhaqque/SynoCast" target="_blank"
+                                class="text-primary text-decoration-none fw-bold">GitHub Repository</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .license-container {
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    }
+
+    [data-theme="dark"] .license-container {
+        background: rgba(0, 0, 0, 0.2) !important;
+        color: #eee !important;
+    }
+
+    .license-text {
+        white-space: pre-wrap;
+        font-size: 0.95rem;
+    }
+
+    [data-theme="dark"] .license-text {
+        color: #ccd !important;
+    }
+</style>
+{% endblock body %}

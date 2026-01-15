@@ -4,7 +4,7 @@
 ![Flask](https://img.shields.io/badge/Flask-3.x-green)
 ![Gemini](https://img.shields.io/badge/AI-Gemini%202.0%20Flash-magenta)
 ![PWA](https://img.shields.io/badge/PWA-Ready-brightgreen)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![License](https://img.shields.io/badge/License-Proprietary-red)
 
 **SynoCast** is an intelligent, AI-first weather platform that goes beyond basic forecasting. By fusing high-precision meteorological data with **Google's Gemini 2.0 Flash** model, SynoCast transforms raw numbers into actionable narratives, travel insights, and personalized lifestyle advice.
 
@@ -179,7 +179,7 @@ Contributions are welcome! Please follow these steps:
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+All Rights Reserved. This software is proprietary. See `LICENSE` for more information.
 
 <p align="center">
   Built with ❤️ and ☕ by <b>Afnanul Haqque</b>
