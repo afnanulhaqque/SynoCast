@@ -1,19 +1,67 @@
 ﻿:root {
-  /* Warm Neutral Theme Palette (Light Mode - Default) */
-  --primary-color: #2f2f2f; /* Soft Charcoal */
-  --bg-color: #fafaf8; /* Warm White */
+  /* Core Brand Colors */
+  --primary-color: #3a5ba0;
+  --secondary-highlight: #f2c94c;
+
+  /* Base Layout */
+  --bg-color: #f7f8fa;
   --surface-color: #ffffff;
-  --accent-weather: #6faed9; /* Muted Blue */
-  --accent-news: #d97706; /* Burnt Orange */
-  --text-primary: #1a1a1a; /* Almost Black */
-  --text-secondary: #6b6b6b; /* Stone Gray */
-  --divider-color: rgba(0, 0, 0, 0.05);
-  --icon-color: #5e5e5e;
+  --divider-color: #e5e7eb;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+
+  /* Typography */
+  --text-primary: #2b2b2b;
+  --text-secondary: #4b5563;
+  --text-muted: #7a7a7a;
+  --text-disabled: #b0b0b0;
+  --text-on-primary: #ffffff;
+  --text-on-secondary: #2b2b2b;
+
+  /* Interactive States */
+  --btn-primary-default: #3a5ba0;
+  --btn-primary-hover: #324f8a;
+  --btn-primary-pressed: #2b4478;
+  --btn-secondary-default: #f2c94c;
+  --btn-secondary-hover: #e6bd3f;
+  --btn-secondary-pressed: #d9b233;
+  --focus-outline: #8fa7d8;
+
+  /* Navigation */
+  --nav-top-bg: #3a5ba0;
+  --nav-top-text: #ffffff;
+  --nav-bottom-bg: #ffffff;
+  --nav-bottom-active: #3a5ba0;
+  --nav-bottom-inactive: #9ca3af;
+
+  /* Weather Indicators */
+  --weather-sunny: #f2c94c;
+  --weather-cloudy: #9ca3af;
+  --weather-rain: #4a90e2;
+  --weather-storm: #2c3e70;
+  --weather-snow: #e0f2fe;
+  --weather-heat-alert: #eb5757;
+  --weather-cold-alert: #2f80ed;
+
+  /* Status and Feedback */
+  --status-success: #27ae60;
+  --status-warning: #f2994a;
+  --status-error: #eb5757;
+  --status-info: #2d9cdb;
+
+  /* Charts and Data */
+  --temp-high: #f2994a;
+  --temp-low: #56ccf2;
+  --rain-prob: #4a90e2;
+  --wind-speed: #6b7280;
 
   /* Legacy/Refactored mappings */
+  --accent-weather: var(--weather-rain);
+  --accent-news: var(--primary-color);
   --weather-text: var(--text-primary);
   --weather-accent: var(--accent-weather);
-  --weather-shadow: rgba(111, 174, 217, 0.1); /* Based on Muted Blue */
+  --weather-shadow: rgba(58, 91, 160, 0.1);
 
   /* Global Transition */
   --theme-transition: background-color 0.3s ease, color 0.3s ease,
@@ -42,6 +90,18 @@ a:hover {
   color: var(--primary-color) !important;
 }
 
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.text-dark {
+  color: var(--text-primary) !important;
+}
+
 .bg-primary {
   background-color: var(--primary-color) !important;
 }
@@ -52,11 +112,20 @@ a:hover {
   color: white !important;
 }
 
+.btn-primary {
+  background-color: var(--btn-primary-default) !important;
+  border-color: var(--btn-primary-default) !important;
+  color: var(--text-on-primary) !important;
+}
+
 .btn-primary:hover {
-  background-color: var(
-    --text-primary
-  ) !important; /* Slightly darker charcoal */
-  border-color: var(--text-primary) !important;
+  background-color: var(--btn-primary-hover) !important;
+  border-color: var(--btn-primary-hover) !important;
+}
+
+.btn-primary:active {
+  background-color: var(--btn-primary-pressed) !important;
+  border-color: var(--btn-primary-pressed) !important;
 }
 
 .btn-outline-primary {
@@ -116,7 +185,8 @@ body {
 
 .card {
   background-color: var(--surface-color);
-  border-color: var(--divider-color);
+  border: 1px solid var(--divider-color);
+  box-shadow: var(--card-shadow);
 }
 
 main {
@@ -124,8 +194,8 @@ main {
 }
 
 .date_time_info {
-  background-color: #fafaf8 !important;
-  color: #2f2f2f !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-primary) !important;
 }
 
 .date_time_info span {
@@ -154,20 +224,20 @@ main {
 }
 
 .navbar {
-  background-color: var(--primary-color) !important;
+  background-color: var(--nav-top-bg) !important;
   padding: 0;
-  border-bottom: 1px solid var(--divider-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .nav-link {
-  color: var(--bg-color) !important;
+  color: var(--nav-top-text) !important;
   opacity: 0.8;
 }
 
 .nav-link:hover,
 .nav-link.active {
   font-weight: 600 !important;
-  color: #6faed9 !important;
+  color: var(--secondary-highlight) !important;
   opacity: 1;
 }
 
@@ -184,12 +254,12 @@ main {
   height: 30px;
   font-size: 30px;
   margin: 30px 8px;
-  color: #fafaf8 !important;
+  color: var(--bg-color) !important;
   transition: color 0.3s ease;
 }
 
 .icon-link:hover .footer_icon {
-  color: #6faed9 !important;
+  color: var(--secondary-highlight) !important;
 }
 
 .home_banner_3 .icons {
@@ -197,7 +267,7 @@ main {
 }
 
 .footer_item span {
-  color: #6faed9;
+  color: var(--secondary-highlight);
   font-weight: bold;
 }
 
@@ -207,12 +277,12 @@ main {
 }
 
 a.footer-text-link {
-  color: #fafaf8 !important;
+  color: var(--bg-color) !important;
   opacity: 0.8;
 }
 
 a.footer-text-link:hover {
-  color: #6faed9 !important;
+  color: var(--secondary-highlight) !important;
   opacity: 1;
 }
 
@@ -592,9 +662,9 @@ a.footer-text-link:hover {
 }
 
 .chatbot-modal-dialog .modal-header {
-  background-color: #2f2f2f;
-  color: #fafaf8;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: var(--nav-top-bg);
+  color: var(--nav-top-text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
 }
 
@@ -659,8 +729,8 @@ a.footer-text-link:hover {
 
 .chatbot_messages .message.user .bubble {
   background: var(--primary-color);
-  box-shadow: 0 2px 5px rgba(47, 47, 47, 0.3);
-  color: white;
+  box-shadow: 0 2px 5px rgba(58, 91, 160, 0.3);
+  color: var(--text-on-primary);
   align-self: flex-end;
   border-bottom-right-radius: 4px;
 }
@@ -674,7 +744,7 @@ a.footer-text-link:hover {
 
 .chatbot_form {
   padding: 1rem 1.5rem 1.5rem;
-  background-color: #fafaf8;
+  background-color: var(--bg-color);
   border-top: 1px solid var(--divider-color);
   margin-top: 0 !important;
   gap: 0.5rem;

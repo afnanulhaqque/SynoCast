@@ -35,7 +35,7 @@
 
 .weather-icon-sun {
   animation: sun-rotate 20s linear infinite, sun-pulse 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.5));
+  filter: drop-shadow(0 0 10px rgba(242, 201, 76, 0.5));
 }
 
 /* Cloud Animation - Floating */
@@ -319,31 +319,31 @@
 
 /* Icon Color Transitions */
 .weather-icon-sun {
-  color: #ffc107 !important;
+  color: var(--weather-sunny) !important;
 }
 
 .weather-icon-cloud,
 .weather-icon-clouds {
-  color: #90a4ae !important;
+  color: var(--weather-cloudy) !important;
 }
 
 .weather-icon-rain,
 .weather-icon-showers {
-  color: #42a5f5 !important;
+  color: var(--weather-rain) !important;
 }
 
 .weather-icon-snow {
-  color: #e3f2fd !important;
-  filter: drop-shadow(0 0 5px rgba(227, 242, 253, 0.8));
+  color: var(--weather-snow) !important;
+  filter: drop-shadow(0 0 5px rgba(224, 242, 254, 0.8));
 }
 
 .weather-icon-thunderstorm {
-  color: #455a64 !important;
+  color: var(--weather-storm) !important;
 }
 
 .weather-icon-fog,
 .weather-icon-mist {
-  color: #b0bec5 !important;
+  color: var(--weather-cloudy) !important;
 }
 
 .weather-icon-moon {
@@ -351,7 +351,7 @@
 }
 
 .weather-icon-wind {
-  color: #78909c !important;
+  color: var(--wind-speed) !important;
 }
 
 /* Hover Effects for Interactive Icons */
