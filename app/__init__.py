@@ -46,7 +46,7 @@ def create_app():
         'default-src': ['\'self\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://*.googleapis.com', 'https://*.gstatic.com'],
         'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://unpkg.com', 'https://*.googlesyndication.com'],
         'font-src': ['\'self\'', 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com', 'data:'],
-        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://html2canvas.hertzen.com', 'https://cdn.plot.ly'],
+        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://html2canvas.hertzen.com', 'https://cdn.plot.ly', 'https://cdnjs.cloudflare.com'],
         'connect-src': ['\'self\'', 'https://*'],
         'frame-src': ['\'self\'', 'https://*.doubleclick.net', 'https://*.googlesyndication.com', 'https://www.google.com'],
         'img-src': ['\'self\'', 'data:', 'https://*'],

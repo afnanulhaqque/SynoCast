@@ -1,0 +1,49 @@
+<!-- 3D Puffy Cloud Preloader Component -->
+<link rel="stylesheet" href="/assets/styles/preloader.css">
+
+<div id="page-preloader" class="preloader-overlay">
+    <div class="preloader-content">
+        <div class="preloader-cloud-container">
+            <div class="cloud-puffs">
+                <!-- 5 Puffs to form the 3D Cloud Structure -->
+                <div class="puff"></div>
+                <div class="puff"></div>
+                <div class="puff"></div>
+                <div class="puff"></div>
+                <div class="puff"></div>
+
+                <!-- Shadow for grounding -->
+                <div class="cloud-shadow"></div>
+            </div>
+        </div>
+        <div class="preloader-text">Loading Forecast</div>
+    </div>
+</div>
+
+<script>
+    // Ensure smooth removal of preloader
+    window.addEventListener('load', function () {
+        const preloader = document.getElementById('page-preloader');
+        if (preloader) {
+            setTimeout(() => {
+                preloader.classList.add('hidden');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    // Optional: remove from DOM entirely to free memory
+                    preloader.remove();
+                }, 600);
+            }, 800);
+        }
+    });
+
+    // Fallback: Force hide after 5 seconds
+    setTimeout(() => {
+        const preloader = document.getElementById('page-preloader');
+        if (preloader && !preloader.classList.contains('hidden')) {
+            preloader.classList.add('hidden');
+            setTimeout(() => {
+                if (preloader) preloader.style.display = 'none';
+            }, 600);
+        }
+    }, 5000);
+</script>

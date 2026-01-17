@@ -232,3 +232,11 @@ def pakistan():
         current_app.logger.error(f"Pakistan page error: {e}")
         return render_template("500.html"), 500
 
+@main_bp.route('/test')
+def test_thermometer():
+    return render_template("test_thermometer.html", active_page="test")
+
+@main_bp.route('/preloader')
+def preloader_demo():
+    return render_template("preloader_test.html")
+
