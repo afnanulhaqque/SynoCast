@@ -1,33 +1,42 @@
-<div class="p-3" id="home-weather-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0 text-primary fw-bold" id="home-city-name">Loading...</h5>
+<div class="weather-card-container p-4 h-100 d-flex flex-column justify-content-between" id="home-weather-card">
+
+    <!-- Header: Location & Dropdown -->
+    <div class="d-flex justify-content-between align-items-center z-2 position-relative">
+        <h5 class="fw-bold mb-0 d-flex align-items-center gap-2 text-truncate skeleton"
+            style="max-width: 80%; min-width: 150px; min-height: 24px;" id="home-city-name">
+            Loading...
+        </h5>
 
         <!-- Dropdown for Favorites -->
         <div class="dropdown">
-            <i class="fa-solid fa-circle-plus fs-5 text-primary" type="button" id="favoritesDropdown"
-                data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;"></i>
-            <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="favoritesDropdown"
-                style="min-width: 250px;">
+            <i class="fa-solid fa-circle-plus fs-5 text-primary opacity-75 hover-scale" type="button"
+                id="favoritesDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                style="cursor: pointer; transition: opacity 0.2s;"></i>
+
+            <ul class="dropdown-menu dropdown-menu-end p-3 shadow-lg border-0 rounded-4"
+                aria-labelledby="favoritesDropdown" style="min-width: 260px;">
                 <li>
-                    <h6 class="dropdown-header">Favorite Cities</h6>
+                    <h6 class="dropdown-header text-uppercase small fw-bold text-muted">Favorite Cities</h6>
                 </li>
                 <li>
                     <div style="max-height: 200px; overflow-y: auto;">
                         <ul id="favorites-list" class="list-unstyled mb-0">
-                            <li><span class="dropdown-item text-muted">No favorites added</span></li>
+                            <li><span class="dropdown-item text-muted small">No favorites added</span></li>
                         </ul>
                     </div>
                 </li>
                 <li>
-                    <hr class="dropdown-divider">
+                    <hr class="dropdown-divider opacity-10">
                 </li>
                 <li>
                     <form class="animated-search-form" onsubmit="return false;" style="position: relative;">
-                        <input id="new-city-input" type="search" required placeholder="Add city..."
-                            aria-label="Add city" autocomplete="off">
-                        <i class="fas fa-search search-icon"></i>
-                        <div id="new-city-results" class="position-absolute w-100 shadow-lg mt-1 d-none"
-                            style="z-index: 1050; background: white; max-height: 150px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; bottom: 100%; margin-bottom: 10px;">
+                        <input id="new-city-input" type="search" class="form-control form-control-sm rounded-pill"
+                            required placeholder="Add city..." aria-label="Add city" autocomplete="off"
+                            style="padding-right: 30px;">
+                        <i
+                            class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-3 small opacity-50"></i>
+                        <div id="new-city-results" class="position-absolute w-100 shadow-lg mt-2 d-none"
+                            style="z-index: 1050; background: white; max-height: 150px; overflow-y: auto; border-radius: 12px; top: 100%;">
                         </div>
                     </form>
                 </li>
@@ -35,46 +44,46 @@
         </div>
     </div>
 
-    <div class="position-relative mb-3">
-        <img id="home-weather-img" src="/assets/images/mockupWeather-Sub-banner.png" class="img-fluid rounded-4 w-100"
-            alt="Weather Scene"
-            style="height: 220px; object-fit: cover; filter: brightness(0.75) !important; opacity: 1 !important;">
+    <!-- Main Content: Hero Image & Temperature -->
+    <div class="text-center my-2 position-relative z-1">
+        <div class="position-relative d-inline-block">
+            <div id="home-weather-icon-container" class="weather-icon-display mb-2">
+                <i class="fas fa-cloud text-primary skeleton" style="font-size: 6rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+
+        <div class="mt-n3 position-relative z-2">
+            <div class="weather-temp-display skeleton" style="min-width: 120px; min-height: 60px; margin: 0 auto;"
+                id="home-temp">--°</div>
+            <p class="mb-0 opacity-75 fw-medium" id="home-condition">Clean</p>
+        </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-end mb-3">
-        <div>
-            <p class="fw-bold mb-0" id="home-day">Today</p>
-            <p class="text-muted small mb-0" id="home-date">--</p>
-        </div>
-        <div class="text-end">
-            <h2 class="display-4 fw-bold mb-0" id="home-time">--:--</h2>
-        </div>
+    <!-- Date & Time -->
+    <div class="text-center mb-4">
+        <p class="mb-0 fw-bold font-monospace opacity-90 skeleton d-inline-block" id="home-time"
+            style="font-size: 1.25rem; letter-spacing: 1px; min-width: 80px; min-height: 20px;">--:--</p>
+        <p class="small opacity-75 mb-0"><span id="home-day">Today</span>, <span id="home-date">--</span></p>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-2">
-            <img src="/assets/images/Vector-sub-banner.png" style="width: 20px;" alt="Clean">
-            <span class="small" id="home-condition">Clean</span>
+    <!-- Grid Metrics (Glass Panels) -->
+    <div class="row g-2 mb-4">
+        <div class="col-6">
+            <div class="glass-panel p-2 d-flex align-items-center justify-content-center gap-2">
+                <i class="fas fa-wind opacity-75 ml-1"></i>
+                <span id="home-wind" class="fw-bold small skeleton" style="min-width: 60px;">-- km/h</span>
+            </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <img src="/assets/images/wind-sub-banner.png" style="width: 20px;" alt="Wind">
-            <span class="small" id="home-wind">-- km/h</span>
+        <div class="col-6">
+            <div class="glass-panel p-2 d-flex align-items-center justify-content-center gap-2">
+                <i class="fas fa-tint opacity-75 ml-1"></i>
+                <span id="home-humidity" class="fw-bold small skeleton" style="min-width: 40px;">--%</span>
+            </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <img src="/assets/images/cloud-rain-sub-banner.png" style="width: 20px;" alt="Rain">
-            <span class="small" id="home-humidity">--%</span>
-        </div>
-
-        <div class="d-flex align-items-center gap-3">
-
-            <div class="display-6 fw-bold" id="home-temp">--°</div>
-        </div>
-
     </div>
 
     <!-- Hourly Forecast -->
-    <div class="d-flex justify-content-between text-center" id="home-hourly-forecast">
-        <!-- Forecast items will be populated by JS -->
-        <div class="text-muted small w-100 py-4">Loading forecast...</div>
+    <div class="d-flex justify-content-between text-center gap-2 overflow-hidden" id="home-hourly-forecast">
+        <div class="text-white small w-100 py-3 opacity-75">Loading forecast...</div>
     </div>
 </div>

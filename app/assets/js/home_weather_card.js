@@ -85,30 +85,43 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch(weatherUrl);
             const data = await res.json();
             
-            if (data.current) {
-                // Save to cache
-                data.cityName = cityName;
-                localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
+                if (data.current) {
+                    // Save to cache
+                    data.cityName = cityName;
+                    localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
 
-                // Current Weather Data Mapping (OpenWeatherMap)
-                if(tempEl) tempEl.textContent = `${Math.round(data.current.main.temp)}°`;
-                if(windEl) windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed); // Use shared formatter
-                if(humidityEl) humidityEl.textContent = `${data.current.main.humidity}%`;
-                
-                // Update time/date
-                const offsetSeconds = data.current.timezone; 
-                const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+                    // Helper to remove skeleton
+                    const removeSkeleton = (el) => {
+                        if (el) {
+                            el.classList.remove('skeleton');
+                            el.style.minWidth = '';
+                            el.style.minHeight = '';
+                        }
+                    };
 
-                if(timeEl) timeEl.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-                if(dayEl) dayEl.textContent = "Today"; 
-                
+                    // Current Weather Data Mapping (OpenWeatherMap)
+                    if(tempEl) { tempEl.textContent = `${Math.round(data.current.main.temp)}°`; removeSkeleton(tempEl); }
+                    if(windEl) { windEl.textContent = WeatherUtils.formatWind(data.current.wind.speed); removeSkeleton(windEl); }
+                    if(humidityEl) { humidityEl.textContent = `${data.current.main.humidity}%`; removeSkeleton(humidityEl); }
+                    
+                    // Update time/date
+                    const offsetSeconds = data.current.timezone; 
+                    const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+
+                    if(timeEl) { 
+                        timeEl.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                        removeSkeleton(timeEl);
+                    }
+                    if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                    if(dayEl) dayEl.textContent = "Today"; 
+                    
+                    // City Name
+                    if(cityEl) { removeSkeleton(cityEl); } // Text is set at start of fetch, but remove skeleton now
+
                 if (data.current.weather && data.current.weather[0]) {
                      const conditionEl = document.getElementById('home-condition');
                      if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
                 }
-
-
             }
 
             if (data.forecast && forecastEl) {
@@ -127,7 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!forecastEl) return;
         forecastEl.innerHTML = '';
         const hourlyList = forecastData.list;
-        for (let i = 0; i < 5; i++) {
+        // Limit to 4 items to fit the narrow container (w-350) with margins
+        for (let i = 0; i < 4; i++) {
             if (i >= hourlyList.length) break;
             const item = hourlyList[i];
             const temp = Math.round(item.main.temp);
@@ -135,15 +149,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemTime = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
             const timeStr = itemTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
             const wCode = item.weather[0].id;
-            const iconClass = WeatherUtils.getIconClass(wCode, item.weather[0].icon);
+            const iconData = WeatherUtils.getIconClass(wCode, item.weather[0].icon);
             const div = document.createElement('div');
-            div.className = i === 0 ? 'bg-primary text-white rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover' : 'bg-light text-primary rounded-3 py-4 d-flex flex-column align-items-center justify-content-center forecast-card-hover';
-            div.style.minWidth = '55px';
+            // Use 'active-forecast-pill' class for the first item for easier styling
+            const isActive = (i === 0);
+            div.className = isActive 
+                ? 'active-forecast-pill d-flex flex-column align-items-center justify-content-center py-3 px-2 shadow-sm' 
+                : 'forecast-pill d-flex flex-column align-items-center justify-content-center py-3 px-2';
+            
+            div.style.minWidth = '60px'; // Slightly wider
+            div.style.borderRadius = '50px'; // Pill shape
+            div.style.transition = 'transform 0.2s';
+            div.style.cursor = 'pointer';
+
+            // Inline styles for colors to ensure they stick regardless of CSS specificity issues
+            const bgColor = isActive ? 'var(--primary-color)' : '#f8f9fa';
+            const textColor = isActive ? '#ffffff' : 'var(--text-primary)';
+            
+            div.style.background = bgColor;
+            div.style.color = textColor;
+
             div.innerHTML = `
-                <p class="small mb-1" style="font-size: 10px;">${timeStr}</p>
-                <i class="fa-solid ${iconClass} mb-1"></i>
-                <p class="small mb-0 fw-bold">${temp}°</p>
+                <p class="mb-2" style="font-size: 0.75rem; font-weight: 500; margin: 0;">${timeStr}</p>
+                <i class="fa-solid ${iconData.icon} mb-2" style="font-size: 1.2rem;"></i>
+                <p class="mb-0 fw-bold" style="font-size: 1rem;">${temp}°</p>
             `;
+            
+            // Add hover effect via JS events since we are using inline styles
+            div.onmouseenter = () => { div.style.transform = 'translateY(-5px)'; };
+            div.onmouseleave = () => { div.style.transform = 'translateY(0)'; };
+
+            forecastEl.appendChild(div);
             forecastEl.appendChild(div);
         }
     }
@@ -230,18 +266,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         
-        // Update weather scene image based on temperature
-        const imgEl = document.getElementById('home-weather-img');
-        if (imgEl) {
-            const temp = data.current.main.temp;
-            const weatherId = data.current.weather[0].id; // Use ID for better accuracy
-            const main = data.current.weather[0].main.toLowerCase();
+        
+        // Update weather icon (Large)
+        const iconContainer = document.getElementById('home-weather-icon-container');
+        if (iconContainer && data.current.weather && data.current.weather[0]) {
+            const weatherId = data.current.weather[0].id;
+            const iconCode = data.current.weather[0].icon;
             
-            // Map Weather Condition to Image
-            const imgName = WeatherUtils.getWeatherSceneImage(weatherId);
+            // Get proper icon class
+            const weatherMeta = WeatherUtils.getIconClass(weatherId, iconCode);
             
-            imgEl.src = `/assets/images/${imgName}`;
-            imgEl.alt = data.current.weather[0].main; 
+            // Create vibrant icon
+            iconContainer.innerHTML = `
+                <i class="fa-solid ${weatherMeta.icon} text-primary" 
+                   style="font-size: 7rem; filter: drop-shadow(0 10px 20px rgba(58, 91, 160, 0.3)); 
+                          animation: float 6s ease-in-out infinite;"></i>
+            `;
         }
 
         if (data.forecast && forecastEl) {

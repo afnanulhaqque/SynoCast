@@ -67,6 +67,13 @@
   --theme-transition:
     background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
     box-shadow 0.3s ease;
+
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --glass-blur: blur(8px);
+  --weather-gradient: linear-gradient(135deg, #3a5ba0 0%, #1a2a6c 100%);
 }
 
 /* Global Selection Styling */
@@ -796,6 +803,127 @@ a.footer-text-link:hover {
   background-color: var(--surface-color);
   border-color: var(--divider-color);
   transition: var(--theme-transition);
+}
+
+/* Premium Weather Card Styles - Light Theme */
+.weather-card-container {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f4f8 100%);
+  color: var(--text-primary);
+  border-radius: 24px;
+  box-shadow: 0 12px 36px rgba(58, 91, 160, 0.15);
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Glass Panels (adapted for light theme) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.glass-btn {
+  background: rgba(58, 91, 160, 0.1);
+  border: 1px solid rgba(58, 91, 160, 0.2);
+  color: var(--primary-color);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.glass-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(58, 91, 160, 0.3);
+}
+
+/* Typography Overrides for Light Card */
+.weather-card-container .text-primary {
+  color: var(--primary-color) !important;
+}
+
+.weather-card-container .text-muted {
+  color: var(--text-muted) !important;
+}
+
+.weather-card-container .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Specific Element Styling */
+.weather-temp-display {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.weather-hero-img {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  transition: transform 0.5s ease;
+  animation: float 6s ease-in-out infinite;
+}
+
+.weather-hero-img:hover {
+  transform: scale(1.05);
+}
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-loading {
+  0% {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.skeleton {
+  animation: skeleton-loading 1.5s infinite ease-in-out;
+  color: transparent !important;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.skeleton * {
+  visibility: hidden;
+}
+
+.skeleton-text {
+  height: 1em;
+  width: 60%;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+/* Forecast Items */
+.forecast-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 5px;
+  transition: all 0.2s ease;
+}
+
+.forecast-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+.forecast-active {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .dropdown-item {
@@ -4267,4 +4395,62 @@ body {
 
 [data-theme="dark"] .card-body i.text-primary {
   color: #4dabff !important;
+}
+
+/* Overrides for JS-generated elements inside Weather Card (Light Theme) */
+.weather-card-container .bg-light {
+  background: rgba(255, 255, 255, 0.5) !important;
+  color: var(--text-primary) !important;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.weather-card-container .bg-primary {
+  background: var(--primary-color) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(58, 91, 160, 0.3);
+}
+
+.weather-card-container .dropdown-menu {
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.weather-card-container input[type="search"] {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: var(--text-primary);
+}
+
+.weather-card-container input[type="search"]::placeholder {
+  color: #adb5bd;
+}
+
+/* Forecast text colors for light theme */
+.weather-card-container .text-white {
+  color: var(--text-secondary) !important;
+}
+
+/* Make forecast active card pop */
+.forecast-active {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Fix skeleton for light theme */
+.weather-card-container .skeleton {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Fix icons colors */
+.weather-card-container .fas,
+.weather-card-container .fa-solid,
+.weather-card-container .fa-regular {
+  color: var(--primary-color);
+}
+
+.weather-card-container .dropdown-toggle::after {
+  color: var(--primary-color);
 }
