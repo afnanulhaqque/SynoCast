@@ -259,13 +259,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 800);
     }
 
+
     function updateThermometer(temp) {
         const mercury = document.getElementById('home-mercury');
-        const bulb = document.getElementById('home-bulb');
-        if (!mercury || !bulb) return;
+        const container = document.querySelector('.glass-thermometer-mini');
+        
+        if (!mercury || !container) return;
 
         // Map -20 to 50 scale to 0 to 100% height
-        // min = -20, max = 50, range = 70
         let percentage = ((temp + 20) / 70) * 100;
         percentage = Math.max(0, Math.min(100, percentage));
 
@@ -274,13 +275,21 @@ document.addEventListener('DOMContentLoaded', function() {
         // Change color based on temperature
         if (temp > 25) {
             mercury.classList.add('mercury-hot');
-            bulb.classList.add('bulb-hot');
         } else {
             mercury.classList.remove('mercury-hot');
-            bulb.classList.remove('bulb-hot');
+        }
+
+        // Add weather animations based on current condition
+        const conditionText = document.getElementById('home-condition')?.textContent.toLowerCase() || '';
+        
+        container.classList.remove('weather-rain', 'weather-snow');
+        
+        if (conditionText.includes('rain') || conditionText.includes('drizzle') || conditionText.includes('storm')) {
+            container.classList.add('weather-rain');
+        } else if (conditionText.includes('snow') || conditionText.includes('blizzard') || conditionText.includes('flurries')) {
+            container.classList.add('weather-snow');
         }
     }
-
 
     // Initialize
     renderFavorites();
@@ -301,4 +310,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
