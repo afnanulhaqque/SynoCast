@@ -7,8 +7,8 @@
   --bg-color: #f7f8fa;
   --surface-color: #ffffff;
   --divider-color: #e5e7eb;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --card-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --modal-overlay: rgba(0, 0, 0, 0.4);
 
   /* Typography */
@@ -64,8 +64,9 @@
   --weather-shadow: rgba(58, 91, 160, 0.1);
 
   /* Global Transition */
-  --theme-transition: background-color 0.3s ease, color 0.3s ease,
-    border-color 0.3s ease, box-shadow 0.3s ease;
+  --theme-transition:
+    background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Global Selection Styling */
@@ -616,7 +617,9 @@ a.footer-text-link:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   padding: 0;
 }
 
@@ -1084,7 +1087,9 @@ a.footer-text-link:hover {
 .news-banner-icons .icon {
   width: 24px;
   height: 24px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
   opacity: 0.9;
   color: #3a5ba0;
 }
@@ -1424,7 +1429,9 @@ a.footer-text-link:hover {
 
 /* AI Insights & Impacts */
 .impact-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.03) !important;
 }
 
@@ -2321,7 +2328,9 @@ a.footer-text-link:hover {
 
 /* Common Card Styles */
 .hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
@@ -2439,7 +2448,9 @@ a.footer-text-link:hover {
   appearance: none;
   border: none;
   color: transparent;
-  font: 1em/1.5 "Poppins", sans-serif;
+  font:
+    1em/1.5 "Poppins",
+    sans-serif;
   padding: 0;
   cursor: pointer;
   position: relative;
@@ -3075,7 +3086,9 @@ textarea:focus {
 }
 
 .search-pill:focus-within {
-  box-shadow: 0 0 0 4px var(--weather-shadow), 0 4px 15px var(--weather-shadow) !important;
+  box-shadow:
+    0 0 0 4px var(--weather-shadow),
+    0 4px 15px var(--weather-shadow) !important;
   border-color: var(--primary-color) !important;
 }
 
@@ -4212,7 +4225,9 @@ body {
    License Page Styles
    ========================================= */
 .license-document {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .license-document:hover {
@@ -4256,4 +4271,63 @@ body {
 
 .tracking-wider {
   letter-spacing: 0.1em;
+}
+
+/* Glass Thermometer Styles (Mini) */
+.glass-thermometer-mini {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  height: 60px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.thermometer-tube-mini {
+  position: relative;
+  width: 8px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.mercury-column-mini {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, #3a5ba0, #6faed9);
+  transition:
+    height 1s cubic-bezier(0.4, 0, 0.2, 1),
+    background 1s ease;
+  border-radius: 5px 5px 0 0;
+}
+
+.thermometer-bulb-mini {
+  width: 16px;
+  height: 16px;
+  background: #3a5ba0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 1s ease;
+  z-index: 2;
+  margin-top: -6px;
+}
+
+.mercury-hot {
+  background: linear-gradient(to top, #eb5757, #f2994a) !important;
+}
+
+.bulb-hot {
+  background: #eb5757 !important;
 }

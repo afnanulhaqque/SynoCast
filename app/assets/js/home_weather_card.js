@@ -107,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
                      const conditionEl = document.getElementById('home-condition');
                      if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
                 }
+
+                // Update Thermometer
+                updateThermometer(data.current.main.temp);
             }
 
             if (data.forecast && forecastEl) {
@@ -225,6 +228,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const conditionEl = document.getElementById('home-condition');
             if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
         }
+
+        // Update Thermometer
+        updateThermometer(data.current.main.temp);
         
         // Update weather scene image based on temperature
         const imgEl = document.getElementById('home-weather-img');
@@ -253,6 +259,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 800);
     }
 
+    function updateThermometer(temp) {
+        const mercury = document.getElementById('home-mercury');
+        const bulb = document.getElementById('home-bulb');
+        if (!mercury || !bulb) return;
+
+        // Map -20 to 50 scale to 0 to 100% height
+        // min = -20, max = 50, range = 70
+        let percentage = ((temp + 20) / 70) * 100;
+        percentage = Math.max(0, Math.min(100, percentage));
+
+        mercury.style.height = `${percentage}%`;
+
+        // Change color based on temperature
+        if (temp > 25) {
+            mercury.classList.add('mercury-hot');
+            bulb.classList.add('bulb-hot');
+        } else {
+            mercury.classList.remove('mercury-hot');
+            bulb.classList.remove('bulb-hot');
+        }
+    }
+
+
     // Initialize
     renderFavorites();
     
@@ -261,23 +290,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initialCache) {
         renderWeatherData(initialCache);
     } else {
-        // IMPROVEMENT: Check top bar for initial location data (from IP-detection on server)
         const timeDisplay = document.getElementById('dynamic_time_display');
         const topCity = timeDisplay?.getAttribute('data-city');
-        const topOffset = timeDisplay?.getAttribute('data-offset');
         
         if (topCity && topCity !== 'Unknown') {
-            // We have a city from server-side IP detection
-            // We need lat/lon to fetch weather. Since we don't have them yet, 
-            // we can either geocode the city or rely on the IP fallback below.
-            // But let's at least show the city name immediately.
             if(cityEl) cityEl.textContent = topCity;
-            showLocationPrompt(); // Still show prompt but with city name
+            showLocationPrompt(); 
         } else {
             showLocationPrompt();
         }
     }
-    
-    // No explicit initialization needed here as location_handler.js
-    // handles the synocast_location_granted event.
 });
+

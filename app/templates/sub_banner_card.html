@@ -64,7 +64,17 @@
             <img src="/assets/images/cloud-rain-sub-banner.png" style="width: 20px;" alt="Rain">
             <span class="small" id="home-humidity">--%</span>
         </div>
-        <div class="display-6 fw-bold" id="home-temp">--°</div>
+
+        <div class="d-flex align-items-center gap-3">
+            <div class="glass-thermometer-mini">
+                <div class="thermometer-tube-mini">
+                    <div class="mercury-column-mini" id="home-mercury"></div>
+                </div>
+                <div class="thermometer-bulb-mini" id="home-bulb"></div>
+            </div>
+            <div class="display-6 fw-bold" id="home-temp">--°</div>
+        </div>
+
     </div>
 
     <!-- Hourly Forecast -->
