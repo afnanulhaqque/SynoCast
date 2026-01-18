@@ -11,7 +11,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s linear;
+  transition:
+    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.6s linear;
 }
 
 .preloader-overlay.hidden {
@@ -59,7 +61,8 @@
     #e6e9f0 80%,
     #b8c6db 100%
   );
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.1),
     inset -5px -5px 15px rgba(0, 0, 0, 0.05);
   transform-style: preserve-3d;
   transition: all 0.5s ease;
@@ -207,5 +210,14 @@
 @keyframes shimmer {
   100% {
     left: 100%;
+  }
+}
+@media (max-width: 576px) {
+  .preloader-cloud-container {
+    transform: scale(0.8);
+  }
+  .preloader-text {
+    font-size: 1rem;
+    letter-spacing: 1px;
   }
 }

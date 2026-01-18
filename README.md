@@ -61,6 +61,10 @@ Is today unusually hot? SynoCast checks **30 years of climate comparisons** to t
 - **Offline Capable**: View cached forecasts even without internet.
 - **Push Notifications**: Receive critical weather alerts and daily summaries.
 
+### ✨ Immersive Experience
+
+- **3D Puffy Cloud Preloader**: A bespoke, animated 3D cloud preloader that ensures smooth, branded transitions between pages, even on slower connections.
+
 ---
 
 ## 📂 Project Structure

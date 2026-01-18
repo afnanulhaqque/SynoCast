@@ -16,12 +16,12 @@
                 <div class="cloud-shadow"></div>
             </div>
         </div>
-        <div class="preloader-text">Loading Forecast</div>
+        <div class="preloader-text">SynoCast</div>
     </div>
 </div>
 
 <script>
-    // Ensure smooth removal of preloader
+    // Ensure smooth removal of preloader on page load
     window.addEventListener('load', function () {
         const preloader = document.getElementById('page-preloader');
         if (preloader) {
@@ -29,14 +29,32 @@
                 preloader.classList.add('hidden');
                 setTimeout(() => {
                     preloader.style.display = 'none';
-                    // Optional: remove from DOM entirely to free memory
-                    preloader.remove();
                 }, 600);
-            }, 800);
+            }, 600);
         }
     });
 
-    // Fallback: Force hide after 5 seconds
+    // Show preloader on internal links to improve perceived performance
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('a');
+        if (link &&
+            link.href &&
+            link.href.startsWith(window.location.origin) &&
+            !link.href.includes('#') &&
+            link.target !== '_blank' &&
+            !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+
+            const preloader = document.getElementById('page-preloader');
+            if (preloader) {
+                preloader.style.display = 'flex';
+                setTimeout(() => {
+                    preloader.classList.remove('hidden');
+                }, 10);
+            }
+        }
+    }, { passive: true });
+
+    // Fallback: Force hide after 8 seconds
     setTimeout(() => {
         const preloader = document.getElementById('page-preloader');
         if (preloader && !preloader.classList.contains('hidden')) {
@@ -45,5 +63,5 @@
                 if (preloader) preloader.style.display = 'none';
             }, 600);
         }
-    }, 5000);
+    }, 8000);
 </script>
