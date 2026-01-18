@@ -785,6 +785,65 @@ def api_leaderboard():
             
     return jsonify(leaders)
 
+@api_bp.route("/ai_chat", methods=["POST"])
+@csrf.exempt
+@limiter.limit("20 per minute")
+def api_ai_chat():
+    data = request.get_json()
+    message = data.get('message')
+    lat = data.get('lat')
+    lon = data.get('lon')
+
+    if not message:
+        return jsonify({"error": "Message is required"}), 400
+
+    # Context gathering
+    weather_context = "User location is unknown."
+    if lat and lon:
+        try:
+            api_key = os.environ.get("OPENWEATHER_API_KEY")
+            url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}"
+            w_res = requests.get(url, timeout=3)
+            if w_res.ok:
+                w_data = w_res.json()
+                weather_context = (
+                    f"User Location: {w_data.get('name', 'Unknown')}. "
+                    f"Current Weather: {w_data['main']['temp']}C, "
+                    f"{w_data['weather'][0]['description']}. "
+                    f"Humidity: {w_data['main']['humidity']}%. "
+                    f"Wind: {w_data['wind']['speed']} m/s."
+                )
+        except Exception as e:
+            current_app.logger.warning(f"Chat weather context failed: {e}")
+
+    # Prompt Engineering
+    system_instruction = (
+        "You are SynoCast AI, a friendly and expert weather assistant. "
+        "Keep your answers concise (under 3 sentences usually) unless asked for details. "
+        "Use emojis sparingly. "
+        "If asked about the website features, mention: 'I can help with Weather visuals, News, Travel packing, and Learning modules.' "
+        "Available context: " + weather_context
+    )
+
+    try:
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if not gemini_key:
+            return jsonify({"reply": "I'm currently offline (API Key missing). Please check back later!"})
+
+        client = genai.Client(api_key=gemini_key.strip())
+        prompt = f"{system_instruction}\nUser: {message}\nAssistant:"
+        
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-exp",
+            contents=prompt
+        )
+        
+        return jsonify({"reply": response.text})
+
+    except Exception as e:
+        current_app.logger.error(f"Chat AI Error: {e}")
+        return jsonify({"reply": "I'm having trouble thinking right now. Please try again."})
+
 @api_bp.route("/user/badges")
 def api_user_badges():
     if 'user_email' not in session:

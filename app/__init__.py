@@ -62,7 +62,7 @@ def create_app():
         referrer_policy='no-referrer-when-downgrade',
         permissions_policy={
             'geolocation': 'self',
-            'microphone': '()',
+            'microphone': 'self',
             'camera': '()',
         }
     )

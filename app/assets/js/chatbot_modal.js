@@ -48,9 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         wrapper.appendChild(bubble);
         
-        if (sender === 'bot') {
-            speakText(text);
-        }
+
         
         // Insert before typing indicator if it exists and is visible, otherwise append
         if (typingIndicator && typingIndicator.parentNode === messagesEl) {
