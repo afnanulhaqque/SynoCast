@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session, current_app, render_template
 from app import utils
+from app.extensions import csrf
 from app.database import get_db
 
 auth_bp = Blueprint('auth', __name__)
@@ -162,6 +163,7 @@ def api_user_favorites():
         return jsonify({"success": True})
 
 @auth_bp.route("/api/update-session-location", methods=["POST"])
+@csrf.exempt
 def update_session_location():
     """Update server-side session with client-granted location info."""
     data = request.get_json(silent=True) or {}

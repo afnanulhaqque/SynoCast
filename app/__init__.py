@@ -9,6 +9,7 @@ from app.database import init_db
 from app.routes.main import main_bp
 from app.routes.api import api_bp
 from app.routes.auth import auth_bp
+from app.routes.subscribe import subscribe_bp
 from app.tasks import check_weather_alerts, trigger_daily_forecast_webhooks
 
 def create_app():
@@ -41,14 +42,14 @@ def create_app():
     csrf.init_app(app)
     limiter.init_app(app)
     
-    # CSP Configuration
+    # Content Security Policy Configuration
     csp = {
         'default-src': ['\'self\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://*.googleapis.com', 'https://*.gstatic.com'],
         'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com', 'https://unpkg.com', 'https://*.googlesyndication.com'],
         'font-src': ['\'self\'', 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com', 'data:'],
-        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://html2canvas.hertzen.com', 'https://cdn.plot.ly', 'https://cdnjs.cloudflare.com'],
-        'connect-src': ['\'self\'', 'https://*'],
-        'frame-src': ['\'self\'', 'https://*.doubleclick.net', 'https://*.googlesyndication.com', 'https://www.google.com'],
+        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://*.googlesyndication.com', 'https://*.doubleclick.net', 'https://html2canvas.hertzen.com', 'https://cdn.plot.ly', 'https://cdnjs.cloudflare.com', 'https://*.google.com', 'https://*.adtrafficquality.google', 'https://www.googletagmanager.com'],
+        'connect-src': ['\'self\'', 'https://*', 'https://ep2.adtrafficquality.google'],
+        'frame-src': ['\'self\'', 'https://*.doubleclick.net', 'https://*.googlesyndication.com', 'https://www.google.com', 'https://*.adtrafficquality.google'],
         'img-src': ['\'self\'', 'data:', 'https://*'],
     }
     
@@ -60,7 +61,7 @@ def create_app():
         strict_transport_security=True,
         referrer_policy='no-referrer-when-downgrade',
         permissions_policy={
-            'geolocation': '(\'self\')',
+            'geolocation': 'self',
             'microphone': '()',
             'camera': '()',
         }
@@ -70,6 +71,7 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(subscribe_bp)
     
     # Initialize DB
     with app.app_context():

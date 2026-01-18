@@ -60,19 +60,20 @@ document.addEventListener('DOMContentLoaded', function () {
         subscribeActionBtn.textContent = 'Sending OTP...';
         subscribeActionBtn.disabled = true;
 
-        const params = new URLSearchParams();
-        params.append('action', 'request');
-        params.append('type', 'email');
-        params.append('email', input.value);
+        const payload = {
+            action: 'request',
+            type: 'email',
+            email: input.value
+        };
 
         try {
             const response = await fetch('/otp', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-CSRFToken': SecurityUtils.getCsrfToken()
                 },
-                body: params,
+                body: JSON.stringify(payload),
             });
 
             const data = await response.json();
@@ -111,10 +112,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const response = await fetch('/otp', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-CSRFToken': SecurityUtils.getCsrfToken()
                 },
-                body: new URLSearchParams({
+                body: JSON.stringify({
                     action: 'verify',
                     otp: otpInput.value,
                 }),

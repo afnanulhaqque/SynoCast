@@ -31,9 +31,17 @@
                 {% if user %}
                 <div class="d-grid gap-2">
                     <!-- Logout Button -->
-                    <button id="btn-logout" class="btn btn-outline-danger rounded-pill">
+                    <button id="btn-logout" class="btn btn-outline-danger rounded-pill mb-2">
                         <i class="fas fa-sign-out-alt me-2"></i> Log Out
                     </button>
+
+                    {% if user.subscription %}
+                    <!-- Unsubscribe Button -->
+                    <a href="/unsubscribe?email={{ user.subscription.email }}"
+                        class="btn btn-link text-danger text-decoration-none small">
+                        Unsubscribe from Alerts
+                    </a>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div class="alert alert-warning border-0 rounded-3 small">

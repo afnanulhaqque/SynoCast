@@ -80,6 +80,16 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1850326999292699"
         crossorigin="anonymous"></script>
 
+    <!-- Google Ads Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-CONVERSION_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'AW-CONVERSION_ID');
+    </script>
+
     {% block head %}
     {% endblock %}
 </head>

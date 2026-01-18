@@ -729,6 +729,12 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error("Analytics error", err);
         }
     }
+
+    // Alias/Polyfill for historical trends
+    async function fetchHistoricalTrends(lat, lon, years = 10) {
+        return fetchAnalytics(lat, lon);
+    }
+    const fetchHistory = fetchHistoricalTrends;
     
     function renderAnalyticsCharts(data) {
         if (!data || !document.getElementById('analyticsTempChart')) return;

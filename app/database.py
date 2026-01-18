@@ -38,6 +38,8 @@ def init_db():
                 )
                 """
             )
+            # Ensure email is unique
+            conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_subs_email ON subscriptions(email)")
             
             # User preferences for alerts and global settings
             conn.execute(

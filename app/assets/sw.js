@@ -52,6 +52,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Check for unsupported schemes (like chrome-extension)
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
   // Network-first strategy for API calls
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
@@ -60,8 +65,8 @@ self.addEventListener('fetch', (event) => {
           // Clone the response before caching
           const responseClone = response.clone();
           
-          // Cache successful API responses
-          if (response.ok) {
+          // Cache successful API responses ONLY if GET
+          if (response.ok && request.method === 'GET') {
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, responseClone);
             });
@@ -107,9 +112,12 @@ self.addEventListener('fetch', (event) => {
           // Clone the response
           const responseToCache = response.clone();
 
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
+          // Only cache GET requests
+          if (request.method === 'GET') {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
 
           return response;
         })

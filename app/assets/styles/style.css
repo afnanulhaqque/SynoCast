@@ -4407,3 +4407,20 @@ body {
   background: linear-gradient(to top, #eb5757, #f2994a) !important;
   background: #eb5757 !important;
 }
+
+.animate-bell { animation: swing 3s infinite ease-in-out; } @keyframes swing { 0% { transform: rotate(0deg); } 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 80% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } } .letter-spacing-2 { letter-spacing: 0.5em; }
+
+/* AdSense Container Fixes */
+.ad-container {
+  display: block;
+  width: 100%;
+  min-width: 300px;
+  min-height: 100px;
+  overflow: hidden;
+}
+.ad-banner {
+  min-height: 90px;
+}
+.ad-card {
+  min-height: 250px;
+}
