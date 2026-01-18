@@ -108,8 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                      if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
                 }
 
-                // Update Thermometer
-                updateThermometer(data.current.main.temp);
+
             }
 
             if (data.forecast && forecastEl) {
@@ -229,8 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if(conditionEl) conditionEl.textContent = data.current.weather[0].main;
         }
 
-        // Update Thermometer
-        updateThermometer(data.current.main.temp);
+
         
         // Update weather scene image based on temperature
         const imgEl = document.getElementById('home-weather-img');
@@ -260,36 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    function updateThermometer(temp) {
-        const mercury = document.getElementById('home-mercury');
-        const container = document.querySelector('.glass-thermometer-mini');
-        
-        if (!mercury || !container) return;
 
-        // Map -20 to 50 scale to 0 to 100% height
-        let percentage = ((temp + 20) / 70) * 100;
-        percentage = Math.max(0, Math.min(100, percentage));
-
-        mercury.style.height = `${percentage}%`;
-
-        // Change color based on temperature
-        if (temp > 25) {
-            mercury.classList.add('mercury-hot');
-        } else {
-            mercury.classList.remove('mercury-hot');
-        }
-
-        // Add weather animations based on current condition
-        const conditionText = document.getElementById('home-condition')?.textContent.toLowerCase() || '';
-        
-        container.classList.remove('weather-rain', 'weather-snow');
-        
-        if (conditionText.includes('rain') || conditionText.includes('drizzle') || conditionText.includes('storm')) {
-            container.classList.add('weather-rain');
-        } else if (conditionText.includes('snow') || conditionText.includes('blizzard') || conditionText.includes('flurries')) {
-            container.classList.add('weather-snow');
-        }
-    }
 
     // Initialize
     renderFavorites();
