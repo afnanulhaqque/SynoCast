@@ -5,3 +5,4 @@ from .climate import *
 from .impact import *
 from .economy import *
 from .notifications import *
+from .science import *

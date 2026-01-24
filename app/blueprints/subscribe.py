@@ -80,45 +80,51 @@ def otp_handler():
         if str(user_otp).strip() == str(session_otp).strip():
             # Success! Save to DB
             try:
-                with get_db() as conn:
-                    # Double check existence
-                    c = conn.cursor()
-                    c.execute("SELECT 1 FROM subscriptions WHERE email = ?", (session_email,))
-                    if c.fetchone():
-                        return jsonify({"success": False, "message": "User already subscribed."}), 400
+                from app.models.user import Subscriber, UserPreferences
+                from app.extensions import db
+
+                # Check existence
+                existing_sub = Subscriber.query.filter_by(email=session_email).first()
+                if existing_sub:
+                    return jsonify({"success": False, "message": "User already subscribed."}), 400
+                
+                # Create Subscriber
+                new_sub = Subscriber(
+                    email=session_email,
+                    subscription_type='email',
+                    created_at=datetime.utcnow()
+                )
+                db.session.add(new_sub)
+                
+                # Save preferences
+                if session_prefs:
+                    try:
+                        if isinstance(session_prefs, str):
+                            prefs_dict = json.loads(session_prefs)
+                        else:
+                            prefs_dict = session_prefs
                         
-                    conn.execute(
-                        "INSERT INTO subscriptions (email, subscription_type, created_at) VALUES (?, ?, ?)",
-                        (session_email, 'email', datetime.utcnow().isoformat())
-                    )
-                    
-                    # Save preferences
-                    if session_prefs:
-                        try:
-                            # It might come as a JSON string or dict
-                            if isinstance(session_prefs, str):
-                                prefs_dict = json.loads(session_prefs)
-                            else:
-                                prefs_dict = session_prefs
-                                
-                            conn.execute(
-                                """
-                                INSERT OR REPLACE INTO user_preferences (email, alert_thresholds, notification_channels)
-                                VALUES (?, ?, ?)
-                                """,
-                                (session_email, json.dumps(prefs_dict), json.dumps(["email"]))
-                            )
-                        except Exception as e:
-                            logger.error(f"Error saving prefs: {e}")
+                        # Check existing prefs
+                        user_pref = UserPreferences.query.filter_by(email=session_email).first()
+                        if not user_pref:
+                             user_pref = UserPreferences(email=session_email)
+                             db.session.add(user_pref)
+                        
+                        user_pref.alert_thresholds = json.dumps(prefs_dict)
+                        user_pref.notification_channels = json.dumps(["email"])
+                        
+                    except Exception as e:
+                        logger.error(f"Error saving prefs: {e}")
                             
-                    conn.commit()
-                    
+                db.session.commit()
+                
                 # Clear session
                 session.pop('subscription_otp', None)
                 session.pop('subscription_prefs', None)
                 
                 return jsonify({"success": True, "message": "Subscribed successfully!"})
             except Exception as e:
+                db.session.rollback()
                 logger.error(f"Subscription DB error: {e}")
                 return jsonify({"success": False, "message": "Database error occurred."}), 500
         else:

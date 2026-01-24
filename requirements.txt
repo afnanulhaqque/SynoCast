@@ -8,3 +8,6 @@ flask-limiter
 flask-seasurf
 pywebpush
 beautifulsoup4
+flask-sqlalchemy
+flask-migrate
+flask-babel

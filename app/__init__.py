@@ -4,12 +4,13 @@ from datetime import timedelta
 from flask import Flask
 from dotenv import load_dotenv
 
-from app.extensions import csrf, limiter, talisman
+from app.extensions import csrf, limiter, talisman, db, migrate, babel
 from app.database import init_db
-from app.routes.main import main_bp
-from app.routes.api import api_bp
-from app.routes.auth import auth_bp
-from app.routes.subscribe import subscribe_bp
+from app.blueprints.main import main_bp
+from app.blueprints.api import api_bp
+from app.blueprints.auth import auth_bp
+from app.blueprints.subscribe import subscribe_bp
+from app.blueprints.admin import admin_bp
 from app.tasks import check_weather_alerts, trigger_daily_forecast_webhooks
 
 def create_app():
@@ -38,9 +39,21 @@ def create_app():
         MAX_CONTENT_LENGTH=5 * 1024 * 1024, # Limit uploads to 5MB
     )
     
+    # Database Configuration
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(app.root_path, "subscriptions.db")
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    def get_locale():
+        # Check if user has stored preference
+        # return request.accept_languages.best_match(['en', 'ur', 'ar'])
+        return 'en' # Defaulting to en for now until translation files are ready
+
     # Initialize Extensions
     csrf.init_app(app)
     limiter.init_app(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
+    babel.init_app(app, locale_selector=get_locale)
     
     # Content Security Policy Configuration
     csp = {
@@ -72,6 +85,7 @@ def create_app():
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(subscribe_bp)
+    app.register_blueprint(admin_bp)
     
     # Initialize DB
     with app.app_context():

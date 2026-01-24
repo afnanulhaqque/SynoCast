@@ -65,9 +65,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/assets/styles/style.css">
+
     <link rel="stylesheet" href="/assets/styles/responsive.css">
     <link rel="stylesheet" href="/assets/styles/weather-animations.css">
     <link rel="stylesheet" href="/assets/styles/weather-backgrounds.css">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="_csrf_token" content="{{ csrf_token() }}">
     <title>
@@ -96,6 +98,8 @@
 
 <body>
     {% include 'preloader_component.html' %}
+
+
 
     <main id="main-content">
         <div class="date_time_info pb-1 pt-1">
@@ -152,6 +156,7 @@
 
 
 
+
                     <li class="nav-item d-flex align-items-center ms-lg-3">
                         <button type="button" id="navbarSubscribeBtn"
                             class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
@@ -159,6 +164,7 @@
                             Subscribe
                         </button>
                     </li>
+
                 </ul>
 
                 <!-- Mobile Menu Footer -->
@@ -404,6 +410,7 @@
     <script src="/assets/js/timezone.js"></script>
     <script src="/assets/js/currency.js"></script>
     <script src="/assets/js/idioms.js"></script>
+
 
     <script>
 

@@ -69,48 +69,22 @@
     <!-- Science Explainers -->
     <h3 class="fw-bold mb-4 border-bottom pb-2">Science Explained</h3>
     <div class="row g-4">
+        {% for article in science_explained %}
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
-                <img src="https://images.unsplash.com/photo-1594156596782-fa8205b1f189?w=600&q=80"
-                    class="card-img-top rounded-top-4" alt="Clouds" style="height: 200px; object-fit: cover;">
+                <img src="{{ article.image }}" class="card-img-top rounded-top-4" alt="{{ article.title }}"
+                    style="height: 200px; object-fit: cover;">
                 <div class="card-body">
-                    <span class="badge bg-light text-primary mb-2">Basics</span>
-                    <h5 class="card-title fw-bold">How Clouds Form</h5>
-                    <p class="card-text text-muted small">Understanding the process of condensation and nucleation in
-                        the atmosphere.</p>
-                    <a href="#" class="btn btn-link text-primary p-0 text-decoration-none fw-bold stretched-link">Read
+                    <span class="badge bg-light {{ article.category_class }} mb-2">{{ article.category }}</span>
+                    <h5 class="card-title fw-bold">{{ article.title }}</h5>
+                    <p class="card-text text-muted small">{{ article.description }}</p>
+                    <a href="{{ url_for('main.science_detail', slug=article.slug) }}"
+                        class="btn btn-link text-primary p-0 text-decoration-none fw-bold stretched-link">Read
                         More <i class="fas fa-arrow-right small"></i></a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
-                <img src="https://images.unsplash.com/photo-1527482797697-8795b05a13fe?w=600&q=80"
-                    class="card-img-top rounded-top-4" alt="Tornado" style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-light text-danger mb-2">Severe Weather</span>
-                    <h5 class="card-title fw-bold">Tornado Genesis</h5>
-                    <p class="card-text text-muted small">What conditions are necessary for a supercell thunderstorm to
-                        produce a tornado?</p>
-                    <a href="#" class="btn btn-link text-primary p-0 text-decoration-none fw-bold stretched-link">Read
-                        More <i class="fas fa-arrow-right small"></i></a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
-                <img src="https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=600&q=80"
-                    class="card-img-top rounded-top-4" alt="Climate" style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-light text-success mb-2">Climate</span>
-                    <h5 class="card-title fw-bold">The Greenhouse Effect</h5>
-                    <p class="card-text text-muted small">A deep dive into how greenhouse gases trap heat and warm our
-                        planet.</p>
-                    <a href="#" class="btn btn-link text-primary p-0 text-decoration-none fw-bold stretched-link">Read
-                        More <i class="fas fa-arrow-right small"></i></a>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
 </div>

@@ -1,5 +1,10 @@
 
 import os
+import sys
+
+# Add the project root to sys.path to allow imports from app
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import requests
 from app import create_app
 

@@ -2,6 +2,7 @@ import os
 import json
 from app import utils
 from flask import Blueprint, render_template, jsonify, current_app, send_from_directory
+from flask_babel import gettext as _
 
 main_bp = Blueprint('main', __name__)
 
@@ -154,12 +155,39 @@ def map_explorer():
     return render_template("map.html", active_page="map", meta=seo_meta)
 
 @main_bp.route("/learn")
+
 def weather_wisdom():
+    # Fetch 3 science facts, rotated every 5 hours
+    science_explained = utils.get_rotated_science_facts(limit=3)
+
     seo_meta = {
         "description": "Master weather concepts with SynoCast's Weather Wisdom. Learn about climate science, terminology, and daily trivia.",
         "keywords": "weather education, climate change explainers, weather glossary, meteorology for beginners, weather trivia"
     }
-    return render_template("learn.html", active_page="learn", meta=seo_meta)
+    return render_template(
+        "learn.html", 
+        active_page="learn", 
+        meta=seo_meta,
+        science_explained=science_explained
+    )
+
+@main_bp.route("/learn/science/<slug>")
+def science_detail(slug):
+    fact = utils.get_science_fact_by_slug(slug)
+    if not fact:
+        return render_template("404.html"), 404
+        
+    seo_meta = {
+        "description": fact['description'],
+        "keywords": f"{fact['title']}, weather science, {fact['category']}, meteorology"
+    }
+    
+    return render_template(
+        "science_detail.html",
+        active_page="learn",
+        meta=seo_meta,
+        fact=fact
+    )
 
 @main_bp.route("/compare")
 def compare_cities():
@@ -231,5 +259,3 @@ def pakistan():
     except Exception as e:
         current_app.logger.error(f"Pakistan page error: {e}")
         return render_template("500.html"), 500
-
-

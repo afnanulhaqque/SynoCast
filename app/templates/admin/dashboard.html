@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<div class="container mt-5 pt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>CMS Dashboard</h1>
+        <a href="{{ url_for('admin.create_resource') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Resource
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm glass-panel">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Educational Resources</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for res in resources %}
+                        <tr>
+                            <td>{{ res.title }}</td>
+                            <td><span class="badge bg-secondary">{{ res.category }}</span></td>
+                            <td>
+                                {% if res.published %}
+                                <span class="badge bg-success">Published</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Draft</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ res.updated_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_resource', id=res.id) }}"
+                                    class="btn btn-sm btn-outline-primary">Edit</a>
+                                <form action="{{ url_for('admin.delete_resource', id=res.id) }}" method="POST"
+                                    class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No resources found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

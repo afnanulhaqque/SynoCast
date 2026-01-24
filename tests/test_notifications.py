@@ -1,6 +1,10 @@
 
 import os
 import sys
+
+# Add the project root to sys.path to allow imports from app
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from flask import Flask
 from app.utils.notifications import send_alert_email, send_otp_email
 

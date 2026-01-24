@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ fact.title }} - Weather Wisdom{% endblock %}
+
+{% block body %}
+<div class="container py-5 my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.weather_wisdom') }}">Weather Wisdom</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ fact.title }}</li>
+                </ol>
+            </nav>
+
+            <article>
+                <header class="mb-4">
+                    <span class="badge bg-light {{ fact.category_class }} mb-2 fs-6">{{ fact.category }}</span>
+                    <h1 class="fw-bold text-primary mb-3">{{ fact.title }}</h1>
+                    <p class="lead text-secondary">{{ fact.description }}</p>
+                </header>
+
+                <figure class="figure w-100 mb-5">
+                    <img src="{{ fact.image }}" class="figure-img img-fluid rounded-4 shadow-sm w-100"
+                        alt="{{ fact.title }}" style="max-height: 500px; object-fit: cover;">
+                </figure>
+
+                <div class="article-content fs-5 text-dark" style="line-height: 1.8;">
+                    {{ fact.content | safe }}
+                </div>
+
+                <hr class="my-5">
+
+                <div class="text-center">
+                    <a href="{{ url_for('main.weather_wisdom') }}" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Weather Wisdom
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %}

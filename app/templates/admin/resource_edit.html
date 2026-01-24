@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if resource else 'New' }} Resource{% endblock %}
+
+{% block body %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm glass-panel">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">{{ 'Edit' if resource else 'Create New' }} Resource</h2>
+
+                    <form method="POST">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                value="{{ resource.title if resource else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="slug" class="form-label">Slug (URL friendly)</label>
+                            <input type="text" class="form-control" id="slug" name="slug"
+                                value="{{ resource.slug if resource else '' }}">
+                            <div class="form-text">Leave blank to auto-generate from title.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="Climate Science" {% if resource and resource.category=='Climate Science'
+                                    %}selected{% endif %}>Climate Science</option>
+                                <option value="Meteorology 101" {% if resource and resource.category=='Meteorology 101'
+                                    %}selected{% endif %}>Meteorology 101</option>
+                                <option value="Weather Safety" {% if resource and resource.category=='Weather Safety'
+                                    %}selected{% endif %}>Weather Safety</option>
+                                <option value="Trivia" {% if resource and resource.category=='Trivia' %}selected{% endif
+                                    %}>Trivia</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content (HTML/Markdown)</label>
+                            <textarea class="form-control" id="content" name="content" rows="10"
+                                required>{{ resource.content if resource else '' }}</textarea>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="published" name="published" {% if
+                                resource and resource.published %}checked{% endif %}>
+                            <label class="form-check-label" for="published">Publish immediately</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Resource</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
