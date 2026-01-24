@@ -5,7 +5,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: #fafaf8; /* Warm White */
+  background: rgba(
+    250,
+    250,
+    248,
+    0.2
+  ); /* Semi-transparent Warm White for Glassy Effect */
+  backdrop-filter: blur(15px); /* Strong blur for the "active page" vision */
+  -webkit-backdrop-filter: blur(15px);
   z-index: 10000;
   display: flex;
   flex-direction: column;
