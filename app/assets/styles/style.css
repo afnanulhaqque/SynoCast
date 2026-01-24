@@ -267,7 +267,6 @@ main {
   color: var(--bg-color) !important;
 }
 
-.footer_icon,
 .home_banner_3 .icon {
   width: 30px;
   height: 30px;
@@ -275,10 +274,6 @@ main {
   margin: 30px 8px;
   color: var(--bg-color) !important;
   transition: color 0.3s ease;
-}
-
-.icon-link:hover .footer_icon {
-  color: var(--secondary-highlight) !important;
 }
 
 .home_banner_3 .icons {
@@ -1211,31 +1206,6 @@ a.footer-text-link:hover {
 .forecast-card-hover:hover i,
 .forecast-card-hover:hover .text-primary {
   color: white !important;
-}
-
-/* News Banner Icons */
-.news-banner-icons {
-  left: 10%;
-  bottom: 70px;
-  display: flex;
-  gap: 20px;
-  z-index: 10;
-  padding-bottom: 20px;
-}
-
-.news-banner-icons .icon {
-  width: 24px;
-  height: 24px;
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
-  opacity: 0.9;
-  color: #3a5ba0;
-}
-
-.news-banner-icons .icon:hover {
-  transform: scale(1.2);
-  opacity: 1;
 }
 
 /* Footer Text Link Hover Effect */
@@ -3738,11 +3708,6 @@ body {
     min-width: 200px;
     text-align: center;
     margin: 0;
-  }
-
-  /* Center social icons in footer */
-  .mobile-menu-footer .d-flex {
-    justify-content: center !important;
   }
 
   /* Adjust Navbar Toggler (Hamburger) */
