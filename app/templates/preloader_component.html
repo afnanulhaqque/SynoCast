@@ -1,5 +1,18 @@
 <!-- 3D Puffy Cloud Preloader Component -->
 <link rel="stylesheet" href="/assets/styles/preloader.css">
+<style>
+    /* Default: Hide preloader for standard web users */
+    #page-preloader {
+        display: none;
+    }
+
+    /* Standalone Mode: Show preloader for PWA/App users */
+    @media all and (display-mode: standalone) {
+        #page-preloader {
+            display: flex;
+        }
+    }
+</style>
 
 <div id="page-preloader" class="preloader-overlay">
     <div class="preloader-content">
@@ -21,10 +34,14 @@
 </div>
 
 <script>
+    // Detect if the app is running in standalone mode (PWA)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
     // Ensure smooth removal of preloader on page load
     window.addEventListener('load', function () {
         const preloader = document.getElementById('page-preloader');
         if (preloader) {
+            // Even if hidden by CSS, we run the logic to ensure it's cleaned up in DOM if needed
             setTimeout(() => {
                 preloader.classList.add('hidden');
                 setTimeout(() => {
@@ -35,7 +52,10 @@
     });
 
     // Show preloader on internal links to improve perceived performance
+    // ONLY enabled for Standalone/App mode
     document.addEventListener('click', function (e) {
+        if (!isStandalone) return;
+
         const link = e.target.closest('a');
         if (link &&
             link.href &&
