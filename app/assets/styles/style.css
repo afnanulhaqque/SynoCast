@@ -3442,7 +3442,7 @@ body {
 /* Mobile Hamburger Menu Styling */
 @media (max-width: 991px) {
   .navbar-collapse {
-    background-color: #3a5ba0 !important;
+    background-color: #2f2f2f !important;
     padding: 1rem;
     border-radius: 0 0 1rem 1rem;
   }
@@ -3462,7 +3462,7 @@ body {
 
 /* Community Tabs Theming */
 #communityTabs .nav-link {
-  color: #3a5ba0 !important;
+  color: #2f2f2f !important;
   background-color: transparent;
   border: 2px solid var(--primary-color);
   transition: all 0.3s ease;
