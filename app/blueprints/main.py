@@ -155,7 +155,6 @@ def map_explorer():
     return render_template("map.html", active_page="map", meta=seo_meta)
 
 @main_bp.route("/learn")
-
 def weather_wisdom():
     # Fetch 3 science facts, rotated every 5 hours
     science_explained = utils.get_rotated_science_facts(limit=3)
@@ -259,3 +258,7 @@ def pakistan():
     except Exception as e:
         current_app.logger.error(f"Pakistan page error: {e}")
         return render_template("500.html"), 500
+
+@main_bp.route("/test-loading")
+def test_loading():
+    return render_template("test_loading.html")

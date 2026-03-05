@@ -4,6 +4,7 @@ from app.models.content import EducationalResource
 from app.extensions import db
 from datetime import datetime
 import functools
+import os
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 

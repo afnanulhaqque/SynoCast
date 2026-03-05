@@ -149,6 +149,66 @@ def init_db():
                 """
             )
 
+            # Weather Reports Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS weather_reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    lat REAL,
+                    lon REAL,
+                    city TEXT,
+                    reported_condition TEXT,
+                    reported_at TEXT,
+                    is_accurate INTEGER,
+                    api_condition TEXT,
+                    email TEXT
+                )
+                """
+            )
+
+            # User Points Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_points (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    points INTEGER,
+                    event_type TEXT,
+                    description TEXT,
+                    created_at TEXT
+                )
+                """
+            )
+
+            # Badges Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS badges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE,
+                    description TEXT,
+                    icon TEXT
+                )
+                """
+            )
+
+            # User Badges Table
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_badges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    badge_id INTEGER,
+                    awarded_at TEXT,
+                    FOREIGN KEY(badge_id) REFERENCES badges(id),
+                    UNIQUE(email, badge_id)
+                )
+                """
+            )
+            
+            # Seed Badges
+            conn.execute("INSERT OR IGNORE INTO badges (name, description, icon) VALUES ('Reliable Source', 'Submitted 5 accurate reports', 'fa-check-circle')")
+
             conn.commit()
                 
         except Exception as e:

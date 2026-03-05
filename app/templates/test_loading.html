@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Loading Screen Test</title>
+    <style>
+        :root {
+            /* Theme Colors from style.css */
+            --primary-color: #2f2f2f;
+            --accent-weather: #6faed9;
+            /* Muted Blue */
+            --bg-color: #fafaf8;
+            /* Warm White */
+            --divider-color: #e5e7eb;
+
+            --loader-blue: var(--accent-weather);
+            --loader-bg: var(--divider-color);
+            --text-color: var(--primary-color);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .loader-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            margin-left: 5px;
+            animation: pulse-text 1.5s infinite ease-in-out;
+        }
+
+        /* Isometric/3D container */
+        .loader-container {
+            position: relative;
+            width: 300px;
+            height: 100px;
+            /* Filter to add some depth/shadow if needed */
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* The path track (white/grey background) */
+        .path-bg {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 20;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            /* Add a 3D effect side using multiple strokes or simple shadow filter */
+            filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.05));
+        }
+
+        /* The path side/depth (fake 3D) */
+        .path-depth {
+            fill: none;
+            stroke: #d1d1d1;
+            stroke-width: 20;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform: translate(0, 5px);
+            /* Shift down to look like side */
+        }
+
+        /* The filling moving bar */
+        .path-fill {
+            fill: none;
+            stroke: var(--loader-blue);
+            stroke-width: 20;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 0, 1000;
+            animation: fill-path 4s infinite linear;
+        }
+
+        /* Animation */
+        @keyframes fill-path {
+            0% {
+                stroke-dasharray: 0, 1000;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 200, 1000;
+                stroke-dashoffset: -100;
+            }
+
+            100% {
+                stroke-dasharray: 200, 1000;
+                stroke-dashoffset: -600;
+                /* Move it all the way out */
+            }
+        }
+
+        /* Simpler wipe animation */
+        .mask-rect {
+            x: 0;
+            y: 0;
+            width: 0;
+            height: 100%;
+            fill: white;
+            animation: progress-wipe 3s ease-in-out infinite;
+        }
+
+        @keyframes progress-wipe {
+            0% {
+                width: 0;
+            }
+
+            50% {
+                width: 100%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        @keyframes pulse-text {
+
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loader-wrapper">
+        <div class="loading-text">Loading...</div>
+
+        <div class="loader-container">
+            <svg viewBox="0 0 300 100">
+                <!-- Define the path definition -->
+                <defs>
+                    <!-- M startX startY L x y L x y -->
+                    <!-- A path that goes right, then zigs down-right, then right -->
+                    <path id="loadPath" d="M 20 40 L 120 40 L 150 70 L 250 70" />
+                </defs>
+
+                <!-- Fake 3D depth/shadow layer (rendered first to be behind) -->
+                <use href="#loadPath" class="path-depth" />
+
+                <!-- The background channel -->
+                <use href="#loadPath" class="path-bg" />
+
+                <!-- The filling bar with masking or dasharray -->
+                <!-- We use a duplicate path for the fill and animate the stroke-dasharray -->
+                <path d="M 20 40 L 120 40 L 150 70 L 250 70" class="path-fill" id="animPath" />
+            </svg>
+        </div>
+    </div>
+
+    <script>
+        // Optional JS to refine the animation length based on path length
+        const path = document.getElementById('animPath');
+        const length = path.getTotalLength();
+        console.log('Path length:', length);
+
+        // We can set CSS variables here if we wanted precise dasharray
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length}`;
+
+        // Override the simple CSS animation with a more precise one via Web Animations API or just updating styles if needed
+        // For now, the CSS keyframe `fill-path` is generic. Let's make it match the length.
+
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes fill-path-precise {
+                0% {
+                    stroke-dasharray: ${length};
+                    stroke-dashoffset: ${length};
+                }
+                50% {
+                    stroke-dasharray: ${length / 2};
+                    stroke-dashoffset: 0;
+                }
+                100% {
+                    stroke-dasharray: ${length};
+                    stroke-dashoffset: -${length};
+                }
+            }
+            .path-fill {
+                animation: fill-path-precise 2.5s ease-in-out infinite;
+                stroke-dasharray: ${length}; /* Ensure start state is hidden */
+                stroke-dashoffset: ${length};
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
+</body>
+
+</html>
