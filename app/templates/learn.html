@@ -2,92 +2,879 @@
 
 {% block title %}Weather Wisdom{% endblock %}
 
+{% block head %}
+<style>
+  /* ================================================
+     LEARN PAGE — Premium Redesign
+     ================================================ */
+
+  /* Hero Section */
+  .learn-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 100px 0 80px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2f2f2f 50%, #16213e 100%);
+  }
+
+  .learn-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(111, 174, 217, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(217, 119, 6, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .learn-hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .learn-hero-particles span {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    animation: floatParticle 8s linear infinite;
+  }
+
+  .learn-hero-particles span:nth-child(1)  { left: 10%; top: 30%; animation-delay: 0s;    animation-duration: 9s;  width: 3px; height: 3px; }
+  .learn-hero-particles span:nth-child(2)  { left: 25%; top: 70%; animation-delay: 1.5s;  animation-duration: 11s; }
+  .learn-hero-particles span:nth-child(3)  { left: 45%; top: 20%; animation-delay: 3s;    animation-duration: 8s;  width: 4px; height: 4px; background: rgba(111,174,217,0.7); }
+  .learn-hero-particles span:nth-child(4)  { left: 65%; top: 60%; animation-delay: 0.7s;  animation-duration: 12s; }
+  .learn-hero-particles span:nth-child(5)  { left: 80%; top: 35%; animation-delay: 2s;    animation-duration: 10s; width: 3px; height: 3px; background: rgba(217,119,6,0.7); }
+  .learn-hero-particles span:nth-child(6)  { left: 90%; top: 80%; animation-delay: 4s;    animation-duration: 9s;  }
+  .learn-hero-particles span:nth-child(7)  { left: 55%; top: 50%; animation-delay: 5s;    animation-duration: 13s; width: 2px; height: 2px; }
+  .learn-hero-particles span:nth-child(8)  { left: 5%;  top: 85%; animation-delay: 2.5s;  animation-duration: 10s; width: 3px; height: 3px; }
+
+  @keyframes floatParticle {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.8; }
+    100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+  }
+
+  .learn-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(111, 174, 217, 0.15);
+    border: 1px solid rgba(111, 174, 217, 0.35);
+    color: #6faed9;
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+    text-transform: uppercase;
+  }
+
+  .learn-hero-badge i {
+    font-size: 14px;
+  }
+
+  .learn-hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+  }
+
+  .learn-hero h1 .accent-text {
+    background: linear-gradient(135deg, #6faed9 0%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .learn-hero p {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 600px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  .learn-hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat .stat-number {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  .hero-stat .stat-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .hero-stat-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,0.15);
+    align-self: center;
+  }
+
+  /* ================================================
+     SECTION LAYOUT
+     ================================================ */
+  .learn-main-section {
+    padding: 80px 0;
+    background: var(--bg-color);
+  }
+
+  .learn-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-weather);
+    margin-bottom: 10px;
+  }
+
+  .learn-section-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .learn-section-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+  }
+
+  /* ================================================
+     TRIVIA CARD
+     ================================================ */
+  .trivia-card {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1e3a5f 0%, #0f2744 40%, #1a2a4a 100%);
+    border: 1px solid rgba(111, 174, 217, 0.2);
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255,255,255,0.04) inset;
+    height: 100%;
+    min-height: 480px;
+  }
+
+  .trivia-card::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(111,174,217,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .trivia-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    left: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,119,6,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .trivia-card-inner {
+    position: relative;
+    z-index: 1;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .trivia-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .trivia-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(111, 174, 217, 0.15);
+    border: 1px solid rgba(111, 174, 217, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #6faed9;
+  }
+
+  .trivia-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #d97706;
+    background: rgba(217, 119, 6, 0.12);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    border-radius: 100px;
+    padding: 5px 14px;
+  }
+
+  .trivia-question-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    flex-grow: 0;
+  }
+
+  .trivia-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+  }
+
+  .trivia-option-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    padding: 13px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .trivia-option-btn:hover:not(:disabled) {
+    background: rgba(111, 174, 217, 0.15);
+    border-color: rgba(111, 174, 217, 0.4);
+    color: #ffffff;
+    transform: translateX(4px);
+  }
+
+  .trivia-option-btn.correct {
+    background: rgba(39, 174, 96, 0.2) !important;
+    border-color: rgba(39, 174, 96, 0.5) !important;
+    color: #4ade80 !important;
+  }
+
+  .trivia-option-btn.wrong {
+    background: rgba(235, 87, 87, 0.2) !important;
+    border-color: rgba(235, 87, 87, 0.5) !important;
+    color: #f87171 !important;
+  }
+
+  .trivia-result-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    animation: fadeSlideUp 0.3s ease;
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .trivia-result-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+
+  .trivia-result-box.correct-result strong { color: #4ade80; }
+  .trivia-result-box.wrong-result strong   { color: #f87171; }
+
+  .trivia-footer {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .btn-next-trivia {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(111, 174, 217, 0.15);
+    border: 1px solid rgba(111, 174, 217, 0.3);
+    color: #6faed9;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-next-trivia:hover {
+    background: rgba(111, 174, 217, 0.25);
+    border-color: rgba(111, 174, 217, 0.6);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(111, 174, 217, 0.2);
+  }
+
+  /* ================================================
+     GLOSSARY CARD
+     ================================================ */
+  .glossary-card {
+    background: var(--surface-color);
+    border-radius: 28px;
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .glossary-header {
+    padding: 28px 28px 0;
+    border-bottom: 1px solid var(--divider-color);
+    padding-bottom: 20px;
+  }
+
+  .glossary-header h5 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .glossary-search-wrap {
+    position: relative;
+  }
+
+  .glossary-search-wrap i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  #glossary-search {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border-radius: 14px;
+    border: 1px solid var(--divider-color);
+    background: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #glossary-search:focus {
+    border-color: var(--accent-weather);
+    box-shadow: 0 0 0 3px rgba(111, 174, 217, 0.12);
+  }
+
+  #glossary-search::placeholder {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  #glossary-container {
+    padding: 20px 28px 28px;
+    max-height: 380px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider-color) transparent;
+  }
+
+  #glossary-container::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  #glossary-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #glossary-container::-webkit-scrollbar-thumb {
+    background: var(--divider-color);
+    border-radius: 100px;
+  }
+
+  .glossary-term-card {
+    background: var(--bg-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: all 0.2s ease;
+  }
+
+  .glossary-term-card:hover {
+    border-color: var(--accent-weather);
+    box-shadow: 0 4px 16px rgba(111, 174, 217, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .glossary-term-card h6 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+  }
+
+  .glossary-term-card p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ================================================
+     SCIENCE EXPLAINED SECTION
+     ================================================ */
+  .science-section {
+    padding: 0 0 80px;
+    background: var(--bg-color);
+  }
+
+  .science-card {
+    background: var(--surface-color);
+    border-radius: 24px;
+    border: 1px solid var(--divider-color);
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .science-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    border-color: transparent;
+  }
+
+  .science-card-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .science-card:hover .science-card-img {
+    transform: scale(1.04);
+  }
+
+  .science-card-img-wrap {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .science-card-img-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, var(--surface-color), transparent);
+    pointer-events: none;
+  }
+
+  .science-card-body {
+    padding: 20px 22px 22px;
+  }
+
+  .science-category-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+
+  .science-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .science-card-desc {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .science-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+
+  .science-read-more:hover {
+    gap: 10px;
+    color: var(--accent-weather);
+  }
+
+  .science-read-more i {
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .science-read-more:hover i {
+    transform: translateX(2px);
+  }
+
+  /* ================================================
+     LOADING SKELETONS
+     ================================================ */
+  .skeleton-box {
+    background: linear-gradient(90deg, var(--divider-color) 25%, rgba(255,255,255,0.5) 50%, var(--divider-color) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ================================================
+     RESPONSIVE
+     ================================================ */
+  @media (max-width: 768px) {
+    .learn-hero { padding: 80px 0 60px; }
+    .learn-hero-stats { gap: 20px; }
+    .hero-stat-divider { display: none; }
+    #glossary-container { grid-template-columns: 1fr; }
+    .trivia-card { min-height: auto; }
+  }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="container py-5">
 
-    <!-- Hero Header -->
-    <div class="text-center mb-5 animate-slide-down">
-        <h1 class="display-4 fw-bold text-primary mb-3">Weather Wisdom</h1>
-        <p class="lead text-muted mx-auto" style="max-width: 700px;">
-            Dive into the fascinating world of meteorology. Test your knowledge, master the terminology, and understand
-            the science behind the storm.
-        </p>
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<section class="learn-hero text-center">
+  <div class="learn-hero-particles">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="container position-relative">
+    <div class="learn-hero-badge">
+      <i class="fas fa-cloud-sun"></i> Weather Education Hub
+    </div>
+    <h1>
+      Master the <span class="accent-text">Science</span><br>of Weather
+    </h1>
+    <p>
+      Test your knowledge with daily trivia, decode meteorological terminology,
+      and explore the fascinating forces that shape our climate.
+    </p>
+    <div class="learn-hero-stats">
+      <div class="hero-stat">
+        <span class="stat-number">50+</span>
+        <span class="stat-label">Trivia Questions</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="stat-number">120+</span>
+        <span class="stat-label">Glossary Terms</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="stat-number">{{ science_explained | length }}</span>
+        <span class="stat-label">Science Articles</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     MAIN CONTENT: TRIVIA + GLOSSARY
+     ============================================ -->
+<section class="learn-main-section">
+  <div class="container">
+
+    <!-- Section heading -->
+    <div class="mb-5">
+      <div class="learn-section-label"><i class="fas fa-brain me-1"></i> Interactive Learning</div>
+      <h2 class="learn-section-title">Test & Expand Your Knowledge</h2>
+      <p class="learn-section-subtitle">Answer the daily trivia or explore our full meteorology glossary.</p>
     </div>
 
-    <div class="row g-4 mb-5">
-        <!-- Trivia Section -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden text-white"
-                style="background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="fw-bold mb-0"><i class="fas fa-question-circle me-2 opacity-75"></i> Daily Trivia
-                        </h3>
-                        <span class="badge bg-white text-danger rounded-pill fw-bold px-3">Question of the Day</span>
-                    </div>
-
-                    <div id="trivia-container" class="flex-grow-1 d-flex flex-column justify-content-center">
-                        <h4 class="mb-4" id="trivia-question">Loading question...</h4>
-                        <div class="d-grid gap-2" id="trivia-options">
-                            <!-- Options injected by JS -->
-                            <div class="placeholder-glow"><span class="placeholder col-12 py-3 rounded"></span></div>
-                            <div class="placeholder-glow"><span class="placeholder col-12 py-3 rounded"></span></div>
-                        </div>
-                        <div id="trivia-result" class="mt-3 p-3 rounded bg-white bg-opacity-25 d-none animate-fade-in">
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <button class="btn btn-sm btn-outline-light rounded-pill px-4" id="next-trivia-btn">Next
-                            Question</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Glossary Search -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-book text-primary me-2"></i> Weather Glossary</h5>
-                </div>
-                <div class="card-body">
-                    <div class="input-group mb-4">
-                        <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" id="glossary-search" class="form-control border-0 bg-light"
-                            placeholder="Search terms (e.g. 'albedo', 'isobar')...">
-                    </div>
-
-                    <div id="glossary-container" class="row g-3" style="max-height: 400px; overflow-y: auto;">
-                        <div class="text-center text-muted py-5">Loading glossary...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Science Explainers -->
-    <h3 class="fw-bold mb-4 border-bottom pb-2">Science Explained</h3>
     <div class="row g-4">
-        {% for article in science_explained %}
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
-                <img src="{{ article.image }}" class="card-img-top rounded-top-4" alt="{{ article.title }}"
-                    style="height: 200px; object-fit: cover;">
-                <div class="card-body">
-                    <span class="badge bg-light {{ article.category_class }} mb-2">{{ article.category }}</span>
-                    <h5 class="card-title fw-bold">{{ article.title }}</h5>
-                    <p class="card-text text-muted small">{{ article.description }}</p>
-                    <a href="{{ url_for('main.science_detail', slug=article.slug) }}"
-                        class="btn btn-link text-primary p-0 text-decoration-none fw-bold stretched-link">Read
-                        More <i class="fas fa-arrow-right small"></i></a>
-                </div>
+
+      <!-- Trivia Card -->
+      <div class="col-lg-5">
+        <div class="trivia-card">
+          <div class="trivia-card-inner">
+
+            <div class="trivia-header">
+              <div class="trivia-icon-wrap">
+                <i class="fas fa-question"></i>
+              </div>
+              <span class="trivia-badge">Daily Trivia</span>
             </div>
+
+            <div id="trivia-question" class="trivia-question-text">Loading question...</div>
+
+            <div class="trivia-options" id="trivia-options">
+              <div class="trivia-option-btn skeleton-box" style="height:46px;background:rgba(255,255,255,0.08);border:none;"></div>
+              <div class="trivia-option-btn skeleton-box" style="height:46px;background:rgba(255,255,255,0.08);border:none;margin-top:2px;"></div>
+            </div>
+
+            <div id="trivia-result" class="trivia-result-box d-none"></div>
+
+            <div class="trivia-footer">
+              <button class="btn-next-trivia" id="next-trivia-btn">
+                <i class="fas fa-shuffle"></i> Next Question
+              </button>
+            </div>
+
+          </div>
         </div>
-        {% endfor %}
+      </div>
+
+      <!-- Glossary Card -->
+      <div class="col-lg-7">
+        <div class="glossary-card">
+
+          <div class="glossary-header">
+            <h5><i class="fas fa-book-open me-2" style="color:var(--accent-weather);"></i>Weather Glossary</h5>
+            <div class="glossary-search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="glossary-search" placeholder="Search terms — e.g. 'albedo', 'isobar', 'jet stream'…">
+            </div>
+          </div>
+
+          <div id="glossary-container">
+            <div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px 0;">
+              <i class="fas fa-spinner fa-spin me-2"></i> Loading glossary…
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SCIENCE EXPLAINED SECTION
+     ============================================ -->
+{% if science_explained %}
+<section class="science-section">
+  <div class="container">
+
+    <div class="d-flex align-items-end justify-content-between mb-5 flex-wrap gap-3">
+      <div>
+        <div class="learn-section-label"><i class="fas fa-flask me-1"></i> Deep Dives</div>
+        <h2 class="learn-section-title mb-1">Science Explained</h2>
+        <p class="learn-section-subtitle">Go beyond the forecast — understand the physics behind the weather.</p>
+      </div>
     </div>
 
-</div>
+    <div class="row g-4">
+      {% for article in science_explained %}
+      <div class="col-md-6 col-lg-4">
+        <div class="science-card">
+          <div class="science-card-img-wrap">
+            <img src="{{ article.image }}" class="science-card-img" alt="{{ article.title }}" loading="lazy">
+          </div>
+          <div class="science-card-body">
+            <span class="science-category-badge {{ article.category_class }}">{{ article.category }}</span>
+            <h5 class="science-card-title">{{ article.title }}</h5>
+            <p class="science-card-desc">{{ article.description }}</p>
+            <a href="{{ url_for('main.science_detail', slug=article.slug) }}" class="science-read-more stretched-link">
+              Read Article <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
-<script src="/assets/js/learn.js"></script>
+  </div>
+</section>
+{% endif %}
+
+<script>
+// Override renderQuestion and renderGlossary with premium DOM rendering
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Patch trivia rendering to use new CSS classes
+  const _origRenderQuestion = window.__learnRenderQuestion;
+
+  // Intercept trivia option creation
+  const triviaOptions = document.getElementById('trivia-options');
+  const triviaQuestion = document.getElementById('trivia-question');
+  const triviaResult   = document.getElementById('trivia-result');
+  const nextBtn        = document.getElementById('next-trivia-btn');
+
+  let currentQ = null;
+
+  async function loadTrivia() {
+    triviaResult.classList.add('d-none');
+    triviaOptions.innerHTML = `
+      <div class="trivia-option-btn skeleton-box" style="height:46px;background:rgba(255,255,255,0.08);border:none;"></div>
+      <div class="trivia-option-btn skeleton-box" style="height:46px;background:rgba(255,255,255,0.08);border:none;margin-top:2px;"></div>
+    `;
+    try {
+      const res = await fetch('/api/learn/trivia');
+      currentQ = await res.json();
+      renderQ(currentQ);
+    } catch(e) {
+      triviaQuestion.textContent = 'Could not load question.';
+    }
+  }
+
+  function renderQ(q) {
+    triviaQuestion.textContent = q.q;
+    triviaOptions.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'trivia-option-btn';
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(i);
+      triviaOptions.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(idx) {
+    const btns = triviaOptions.querySelectorAll('.trivia-option-btn');
+    const ok   = idx === currentQ.a;
+    btns.forEach((b, i) => {
+      b.disabled = true;
+      if (i === currentQ.a) b.classList.add('correct');
+      else if (i === idx && !ok) b.classList.add('wrong');
+    });
+    triviaResult.innerHTML = `
+      <strong>${ok ? '✓ Correct!' : '✗ Incorrect.'}</strong>
+      ${currentQ.expl}
+    `;
+    triviaResult.className = `trivia-result-box ${ok ? 'correct-result' : 'wrong-result'}`;
+    triviaResult.classList.remove('d-none');
+  }
+
+  if (nextBtn) nextBtn.addEventListener('click', loadTrivia);
+  if (triviaQuestion) loadTrivia();
+
+
+  // --- Override glossary rendering ---
+  const glossaryContainer = document.getElementById('glossary-search') ?
+    document.getElementById('glossary-container') : null;
+  const searchInput = document.getElementById('glossary-search');
+  let allTerms = [];
+
+  async function loadGlossary() {
+    try {
+      const res = await fetch('/api/learn/glossary');
+      allTerms = await res.json();
+      renderGlossary(allTerms);
+    } catch(e) {
+      if(glossaryContainer) glossaryContainer.innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;color:var(--status-error);padding:30px 0;">Failed to load glossary.</div>';
+    }
+  }
+
+  function renderGlossary(terms) {
+    if (!glossaryContainer) return;
+    glossaryContainer.innerHTML = '';
+    if (terms.length === 0) {
+      glossaryContainer.innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:30px 0;">No terms match your search.</div>';
+      return;
+    }
+    terms.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'glossary-term-card';
+      card.innerHTML = `<h6>${t.term}</h6><p>${t.definition}</p>`;
+      glossaryContainer.appendChild(card);
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      renderGlossary(allTerms.filter(t =>
+        t.term.toLowerCase().includes(q) ||
+        (t.definition && t.definition.toLowerCase().includes(q))
+      ));
+    });
+  }
+
+  if (glossaryContainer) loadGlossary();
+
+});
+</script>
+
 {% endblock %}
