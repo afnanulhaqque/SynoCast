@@ -377,6 +377,34 @@ main {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* ============================================
+   MOBILE NAVBAR — Dark Glass on ≤991px
+   ============================================ */
+@media (max-width: 991px) {
+  /* On mobile, the top state fills the full width with dark glass */
+  #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled),
+  .navbar {
+    background: rgba(47, 47, 47, 0.85) !important;
+    backdrop-filter: blur(12px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  }
+
+  /* Scrolled capsule on mobile: stay at top, use full width with pill-like corners */
+  .navbar.scrolled {
+    top: 8px !important;
+    width: 94% !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+  }
+
+  /* When the hamburger is open, round only the top — the collapse panel
+     rounds the bottom, giving a combined pill shape */
+  .navbar.scrolled.navbar-open,
+  .navbar-toggler[aria-expanded="true"] ~ .navbar .navbar-inner {
+    border-radius: 20px 20px 0 0 !important;
+  }
+}
+
 .header_card {
   border: none;
   border-radius: 0%;
@@ -1184,14 +1212,11 @@ a.footer-text-link:hover {
   font-weight: 600 !important;
 }
 
-/* Mobile Menu Styles */
+/* Mobile Menu Styles — layout only (background handled by glass block below) */
 @media (max-width: 991px) {
   .navbar-collapse {
-    background-color: var(--bg-color);
-    padding: 1rem 0;
     max-height: 80vh; /* Handle short devices */
     overflow-y: auto;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .navbar-nav {
@@ -1200,7 +1225,7 @@ a.footer-text-link:hover {
   }
 
   .navbar-nav .nav-item {
-    margin: 10px 0;
+    margin: 6px 0;
     width: 100%;
     text-align: center;
   }
@@ -3557,24 +3582,53 @@ body {
   font-weight: 500;
 }
 
-/* Mobile Hamburger Menu Styling */
+/* Mobile Hamburger Menu Styling — Dark Glassmorphic Dropdown */
 @media (max-width: 991px) {
+  /* The collapse panel matches the dark glass of the navbar */
   .navbar-collapse {
-    background-color: #2f2f2f !important;
-    padding: 1rem;
-    border-radius: 0 0 1rem 1rem;
+    background: rgba(47, 47, 47, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: none !important;
+    border-radius: 0 0 20px 20px !important;
+    padding: 0.75rem 1rem 1.25rem !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+    margin-top: 0 !important;
   }
 
+  /* When inside a scrolled (capsule) navbar, match the capsule bottom corners */
+  .navbar.scrolled .navbar-collapse {
+    border-radius: 0 0 20px 20px !important;
+  }
+
+  /* All nav links inside the opened menu: white text */
   .navbar-nav .nav-link {
-    color: #fafaf8 !important; /* Warm White */
-    padding-left: 10px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    padding: 10px 14px !important;
+    border-radius: 10px !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
   }
 
   .navbar-nav .nav-link:hover,
-  .navbar-nav .nav-link:focus,
+  .navbar-nav .nav-link:focus {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
   .navbar-nav .nav-link.active {
-    color: #6faed9 !important; /* Muted Blue */
-    background-color: transparent !important;
+    color: var(--secondary-highlight) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Subscribe button inside mobile menu */
+  .navbar-collapse .btn_subscribe {
+    background-color: #ffffff !important;
+    color: #2f2f2f !important;
+    border-color: #ffffff !important;
+    width: auto;
+    padding: 8px 24px !important;
+    margin-top: 0.5rem !important;
   }
 }
 
