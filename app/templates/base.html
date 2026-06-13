@@ -117,79 +117,53 @@
                         <span></span>
                     </div>
                 </button>
-            </div>
 
-            <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page"
-                            href="/" data-t="home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text" href="/news"
-                            data-t="news">News</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather"
-                            data-t="weather">Weather</a>
-                    </li>
+                <div class="collapse navbar-collapse align-right" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-5 ">
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'home' %}active{% endif %} nav_text" aria-current="page"
+                                href="/" data-t="home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'news' %}active{% endif %} nav_text" href="/news"
+                                data-t="news">News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'weather' %}active{% endif %} nav_text" href="/weather"
+                                data-t="weather">Weather</a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'travel' %}active{% endif %} nav_text" href="/travel"
-                            data-t="travel">Travel</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'map' %}active{% endif %} nav_text" href="/map"
-                            data-t="map">Map</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'learn' %}active{% endif %} nav_text" href="/learn"
-                            data-t="learn">Learn</a>
-                    </li>
-
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'travel' %}active{% endif %} nav_text" href="/travel"
+                                data-t="travel">Travel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'map' %}active{% endif %} nav_text" href="/map"
+                                data-t="map">Map</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if active_page == 'learn' %}active{% endif %} nav_text" href="/learn"
+                                data-t="learn">Learn</a>
+                        </li>
 
 
 
-                    <li class="nav-item d-flex align-items-center ms-lg-3">
-                        <button type="button" id="navbarSubscribeBtn"
-                            class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
-                            data-bs-target="#subscribe_modal" data-i18n="subscribe">
-                            Subscribe
-                        </button>
-                    </li>
 
-                </ul>
+                        <li class="nav-item d-flex align-items-center ms-lg-3">
+                            <button type="button" id="navbarSubscribeBtn"
+                                class="btn btn-outline-secondary btn_subscribe fw-medium" data-bs-toggle="modal"
+                                data-bs-target="#subscribe_modal" data-i18n="subscribe">
+                                Subscribe
+                            </button>
+                        </li>
+
+                    </ul>
 
 
+                </div>
             </div>
         </nav>
 
-        {% if global_headlines %}
-        <div class="news-ticker-wrapper">
-            <div class="ticker-title">Breaking News</div>
-            <div class="ticker-content">
-                <div class="ticker-items">
-                    {% for article in global_headlines %}
-                    <div class="ticker-item">
-                        <a href="{{ article.url }}" target="_blank">
-                            <span class="ticker-time">{{ article.publishedAt[:10] }}</span>
-                            {{ article.title }}
-                        </a>
-                    </div>
-                    {% endfor %}
-                    <!-- Duplicate for seamless loop -->
-                    {% for article in global_headlines %}
-                    <div class="ticker-item">
-                        <a href="{{ article.url }}" target="_blank">
-                            <span class="ticker-time">{{ article.publishedAt[:10] }}</span>
-                            {{ article.title }}
-                        </a>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
 
         {% block body %}
 
@@ -377,7 +351,7 @@
     <script src="{{ url_for('static', filename='js/location_handler.js') }}"></script>
     <script src="{{ url_for('static', filename='js/subscribe_modal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chatbot_modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/scroll_to_top.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scroll_to_top.js') }}?v=4"></script>
     <script src="{{ url_for('static', filename='js/keyboard_fix.js') }}"></script>
     <script src="/assets/js/autocomplete_utils.js"></script>
 

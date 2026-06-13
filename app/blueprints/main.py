@@ -12,22 +12,8 @@ def inject_common_data():
     from datetime import datetime
     data = {
         "date_time_info": utils.get_local_time_string(),
-        "global_headlines": [],
         "current_year": datetime.now().year
     }
-    
-    try:
-        # Fetch a few global headlines for the ticker
-        news_key = os.environ.get("NEWS_API_KEY")
-        if news_key:
-            data["global_headlines"] = utils.fetch_weather_news(
-                query="weather news headlines breaking", 
-                page_size=5, 
-                api_key=news_key
-            )
-    except Exception as e:
-        current_app.logger.error(f"Error injecting global news: {e}")
-        
     return data
 
 @main_bp.route('/sw.js')
