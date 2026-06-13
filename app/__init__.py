@@ -22,6 +22,7 @@ def create_app():
         static_folder="assets",
         static_url_path="/assets",
     )
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # Security Configuration
     app.secret_key = os.environ.get("FLASK_SECRET_KEY")

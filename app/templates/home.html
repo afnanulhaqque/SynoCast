@@ -3,61 +3,182 @@
 
 {% block title %} Home {% endblock title %}
 
+{% block head %}
+<link rel="stylesheet" href="/assets/styles/home_dashboard.css">
+{% endblock head %}
+
 {% block body %}
+<div class="dashboard-page-container">
+    <div class="container py-4">
+        <!-- Main Top Row: Left Info & Right Grid Metrics -->
+        <div class="row align-items-center mb-5 g-4">
+            <!-- Left Info Panel -->
+            <div class="col-lg-6">
+                <div class="hero-left-section init-fade-in">
+                    <div>
+                        <!-- Location Display -->
+                        <div class="location-display">
+                            <i class="fa-solid fa-crosshairs target-icon" id="target-location" title="Detect Current Location"></i>
+                            <span class="location-text" id="location-text">Loading location...</span>
+                        </div>
+                        
+                        <!-- Date & Time Refresh Display -->
+                        <div class="time-display">
+                            <i class="fa-solid fa-arrow-rotate-right" id="refresh-icon" title="Refresh weather"></i>
+                            <span id="refresh-time">--:-- am , --- --th</span>
+                        </div>
 
-<div class="position-relative w-100 home-banner-container home-banner-h">
-  <img src="/assets/images/banner-home-real.png" class="w-100 h-100 position-absolute top-0 start-0 banner-bg-img"
-    alt="Banner" fetchpriority="high">
-  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark banner-overlay"></div>
+                        <!-- Search Box inside Hero left section -->
+                        <div class="elegant-search-bar mt-4 position-relative">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="dashboard-search-input" class="form-control" placeholder="Search city (e.g. Islamabad)" autocomplete="off">
+                            </div>
+                            <div id="dashboard-search-results" class="position-absolute w-100 search-results-dropdown-glass d-none"></div>
+                        </div>
+                    </div>
 
-  <div class="container h-100">
-    <div class="row h-100 align-items-center">
-      <div class="col-lg-6 text-white pb-5">
-        <h1 class="fw-bold display-3 mb-3 shadow-text-lg">SynoCast</h1>
-        <p class="fs-4 fw-light lh-sm">
-          Your Weather, Your Journey: Always a Step Ahead with Our
-          <span class="fw-bold">Weather Forecasting App!</span>
-        </p>
-      </div>
+                    <!-- Huge Temperature Display -->
+                    <div>
+                        <h1 class="temp-large-display" id="current-temp">--.-<span class="unit">°C</span></h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Grid Metrics Panel -->
+            <div class="col-lg-6">
+                <div class="metrics-outer-container init-fade-in" style="animation-delay: 0.1s;">
+                    <!-- Left Arrow Indicator -->
+                    <button class="grid-nav-btn" id="btn-prev-metric" style="visibility: hidden;">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <!-- 2x3 Grid of Glass Cards -->
+                    <div class="metrics-grid-container">
+                        <!-- Card 1: Wind Speed -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-wind"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-value" id="metric-wind-val">--.- Km/h</h3>
+                                <p class="metric-label">Wind Speed</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: PAK AQI -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-mask-face"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-value" id="metric-aqi-val">--</h3>
+                                <p class="metric-subvalue mb-0" id="metric-aqi-sub">Moderate</p>
+                                <p class="metric-label mt-0">PAK AQI</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Rain Chances -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-cloud-showers-water"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-value" id="metric-rain-val">-- %</h3>
+                                <p class="metric-label">Rain Chances</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Humidity -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-droplet"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-value" id="metric-humidity-val">-- %</h3>
+                                <p class="metric-label">Humidity</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 5: UV Index -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-sun"></i>
+                            </div>
+                            <div>
+                                <h3 class="metric-value" id="metric-uv-val">--</h3>
+                                <p class="metric-label">UV Index</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 6: Temperature Range -->
+                        <div class="glass-card">
+                            <div class="metric-icon">
+                                <i class="fa-solid fa-temperature-half"></i>
+                            </div>
+                            <div>
+                                <div class="metric-value font-size-sm-custom" id="metric-temp-max" style="font-size: 1.25rem;">↑ --.- °C</div>
+                                <div class="metric-value font-size-sm-custom" id="metric-temp-min" style="font-size: 1.25rem; opacity: 0.8;">↓ --.- °C</div>
+                                <p class="metric-label">Temperature</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Arrow Indicator -->
+                    <button class="grid-nav-btn" id="btn-next-metric" style="visibility: hidden;">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Forecast Section -->
+        <div class="row mt-5 init-fade-in" style="animation-delay: 0.2s;">
+            <div class="col-12">
+                <!-- Forecast Header Control Bar -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap g-3">
+                    <h2 class="forecast-section-title">Forecast</h2>
+                    
+                    <!-- Tabs and Navigation Controls -->
+                    <div class="d-flex align-items-center gap-4">
+                        <!-- Unit switch (Celsius/Fahrenheit) -->
+                        <div class="unit-toggle-group">
+                            <button id="btn-celsius-dash" class="btn btn-unit active">°C</button>
+                            <button id="btn-fahrenheit-dash" class="btn btn-unit">°F</button>
+                        </div>
+
+                        <!-- Forecast period switcher tabs -->
+                        <div class="forecast-tabs-group">
+                            <button class="forecast-tab-btn active" id="tab-24h">24-Hours</button>
+                            <button class="forecast-tab-btn" id="tab-7d">7-Days</button>
+                        </div>
+
+                        <!-- Carousel scroll arrows -->
+                        <div class="forecast-nav-group">
+                            <button class="forecast-nav-btn" id="btn-prev-period" title="Previous period">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <button class="forecast-nav-btn" id="btn-next-period" title="Next period">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast Cards Dynamic Container -->
+                <div class="forecast-cards-container" id="forecast-cards">
+                    <!-- Dynamic Period Cards Loaded via JS -->
+                    <div class="text-center py-5 w-100 text-white opacity-75">
+                        <div class="spinner-border text-light" role="status"></div>
+                        <p class="mt-3">Loading forecast details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="container position-relative home-content-container mb-5 pb-5">
-  <div class="row">
-    <div class="col-lg-6 pt-280">
-      <div class="mw-450">
-        <h2 class="h3 mb-4 lh-base">Stay prepared for upcoming weather with <span class="fw-bold">daily weather
-            news.</span></h2>
-        <a href="/news" class="btn btn_explore rounded-pill border-2 fw-semibold text-decoration-none">Explore</a>
-      </div>
-    </div>
-
-    <div class="col-lg-6 d-flex flex-column align-items-center align-items-lg-end">
-      <div class="w-350 mb-5">
-        {% include 'sub_banner_card.html' %}
-      </div>
-
-      <!-- AI Recommendations Widget -->
-      <div id="ai-recs-widget" class="card border-0 rounded-4 shadow-lg p-4 mb-5 d-none ai-recs-widget">
-        <div class="d-flex align-items-center mb-3">
-          <i class="fas fa-robot me-2"></i>
-          <h5 class="fw-bold mb-0">AI Insights</h5>
-        </div>
-        <div id="ai-recs-content" class="small fw-light">
-          Analyzing current weather to give you personalized tips...
-        </div>
-      </div>
-
-      <div class="text-center text-lg-end mt-4 mw-400">
-        <h2 class="h3 fw-bold mb-3">Don't guess the weather.</h2>
-        <p class="text-muted mb-4">Real-time forecasts and AI insights for your location and across the world.</p>
-        <a href="/weather" class="btn btn_get_started rounded-pill fw-semibold text-decoration-none">Get started</a>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Reverted original sections under the home dashboard -->
 {{ ad_banner('7368246679', 'Sponsored') }}
 
 <div class="position-relative mt-5">
@@ -69,7 +190,6 @@
       Your guide to weather: Accurate forecasts and climate stories.
     </p>
   </div>
-
 </div>
 
 <div class="container mt-5 latest-news-section">
@@ -77,8 +197,7 @@
     <div class="col-12 d-flex align-items-center">
       <h2 class="fw-bold text-uppercase mb-0 me-3 section-title">Latest Headlines</h2>
       <div class="flex-grow-1 header-line"></div>
-      <a href="/news" class="btn btn-sm btn-outline-theme rounded-pill ms-3 view-all-btn d-none d-md-block">View
-        All</a>
+      <a href="/news" class="btn btn-sm btn-outline-theme rounded-pill ms-3 view-all-btn d-none d-md-block">View All</a>
     </div>
   </div>
 
@@ -122,8 +241,7 @@
             <div class="col-8">
               <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="badge bg-light text-primary border rounded-pill x-small px-2">{{ article.category
-                    }}</span>
+                  <span class="badge bg-light text-primary border rounded-pill x-small px-2">{{ article.category }}</span>
                   <span class="x-small text-muted">{{ article.publishedAt[:10] }}</span>
                 </div>
                 <h6 class="fw-bold mb-1 font-size-sm-custom">{{ article.title[:85] }}...</h6>
@@ -156,5 +274,5 @@
   </div>
 </div>
 
-<script src="/assets/js/home_weather_card.js"></script>
+<script src="/assets/js/home_dashboard.js"></script>
 {% endblock body %}
