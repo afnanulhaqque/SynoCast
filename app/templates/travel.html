@@ -1,164 +1,1519 @@
 {% extends "base.html" %}
 
-{% block title %}Travel Dashboard{% endblock %}
+{% block title %}Travel Planner{% endblock %}
+
+{% block head %}
+<style>
+  /* ================================================
+     TRAVEL PAGE — Premium Redesign
+     ================================================ */
+
+  /* ── Hero ─────────────────────────────────────── */
+  .travel-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: url('/assets/images/travel_bg.png') no-repeat center center / cover;
+  }
+
+  .travel-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom,
+        rgba(10, 10, 20, 0.45) 0%,
+        rgba(10, 10, 20, 0.75) 60%,
+        rgba(10, 10, 20, 0.92) 100%);
+    z-index: 1;
+  }
+
+  /* subtle animated vignette pulse */
+  .travel-hero-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(217, 119, 6, 0.12) 0%, transparent 60%);
+    animation: vignettePulse 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes vignettePulse {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+  }
+
+  .travel-hero-inner {
+    position: relative;
+    z-index: 2;
+    padding: 120px 0 80px;
+    width: 100%;
+  }
+
+  .travel-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(217, 119, 6, 0.18);
+    border: 1px solid rgba(217, 119, 6, 0.45);
+    color: #f59e0b;
+    border-radius: 100px;
+    padding: 6px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    backdrop-filter: blur(8px);
+    animation: fadeSlideDown 0.7s ease both;
+  }
+
+  .travel-hero h1 {
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    animation: fadeSlideDown 0.7s 0.1s ease both;
+  }
+
+  .travel-hero h1 .accent-text {
+    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .travel-hero-desc {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 480px;
+    line-height: 1.75;
+    margin-bottom: 36px;
+    animation: fadeSlideDown 0.7s 0.2s ease both;
+  }
+
+  /* Search box */
+  .travel-search-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 8px 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 560px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    animation: fadeSlideDown 0.7s 0.3s ease both;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .travel-search-box:focus-within {
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 3px rgba(245,158,11,0.15);
+  }
+
+  .travel-search-box i.search-icon {
+    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  #travel-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: inherit;
+    flex: 1;
+    min-width: 0;
+  }
+
+  #travel-search-input::placeholder {
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+  }
+
+  .travel-search-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    border-radius: 14px;
+    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-family: inherit;
+    padding: 12px 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .travel-search-btn:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  }
+
+  /* Autocomplete dropdown */
+  #travel-search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 100;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  #travel-search-results .dropdown-item {
+    color: rgba(255,255,255,0.85);
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 0.9rem;
+  }
+
+  #travel-search-results .dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  #travel-search-results .dropdown-item:hover {
+    background: rgba(245, 158, 11, 0.15);
+    color: #ffffff;
+  }
+
+  #travel-search-results .dropdown-item i {
+    color: #f59e0b;
+    font-size: 13px;
+  }
+
+  /* Quick-pick chips below search */
+  .quick-picks {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    animation: fadeSlideDown 0.7s 0.4s ease both;
+  }
+
+  .quick-pick-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+
+  .quick-pick-chip {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.8);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    backdrop-filter: blur(8px);
+  }
+
+  .quick-pick-chip:hover {
+    background: rgba(245,158,11,0.2);
+    border-color: rgba(245,158,11,0.5);
+    color: #f59e0b;
+    transform: translateY(-1px);
+  }
+
+  /* hero stats */
+  .travel-hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+    animation: fadeSlideDown 0.7s 0.5s ease both;
+  }
+
+  .travel-hero-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .travel-hero-stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #f59e0b;
+  }
+
+  .travel-hero-stat-text strong {
+    display: block;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .travel-hero-stat-text span {
+    color: rgba(255,255,255,0.45);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* Scroll cue */
+  .scroll-cue {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: fadeSlideDown 1s 0.8s ease both;
+  }
+
+  .scroll-cue-dot {
+    width: 20px;
+    height: 32px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 100px;
+    display: flex;
+    justify-content: center;
+    padding-top: 5px;
+  }
+
+  .scroll-cue-dot::after {
+    content: '';
+    width: 4px;
+    height: 8px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 100px;
+    animation: scrollDot 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollDot {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    60%       { transform: translateY(8px); opacity: 0; }
+  }
+
+  /* ── Animations ───────────────────────────────── */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── Dashboard Section ────────────────────────── */
+  .travel-dashboard {
+    background: var(--bg-color);
+    padding: 0 0 80px;
+  }
+
+  /* Destination Header Bar */
+  .dest-header-bar {
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--divider-color);
+    padding: 28px 0;
+    margin-bottom: 40px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    animation: fadeSlideDown 0.4s ease both;
+  }
+
+  .dest-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .dest-name-wrap h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .dest-name-wrap p {
+    margin: 2px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dest-weather-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 100px;
+    padding: 8px 20px 8px 8px;
+  }
+
+  .dest-weather-pill img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .dest-temp-wrap .temp {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .dest-temp-wrap .cond {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ── Cards ────────────────────────────────────── */
+  .travel-card {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 24px;
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    animation: fadeSlideUp 0.4s ease both;
+  }
+
+  .travel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.1);
+  }
+
+  .travel-card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--divider-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .travel-card-header h5 {
+    font-size: 0.975rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .travel-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .travel-card-icon.amber  { background: rgba(245,158,11,0.12); color: #f59e0b; }
+  .travel-card-icon.blue   { background: rgba(111,174,217,0.12); color: #6faed9; }
+  .travel-card-icon.purple { background: rgba(139,92,246,0.12);  color: #8b5cf6; }
+  .travel-card-icon.green  { background: rgba(39,174,96,0.12);   color: #27ae60; }
+
+  .travel-card-body {
+    padding: 20px 24px 24px;
+  }
+
+  /* ── Currency ─────────────────────────────────── */
+  .currency-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .currency-amount-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .currency-symbol-tag {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  #currency-amount {
+    width: 100%;
+    padding: 11px 14px 11px 34px;
+    border-radius: 12px;
+    border: 1px solid var(--divider-color);
+    background: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #currency-amount:focus {
+    border-color: var(--accent-weather);
+    box-shadow: 0 0 0 3px rgba(111,174,217,0.12);
+  }
+
+  #currency-base {
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--divider-color);
+    background: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  #currency-base:focus {
+    border-color: var(--accent-weather);
+  }
+
+  .currency-rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--bg-color);
+    border: 1px solid var(--divider-color);
+    transition: all 0.2s;
+  }
+
+  .currency-rate-row:hover {
+    border-color: var(--accent-weather);
+    background: rgba(111,174,217,0.05);
+  }
+
+  .currency-rate-row .cur-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .currency-rate-row .cur-value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  /* ── Packing ──────────────────────────────────── */
+  .packing-card {
+    background: linear-gradient(145deg, #1e3a5f 0%, #0f2744 50%, #1a2a4a 100%);
+    border: 1px solid rgba(111,174,217,0.18);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+    animation: fadeSlideUp 0.4s 0.1s ease both;
+    transition: all 0.3s;
+  }
+
+  .packing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+
+  .packing-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(111,174,217,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .packing-card-inner {
+    position: relative;
+    z-index: 1;
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .packing-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .packing-card-header h5 {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.975rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .packing-ai-badge {
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #f59e0b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .packing-card-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 20px;
+  }
+
+  #packing-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 280px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  }
+
+  #packing-list::-webkit-scrollbar { width: 4px; }
+  #packing-list::-webkit-scrollbar-track { background: transparent; }
+  #packing-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 100px; }
+
+  .packing-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .packing-item:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(111,174,217,0.35);
+  }
+
+  .packing-item i {
+    color: #6faed9;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* ── Forecast ─────────────────────────────────── */
+  .forecast-scroll-wrap {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider-color) transparent;
+  }
+
+  .forecast-scroll-wrap::-webkit-scrollbar { height: 4px; }
+  .forecast-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+  .forecast-scroll-wrap::-webkit-scrollbar-thumb { background: var(--divider-color); border-radius: 100px; }
+
+  .forecast-scroll-inner {
+    display: flex;
+    gap: 12px;
+    width: max-content;
+  }
+
+  .forecast-day-card {
+    background: var(--bg-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 18px;
+    padding: 16px 14px;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  .forecast-day-card:hover {
+    border-color: var(--accent-weather);
+    background: rgba(111,174,217,0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(111,174,217,0.12);
+  }
+
+  .forecast-day-card.today {
+    background: linear-gradient(145deg, #1e3a5f 0%, #0f2744 100%);
+    border-color: rgba(111,174,217,0.3);
+  }
+
+  .forecast-day-card.today .day-name,
+  .forecast-day-card.today .day-temp,
+  .forecast-day-card.today .day-cond {
+    color: #ffffff !important;
+  }
+
+  .day-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .day-temp {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    margin: 6px 0 4px;
+  }
+
+  .day-cond {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ── History Chart ────────────────────────────── */
+  .chart-wrap {
+    position: relative;
+    height: 180px;
+  }
+
+  /* ── Travel Tips Banner ───────────────────────── */
+  .travel-tips-banner {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 24px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    overflow: hidden;
+    position: relative;
+    animation: fadeSlideUp 0.4s 0.2s ease both;
+  }
+
+  .travel-tips-banner::after {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    pointer-events: none;
+  }
+
+  .tips-text h4 {
+    color: #1a1a1a;
+    font-weight: 800;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+
+  .tips-text p {
+    color: rgba(0,0,0,0.6);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .tips-icon-set {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tips-icon-pill {
+    background: rgba(255,255,255,0.25);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ── Skeleton ─────────────────────────────────── */
+  .skeleton-line {
+    background: linear-gradient(90deg, var(--divider-color) 25%, rgba(200,200,200,0.4) 50%, var(--divider-color) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Section label ────────────────────────────── */
+  .travel-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-weather);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .travel-section-title {
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .travel-section-sub {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+
+  /* ── Autocomplete dropdown (dark glass override) ── */
+  #travel-search-results {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: rgba(15, 15, 25, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 999;
+    padding: 6px 0;
+    list-style: none;
+    margin: 0;
+  }
+
+  #travel-search-results .search-result-item {
+    padding: 11px 18px;
+    color: rgba(255,255,255,0.82);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    gap: 10px;
+  }
+
+  #travel-search-results .search-result-item:hover,
+  #travel-search-results .search-result-item.active {
+    background-color: rgba(245,158,11,0.12);
+    color: #ffffff;
+    padding-left: 22px;
+  }
+
+  #travel-search-results .search-result-item i {
+    color: #f59e0b;
+  }
+
+  #travel-search-results .search-result-item:hover i,
+  #travel-search-results .search-result-item.active i {
+    color: #f59e0b;
+  }
+
+  #travel-search-results .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  #travel-search-results .text-muted {
+    color: rgba(255,255,255,0.4) !important;
+  }
+
+  /* ── Responsive ───────────────────────────────── */
+  @media (max-width: 991px) {
+    .travel-hero h1 { letter-spacing: -1px; }
+    .travel-hero-stats { gap: 20px; }
+    .dest-header-bar { position: static; }
+  }
+
+  @media (max-width: 576px) {
+    .travel-hero-inner { padding: 100px 0 60px; }
+    .travel-search-box { padding: 6px 6px 6px 16px; }
+    .travel-search-btn { padding: 10px 16px; }
+    .travel-tips-banner { flex-direction: column; }
+  }
+</style>
+{% endblock %}
 
 {% block body %}
-<!-- Hero Section -->
-<section class="travel-hero position-relative text-white mb-5"
-    style="background: url('/assets/images/travel_bg.png') no-repeat center center/cover; min-height: 500px; display: flex; align-items: center; position: relative;">
-    <!-- Dark Gradient Overlay -->
-    <div
-        style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); z-index: 1;">
-    </div>
 
-    <div class="container position-relative z-2">
-        <div class="row align-items-center">
-            <div class="col-lg-7 mb-4 mb-lg-0">
-                <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold animate-fade-in"><i
-                        class="fas fa-compass me-2"></i> EXPLORE THE WORLD</span>
-                <h1 class="display-3 fw-bold mb-3 animate-fade-in text-shadow">Plan Your Next <br>Adventure</h1>
-                <p class="lead mb-4 animate-fade-in delay-100 text-light shadow-sm"
-                    style="max-width: 500px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-                    Discover the perfect time to travel with AI-driven weather insights, smart packing lists, and
-                    real-time currency tools.
-                </p>
+<!-- ================================================
+     HERO SECTION
+     ================================================ -->
+<section class="travel-hero" id="travel-hero-section">
+  <div class="travel-hero-overlay"></div>
 
-                <div class="card border-0 p-3 shadow-lg rounded-4 animate-fade-in delay-200"
-                    style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); max-width: 550px;">
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text border-0 bg-transparent text-primary ps-3"><i
-                                class="fas fa-search"></i></span>
-                        <input type="text" id="travel-search-input"
-                            class="form-control border-0 bg-transparent text-dark fw-bold placeholder-dark"
-                            placeholder="Where to? (e.g. Kyoto, Venice)" autocomplete="off" style="font-size: 1.1rem;">
-                        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="travel-search-btn">
-                            Explore <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </div>
-                    <ul id="travel-search-results" class="dropdown-menu w-100 mt-2 shadow-lg border-0 rounded-4"
-                        style="display: none; max-height: 300px; overflow-y: auto;"></ul>
-                </div>
+  <div class="travel-hero-inner">
+    <div class="container">
+      <div class="row align-items-center">
+
+        <!-- Left: Copy + Search -->
+        <div class="col-lg-7 mb-5 mb-lg-0">
+
+          <div class="travel-hero-badge">
+            <i class="fas fa-compass"></i> Smart Travel Planner
+          </div>
+
+          <h1>Plan Your Next<br><span class="accent-text">Adventure</span></h1>
+
+          <p class="travel-hero-desc">
+            AI-powered weather insights, smart packing suggestions,
+            and live currency rates — everything you need before you go.
+          </p>
+
+          <!-- Search -->
+          <div style="position:relative; max-width:560px;">
+            <div class="travel-search-box">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" id="travel-search-input"
+                placeholder="Where to? Try Kyoto, Venice, Bali…"
+                autocomplete="off">
+              <button class="travel-search-btn" id="travel-search-btn">
+                <i class="fas fa-arrow-right"></i> Explore
+              </button>
             </div>
-            <!-- Optional: Hide the car image if we have a full photo background, or keep it subtle. 
-                 Since the user asked for a "car", let's keep it but position it better or remove if it clashes.
-                 Given the user's "maza ni aa raha", a full cinematic background is usually better than a vector on top of a gradient.
-                 I will hide the vector column to let the background shine, or put a very subtle weather widget there?
-                 Let's keep the column but maybe empty or different content. Actually, the vector might look fake on top of a photo. 
-                 I'll remove the vector image to achieve a cleaner 'premium' look invoked by the photo. -->
-            <div class="col-lg-5 text-center px-4 d-none d-lg-block">
-                <!-- Maybe a floating glass card with "Trending: Bali" or standard vector -->
+            <ul id="travel-search-results" class="d-none"></ul>
+          </div>
+
+          <!-- Quick picks -->
+          <div class="quick-picks">
+            <span class="quick-pick-label">Popular:&nbsp;</span>
+            <button class="quick-pick-chip" data-city="Tokyo">🗾 Tokyo</button>
+            <button class="quick-pick-chip" data-city="Paris">🗼 Paris</button>
+            <button class="quick-pick-chip" data-city="Dubai">🌇 Dubai</button>
+            <button class="quick-pick-chip" data-city="London">🇬🇧 London</button>
+            <button class="quick-pick-chip" data-city="Bali">🌴 Bali</button>
+          </div>
+
+          <!-- Stats -->
+          <div class="travel-hero-stats">
+            <div class="travel-hero-stat">
+              <div class="travel-hero-stat-icon"><i class="fas fa-cloud-sun"></i></div>
+              <div class="travel-hero-stat-text">
+                <strong>Live Forecast</strong>
+                <span>5-day weather</span>
+              </div>
             </div>
+            <div class="travel-hero-stat">
+              <div class="travel-hero-stat-icon"><i class="fas fa-coins"></i></div>
+              <div class="travel-hero-stat-text">
+                <strong>Currency Rates</strong>
+                <span>Real-time exchange</span>
+              </div>
+            </div>
+            <div class="travel-hero-stat">
+              <div class="travel-hero-stat-icon"><i class="fas fa-suitcase"></i></div>
+              <div class="travel-hero-stat-text">
+                <strong>AI Packing</strong>
+                <span>Weather-aware list</span>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
 
+        <!-- Right: decorative glass card -->
+        <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+          <div style="
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 28px;
+            padding: 28px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            animation: fadeSlideDown 0.9s 0.3s ease both;
+          ">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;">
+              <i class="fas fa-star me-1" style="color:#f59e0b;"></i> Top Destinations
+            </div>
+            <!-- Destination mini cards -->
+            <div id="hero-dest-list">
+              {% set dests = [
+                {'city': 'Tokyo', 'country': 'Japan', 'icon': '🗾', 'tag': 'Culture'},
+                {'city': 'Santorini', 'country': 'Greece', 'icon': '🏛️', 'tag': 'Scenic'},
+                {'city': 'New York', 'country': 'USA', 'icon': '🗽', 'tag': 'City'},
+                {'city': 'Maldives', 'country': 'Maldives', 'icon': '🏝️', 'tag': 'Beach'},
+                {'city': 'Istanbul', 'country': 'Turkey', 'icon': '🕌', 'tag': 'History'}
+              ] %}
+              {% for d in dests %}
+              <div class="quick-pick-chip d-flex align-items-center justify-content-between"
+                   data-city="{{ d.city }}"
+                   style="border-radius:14px;padding:10px 14px;margin-bottom:8px;width:100%;text-align:left;font-size:0.875rem;">
+                <span>{{ d.icon }} {{ d.city }}, <span style="opacity:.6;">{{ d.country }}</span></span>
+                <span style="background:rgba(245,158,11,0.15);color:#f59e0b;font-size:10px;font-weight:700;border-radius:100px;padding:2px 8px;letter-spacing:0.5px;">{{ d.tag }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
 
+      </div><!-- /row -->
+    </div><!-- /container -->
+  </div>
+
+  <!-- Scroll cue -->
+  <div class="scroll-cue d-none d-md-flex">
+    <div class="scroll-cue-dot"></div>
+    <span>Scroll</span>
+  </div>
 </section>
 
-<!-- Main Content (Hidden until search) -->
-<div id="travel-content" class="container pb-5" style="display: none;">
 
-    <!-- Destination Header -->
-    <div class="row mb-4 align-items-end">
-        <div class="col">
-            <h2 class="mb-0 fw-bold" id="dest-name">Destination Name</h2>
-            <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-1"></i> <span id="dest-country">Country</span>
-            </p>
+<!-- ================================================
+     DASHBOARD (hidden until search)
+     ================================================ -->
+<div id="travel-content" style="display:none;">
+
+  <!-- Destination header bar -->
+  <div class="dest-header-bar">
+    <div class="container">
+      <div class="dest-header-inner">
+        <div class="dest-name-wrap">
+          <h2 id="dest-name">—</h2>
+          <p><i class="fas fa-map-marker-alt"></i> <span id="dest-country">—</span></p>
         </div>
-        <div class="col-auto">
-            <div class="d-flex align-items-center bg-white shadow-sm rounded-4 px-3 py-2">
-                <div class="me-3 text-end">
-                    <div class="fw-bold fs-4 mb-0" id="dest-temp">--°</div>
-                    <small class="text-muted" id="dest-condition">--</small>
-                </div>
-                <img id="dest-icon" src="" alt="Icon" style="width: 50px; height: 50px;">
-            </div>
+        <div class="dest-weather-pill">
+          <img id="dest-icon" src="" alt="Weather" style="width:44px;height:44px;">
+          <div class="dest-temp-wrap">
+            <span class="temp" id="dest-temp">—°</span>
+            <span class="cond" id="dest-condition">—</span>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="row g-4">
+  <!-- Main dashboard content -->
+  <div class="travel-dashboard">
+    <div class="container">
 
-        <!-- Left Column: Packing & Currency -->
-        <div class="col-lg-4">
-            <!-- Currency Converter -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-coins text-warning me-2"></i> Currency Converter</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="small text-muted mb-1">Amount</label>
-                        <div class="input-group">
-                            <span class="input-group-text border-0 bg-light fw-bold" id="currency-symbol">$</span>
-                            <input type="number" id="currency-amount" class="form-control border-0 bg-light"
-                                value="100">
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <select id="currency-base" class="form-select border-0 bg-light fw-bold">
-                            <option value="USD" selected>USD - US Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="JPY">JPY - Japanese Yen</option>
-                            <option value="PKR">PKR - Pakistani Rupee</option>
-                        </select>
-                        <i class="fas fa-arrow-right text-muted"></i>
-                        <!-- Target is usually automatic based on location in a real app, but let's allow selection or show a list -->
-                        <div class="small fw-bold text-muted ms-auto">Rates</div>
-                    </div>
-
-                    <div id="currency-results" class="d-flex flex-column gap-2">
-                        <!-- Filled by JS -->
-                        <div class="placeholder-glow"><span class="placeholder col-12 rounded"></span></div>
-                    </div>
-                    <small class="text-muted d-block mt-3 x-small">* Indicative rates only.</small>
-                </div>
-            </div>
-
-            <!-- Smart Packing List -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4"
-                style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--btn-primary-hover) 100%); color: white;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 fw-bold"><i class="fas fa-suitcase me-2"></i> Smart Packing</h5>
-                        <span class="badge bg-white text-primary rounded-pill"><i class="fas fa-magic"></i> AI</span>
-                    </div>
-                    <p class="small opacity-75 mb-3">Tailored suggestions based on forecast.</p>
-
-                    <div id="packing-list" class="vstack gap-2" style="max-height: 300px; overflow-y: auto;">
-                        <!-- AI Items here -->
-                        <div class="spinner-border spinner-border-sm text-white mx-auto" role="status"></div>
-                    </div>
-                </div>
-            </div>
+      <!-- Tips Banner -->
+      <div class="travel-tips-banner">
+        <div class="tips-text">
+          <h4><i class="fas fa-lightbulb me-2"></i> Travel Tips</h4>
+          <p>Check the forecast & pack smart. Currency info is indicative — verify before travel.</p>
         </div>
-
-        <!-- Right Column: Forecast & History -->
-        <div class="col-lg-8">
-            <!-- 5 Day Forecast -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Forecast</h5>
-                </div>
-                <div class="card-body" id="travel-forecast">
-                    <!-- Filled by JS -->
-                    <div class="text-center py-5 text-muted">Loading forecast...</div>
-                </div>
-            </div>
-
-            <!-- Historical Trends -->
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0 fw-bold">This Month Usually</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="travelHistoryChart" height="200"></canvas>
-                </div>
-            </div>
+        <div class="tips-icon-set">
+          <div class="tips-icon-pill"><i class="fas fa-umbrella"></i> Rain gear</div>
+          <div class="tips-icon-pill"><i class="fas fa-passport"></i> Documents</div>
+          <div class="tips-icon-pill"><i class="fas fa-wifi"></i> Connectivity</div>
         </div>
-    </div>
-</div>
+      </div>
+
+      <!-- Section header -->
+      <div class="mb-4">
+        <div class="travel-section-label"><i class="fas fa-chart-line"></i> Weather & Finances</div>
+        <h2 class="travel-section-title">Your Destination Dashboard</h2>
+        <p class="travel-section-sub">Live data tailored for your chosen destination.</p>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- Left col: Currency + Packing -->
+        <div class="col-lg-4 d-flex flex-column gap-4">
+
+          <!-- Currency Converter -->
+          <div class="travel-card">
+            <div class="travel-card-header">
+              <h5>
+                <div class="travel-card-icon amber"><i class="fas fa-coins"></i></div>
+                Currency Converter
+              </h5>
+            </div>
+            <div class="travel-card-body">
+
+              <div class="currency-input-row">
+                <div class="currency-amount-wrap">
+                  <span class="currency-symbol-tag" id="currency-symbol">$</span>
+                  <input type="number" id="currency-amount" value="100">
+                </div>
+                <select id="currency-base">
+                  <option value="USD" selected>USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="JPY">JPY</option>
+                  <option value="PKR">PKR</option>
+                  <option value="AED">AED</option>
+                  <option value="CAD">CAD</option>
+                </select>
+              </div>
+
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:10px;">
+                Exchange Rates
+              </div>
+
+              <div id="currency-results" class="d-flex flex-column gap-2">
+                <div class="skeleton-line" style="height:40px;"></div>
+                <div class="skeleton-line" style="height:40px;"></div>
+                <div class="skeleton-line" style="height:40px;"></div>
+              </div>
+
+              <p style="font-size:11px;color:var(--text-muted);margin-top:12px;margin-bottom:0;">
+                * Indicative rates only. Not financial advice.
+              </p>
+            </div>
+          </div>
+
+          <!-- Smart Packing List -->
+          <div class="packing-card">
+            <div class="packing-card-inner">
+              <div class="packing-card-header">
+                <h5><i class="fas fa-suitcase"></i> Smart Packing</h5>
+                <span class="packing-ai-badge"><i class="fas fa-sparkles"></i> AI</span>
+              </div>
+              <p class="packing-card-subtitle">Tailored suggestions based on destination weather.</p>
+              <div id="packing-list">
+                <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:0.875rem;">
+                  <i class="fas fa-spinner fa-spin me-2"></i> Generating list…
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /left col -->
+
+        <!-- Right col: Forecast + Chart -->
+        <div class="col-lg-8 d-flex flex-column gap-4">
+
+          <!-- 5-Day Forecast -->
+          <div class="travel-card">
+            <div class="travel-card-header">
+              <h5>
+                <div class="travel-card-icon blue"><i class="fas fa-cloud-sun"></i></div>
+                5-Day Forecast
+              </h5>
+              <span style="font-size:11px;color:var(--text-secondary);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">
+                Daily Overview
+              </span>
+            </div>
+            <div class="travel-card-body">
+              <div class="forecast-scroll-wrap">
+                <div id="travel-forecast" class="forecast-scroll-inner">
+                  <!-- Skeleton -->
+                  <div class="forecast-day-card skeleton-line" style="min-width:110px;height:140px;background:var(--bg-color);"></div>
+                  <div class="forecast-day-card skeleton-line" style="min-width:110px;height:140px;background:var(--bg-color);"></div>
+                  <div class="forecast-day-card skeleton-line" style="min-width:110px;height:140px;background:var(--bg-color);"></div>
+                  <div class="forecast-day-card skeleton-line" style="min-width:110px;height:140px;background:var(--bg-color);"></div>
+                  <div class="forecast-day-card skeleton-line" style="min-width:110px;height:140px;background:var(--bg-color);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historical Trends -->
+          <div class="travel-card">
+            <div class="travel-card-header">
+              <h5>
+                <div class="travel-card-icon purple"><i class="fas fa-chart-area"></i></div>
+                This Month — Typical Temperatures
+              </h5>
+            </div>
+            <div class="travel-card-body">
+              <div class="chart-wrap">
+                <canvas id="travelHistoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /right col -->
+
+      </div><!-- /row -->
+
+    </div><!-- /container -->
+  </div><!-- /.travel-dashboard -->
+
+</div><!-- /#travel-content -->
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/assets/js/travel.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ── DOM refs ──────────────────────────────── */
+  const searchInput   = document.getElementById('travel-search-input');
+  const searchResults = document.getElementById('travel-search-results');
+  const searchBtn     = document.getElementById('travel-search-btn');
+  const contentArea   = document.getElementById('travel-content');
+
+  let currentDest = null;
+  let currentLat  = null;
+  let currentLon  = null;
+  let historyChart = null;
+
+  /* ── Autocomplete ──────────────────────────── */
+  // AutocompleteUtils.renderResults passes { lat, lon, name } to the callback
+  if (window.AutocompleteUtils && searchInput) {
+    window.AutocompleteUtils.initAutocomplete(searchInput, searchResults, (data) => {
+      // data = { lat, lon, name } from AutocompleteUtils.renderResults
+      const city = data.name || data.city || searchInput.value.trim();
+      const lat  = data.lat;
+      const lon  = data.lon;
+      const country = data.country || '';
+      loadDestination(city, lat, lon, country);
+    });
+  }
+
+  /* ── Search button ─────────────────────────── */
+  searchBtn.addEventListener('click', triggerSearch);
+  searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') triggerSearch(); });
+
+  function triggerSearch() {
+    const query = searchInput.value.trim();
+    if (!query) return;
+    searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    fetch(`/api/travel/weather?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        searchBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Explore';
+        if (data.error) showToast(data.error, 'error');
+        else loadDestination(data.city, data.lat, data.lon, data.country);
+      })
+      .catch(() => {
+        searchBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Explore';
+      });
+  }
+
+  /* ── Quick pick chips ─────────────────────── */
+  document.querySelectorAll('.quick-pick-chip[data-city]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const city = chip.dataset.city;
+      searchInput.value = city;
+      fetch(`/api/travel/weather?q=${encodeURIComponent(city)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.error) loadDestination(data.city, data.lat, data.lon, data.country);
+        });
+    });
+  });
+
+  /* ── Main loader ───────────────────────────── */
+  async function loadDestination(city, lat, lon, country) {
+    currentDest = city;
+    currentLat  = lat;
+    currentLon  = lon;
+
+    // Show content
+    contentArea.style.display = 'block';
+    contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Update header
+    document.getElementById('dest-name').textContent    = city;
+    document.getElementById('dest-country').textContent = country || '';
+
+    // Reset dest weather
+    document.getElementById('dest-temp').textContent      = '—°';
+    document.getElementById('dest-condition').textContent = '—';
+    document.getElementById('dest-icon').src              = '';
+
+    // Fetch all
+    fetchWeather(lat, lon);
+    fetchCurrency();
+    fetchPackingList(city);
+    fetchHistory(lat, lon);
+  }
+
+  /* ── Weather ───────────────────────────────── */
+  async function fetchWeather(lat, lon) {
+    try {
+      const res  = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+
+      const temp      = Math.round(data.current.main.temp);
+      const condition = data.current.weather[0].description;
+      const icon      = data.current.weather[0].icon;
+
+      document.getElementById('dest-temp').textContent      = `${temp}°C`;
+      document.getElementById('dest-condition').textContent = condition.charAt(0).toUpperCase() + condition.slice(1);
+      document.getElementById('dest-icon').src              = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+      // Forecast
+      const forecastEl = document.getElementById('travel-forecast');
+      forecastEl.innerHTML = '';
+
+      const daily = {};
+      data.forecast.list.forEach(item => {
+        const day = new Date(item.dt * 1000).toDateString();
+        if (!daily[day]) daily[day] = item;
+      });
+
+      const todayStr = new Date().toDateString();
+      Object.entries(daily).slice(0, 5).forEach(([dayStr, day], idx) => {
+        const date     = new Date(day.dt * 1000);
+        const dayName  = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const iconCode = day.weather[0].icon;
+        const isToday  = dayStr === todayStr;
+
+        const div  = document.createElement('div');
+        div.className = 'forecast-day-card' + (isToday ? ' today' : '');
+        div.style.animationDelay = `${idx * 0.06}s`;
+        div.innerHTML = `
+          <div class="day-name">${isToday ? 'Today' : dayName}</div>
+          <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png"
+               width="52" style="margin:2px auto;display:block;" alt="">
+          <div class="day-temp">${Math.round(day.main.temp)}°</div>
+          <div class="day-cond">${day.weather[0].main}</div>
+        `;
+        forecastEl.appendChild(div);
+      });
+
+    } catch (e) {
+      console.error('Weather fetch failed', e);
+    }
+  }
+
+  /* ── Currency ──────────────────────────────── */
+  async function fetchCurrency() {
+    const base      = document.getElementById('currency-base').value;
+    const amount    = parseFloat(document.getElementById('currency-amount').value) || 100;
+    const container = document.getElementById('currency-results');
+
+    // Symbol map
+    const symbols = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', PKR:'₨', AED:'د.إ', CAD:'C$' };
+    const flags   = { USD:'🇺🇸', EUR:'🇪🇺', GBP:'🇬🇧', JPY:'🇯🇵', PKR:'🇵🇰', AED:'🇦🇪', CAD:'🇨🇦', CNY:'🇨🇳', INR:'🇮🇳', TRY:'🇹🇷', CHF:'🇨🇭', AUD:'🇦🇺' };
+
+    document.getElementById('currency-symbol').textContent = symbols[base] || '$';
+
+    container.innerHTML = `
+      <div class="skeleton-line" style="height:40px;"></div>
+      <div class="skeleton-line" style="height:40px;"></div>
+      <div class="skeleton-line" style="height:40px;"></div>
+    `;
+
+    try {
+      const res  = await fetch(`/api/currency/convert?base=${base}`);
+      const data = await res.json();
+      container.innerHTML = '';
+
+      Object.entries(data.rates).slice(0, 6).forEach(([currency, rate]) => {
+        if (currency === base) return;
+        const total = (rate * amount).toLocaleString('en-US', { maximumFractionDigits: 2 });
+        const flag  = flags[currency] || '💱';
+
+        const row = document.createElement('div');
+        row.className = 'currency-rate-row';
+        row.innerHTML = `
+          <div class="cur-label">${flag} ${currency}</div>
+          <div class="cur-value">${symbols[currency] || ''}${total}</div>
+        `;
+        container.appendChild(row);
+      });
+
+    } catch (e) {
+      container.innerHTML = '<small style="color:var(--status-error);">Failed to load rates.</small>';
+    }
+  }
+
+  document.getElementById('currency-amount').addEventListener('input', fetchCurrency);
+  document.getElementById('currency-base').addEventListener('change', fetchCurrency);
+
+  /* ── Packing List ──────────────────────────── */
+  async function fetchPackingList(city) {
+    const container = document.getElementById('packing-list');
+    container.innerHTML = `
+      <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);font-size:0.875rem;">
+        <i class="fas fa-spinner fa-spin me-2"></i> Generating AI list…
+      </div>`;
+
+    const cond          = document.getElementById('dest-condition').textContent;
+    const temp          = document.getElementById('dest-temp').textContent;
+    const weatherSummary = `${cond}, ${temp}`;
+
+    try {
+      const res  = await fetch(`/api/travel/packing-list?destination=${encodeURIComponent(city)}&weather=${encodeURIComponent(weatherSummary)}`);
+      const data = await res.json();
+      container.innerHTML = '';
+
+      if (data.items && data.items.length > 0) {
+        data.items.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'packing-item';
+          el.innerHTML = `<i class="fas ${item.icon || 'fa-check-circle'}"></i><span>${item.item}</span>`;
+          container.appendChild(el);
+        });
+      } else {
+        container.innerHTML = '<div class="packing-item"><i class="fas fa-info-circle"></i><span>No suggestions available.</span></div>';
+      }
+
+    } catch (e) {
+      container.innerHTML = '<div class="packing-item"><i class="fas fa-exclamation-triangle"></i><span>AI unavailable right now.</span></div>';
+    }
+  }
+
+  /* ── History Chart ─────────────────────────── */
+  async function fetchHistory(lat, lon) {
+    const ctx = document.getElementById('travelHistoryChart');
+    if (!ctx) return;
+
+    // Destroy previous chart
+    if (historyChart) {
+      historyChart.destroy();
+      historyChart = null;
+    }
+
+    try {
+      const res  = await fetch(`/api/weather/history?lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+
+      const labels = data.map(d => {
+        const date = new Date(d.date);
+        return date.getDate();
+      });
+      const temps  = data.map(d => d.temp);
+
+      historyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Typical Temp (°C)',
+            data: temps,
+            borderColor: '#6faed9',
+            backgroundColor: 'rgba(111, 174, 217, 0.12)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#6faed9',
+            pointBorderColor: 'transparent',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(20,20,30,0.85)',
+              titleColor: '#ffffff',
+              bodyColor: 'rgba(255,255,255,0.7)',
+              borderColor: 'rgba(111,174,217,0.3)',
+              borderWidth: 1,
+              padding: 10,
+              callbacks: {
+                title: (items) => `Day ${items[0].label}`,
+                label: (item) => `  ${item.raw}°C`,
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: 'var(--text-secondary)', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: 'var(--divider-color)' },
+              ticks: {
+                color: 'var(--text-secondary)',
+                font: { size: 11 },
+                callback: (v) => `${v}°`
+              }
+            }
+          }
+        }
+      });
+
+    } catch (e) {
+      console.log('Chart load fail', e);
+    }
+  }
+
+  /* ── Helper: toast ─────────────────────────── */
+  function showToast(msg, type) {
+    const container = document.getElementById('synocast-toast-container');
+    if (!container) return;
+    const t = document.createElement('div');
+    t.className = `synocast-toast ${type === 'error' ? 'toast-error' : 'toast-info'}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+});
+</script>
 {% endblock %}
