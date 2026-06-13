@@ -305,9 +305,7 @@ main {
 #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
   background-color: rgba(255, 255, 255, 0.15) !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .synocast_logo_navbar {
-  filter: brightness(0) invert(1) !important;
-}
+
 #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .hamburger-menu span {
   background-color: #ffffff !important;
 }
@@ -360,9 +358,7 @@ main {
   color: #ffffff !important;
   opacity: 1;
 }
-.navbar.scrolled .synocast_logo_navbar {
-  filter: brightness(0) invert(1) !important; /* White logo for contrast over dark glass */
-}
+
 .navbar.scrolled .hamburger-menu span {
   background-color: #ffffff !important;
 }
