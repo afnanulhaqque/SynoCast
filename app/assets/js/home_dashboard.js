@@ -200,12 +200,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (locationTextEl) locationTextEl.textContent = "Loading location...";
         
         try {
+            let translatedName = name;
+            if (/[a-zA-Z]/.test(name)) {
+                try {
+                    const transRes = await fetch(`/api/translate/address?text=${encodeURIComponent(name)}`);
+                    if (transRes.ok) {
+                        const transData = await transRes.json();
+                        if (transData.translated) {
+                            translatedName = transData.translated;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Translation failed:", e);
+                }
+            }
+
             const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
             if (!res.ok) throw new Error("Weather API error");
             const data = await res.json();
             
             // Cache data
-            data.cityName = name;
+            data.cityName = translatedName;
             localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
             
             currentData = data.current;
@@ -213,8 +228,20 @@ document.addEventListener('DOMContentLoaded', function() {
             pollutionData = data.pollution;
             
             // Render UI
-            if (locationTextEl) locationTextEl.textContent = name;
+            if (locationTextEl) locationTextEl.textContent = translatedName;
             renderDashboard();
+
+            // Cache and dispatch location to update top navbar and other pages
+            const locData = { lat, lon, timestamp: new Date().getTime() };
+            localStorage.setItem('synocast_cached_location', JSON.stringify(locData));
+            localStorage.setItem('synocast_permission_hint', 'true');
+            sessionStorage.setItem('synocast_location_fixed', 'true');
+            
+            window.synocast_current_loc = { lat, lon, isCached: false };
+            
+            window.dispatchEvent(new CustomEvent('synocast_location_granted', {
+                detail: window.synocast_current_loc
+            }));
         } catch (err) {
             console.error("Dashboard fetch error", err);
             if (locationTextEl) locationTextEl.textContent = "Error loading weather data";

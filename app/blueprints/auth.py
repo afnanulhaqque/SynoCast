@@ -172,11 +172,12 @@ def update_session_location():
     utc_offset = data.get("utc_offset")
     
     if city and utc_offset:
+        from app.utils.geo import clean_urdu_text
         ip = utils.get_client_ip()
         session["location_data"] = {
             "ip": ip,
-            "city": city,
-            "region": region,
+            "city": clean_urdu_text(city),
+            "region": clean_urdu_text(region),
             "utc_offset": utc_offset
         }
         return jsonify({"success": True})

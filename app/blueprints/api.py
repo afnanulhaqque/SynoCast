@@ -4,6 +4,7 @@ import json
 import random
 import concurrent.futures
 import sqlite3
+import re
 from datetime import datetime
 from flask import Blueprint, request, jsonify, abort, Response, current_app, session
 from google import genai
@@ -14,6 +15,8 @@ from app.extensions import limiter, csrf
 from app.database import get_db
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
+
+from app.utils.geo import clean_urdu_text, clean_dict_values
 
 # Caches
 CITY_CACHE = {}
@@ -90,14 +93,27 @@ def api_geocode_reverse():
         
     try:
         # User-Agent is required by Nominatim
-        headers = {'User-Agent': 'SynoCast/1.0'}
-        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
+        headers = {'User-Agent': 'SynoCast/1.0', 'Accept-Language': 'en'}
+        url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&accept-language=en"
         res = requests.get(url, headers=headers, timeout=5)
         if res.ok:
-            return jsonify(res.json())
+            return jsonify(clean_dict_values(res.json()))
         return jsonify({"error": "Geocode failed"}), res.status_code
     except Exception as e:
         current_app.logger.error(f"Reverse Geocode Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/translate/address')
+def api_translate_address():
+    text = request.args.get('text')
+    if not text:
+        return jsonify({"translated": ""})
+    try:
+        from app.utils.geo import translate_to_urdu
+        translated = translate_to_urdu(text)
+        return jsonify({"translated": translated})
+    except Exception as e:
+        current_app.logger.error(f"Address translation error: {e}")
         return jsonify({"error": str(e)}), 500
 
 @api_bp.route('/geocode/search')
@@ -115,9 +131,9 @@ def api_geocode_search():
             data = res.json()
             results = []
             for item in data:
-                name = item.get('name')
-                country = item.get('country')
-                state = item.get('state', '')
+                name = clean_urdu_text(item.get('name'))
+                country = clean_urdu_text(item.get('country'))
+                state = clean_urdu_text(item.get('state', ''))
                 display = f"{name}, {country}"
                 if state:
                     display = f"{name}, {state}, {country}"
@@ -601,8 +617,8 @@ def api_voice_alexa():
             slots = alexa_request.get('request', {}).get('intent', {}).get('slots', {})
             city = slots.get('city', {}).get('value', 'London')
             
-            geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1"
-            headers = {'User-Agent': 'SynoCast/1.0'}
+            geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1&accept-language=en"
+            headers = {'User-Agent': 'SynoCast/1.0', 'Accept-Language': 'en'}
             geo_res = requests.get(geo_url, headers=headers, timeout=5)
             
             if not geo_res.ok or not geo_res.json():
@@ -671,8 +687,8 @@ def api_voice_google():
         parameters = query_result.get('parameters', {})
         city = parameters.get('geo-city', 'London')
         
-        geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1"
-        headers = {'User-Agent': 'SynoCast/1.0'}
+        geo_url = f"https://nominatim.openstreetmap.org/search?format=json&q={city}&limit=1&accept-language=en"
+        headers = {'User-Agent': 'SynoCast/1.0', 'Accept-Language': 'en'}
         geo_res = requests.get(geo_url, headers=headers, timeout=5)
         
         if not geo_res.ok or not geo_res.json():
