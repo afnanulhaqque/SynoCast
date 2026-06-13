@@ -286,7 +286,9 @@ main {
   top: 32px !important; /* sits below the date_time_info bar */
   left: 0 !important;
   width: 100% !important;
-  background-color: transparent !important;
+  background: rgba(47, 47, 47, 0.65) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: none !important;
   padding: 15px 0 !important;
