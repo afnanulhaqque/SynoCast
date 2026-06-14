@@ -282,8 +282,8 @@ main {
    SCROLL-RESPONSIVE STICKY NAVBAR SYSTEM
    ========================================== */
 
-/* 1. TOP STATE ON HERO PAGES (Transparent & Absolute Overlay) */
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) {
+/* 1. TOP STATE (Transparent & Absolute Overlay) */
+.navbar:not(.scrolled) {
   position: absolute !important;
   top: 32px !important; /* sits below the date_time_info bar */
   left: 0 !important;
@@ -299,33 +299,36 @@ main {
   border-radius: 0 !important;
 }
 
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link {
+.navbar:not(.scrolled) .nav-link {
   color: rgba(255, 255, 255, 0.9) !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link:hover {
+.navbar:not(.scrolled) .nav-link:hover {
   color: var(--secondary-highlight) !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
+.navbar:not(.scrolled) .nav-link.active {
   color: #d97706 !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
+.navbar:not(.scrolled) .nav-link.active {
   background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .hamburger-menu span {
+.navbar:not(.scrolled) .hamburger-menu span {
   background-color: #ffffff !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .btn_subscribe {
+.navbar:not(.scrolled) .btn_subscribe {
   border-color: #ffffff !important;
   color: #ffffff !important;
 }
 
 /* Adjust top padding of heroes to account for absolute overlay navbar */
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .dashboard-page-container {
-  padding-top: 6rem !important;
+.dashboard-page-container {
+  padding-top: 8rem !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .travel-hero {
-  padding-top: 80px !important;
+.travel-hero {
+  padding-top: 140px !important;
+}
+#main-content > .container {
+  padding-top: 8rem !important;
 }
 
 /* 2. SCROLLED STATE (Sticky, Floating Glass Capsule) */
@@ -386,7 +389,7 @@ main {
    ============================================ */
 @media (max-width: 991px) {
   /* On mobile, the top state fills the full width with dark glass */
-  #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled),
+  .navbar:not(.scrolled),
   .navbar {
     background: rgba(47, 47, 47, 0.85) !important;
     backdrop-filter: blur(12px) saturate(180%) !important;
