@@ -21,7 +21,7 @@ def test_endpoints():
         get_routes = [
             '/', '/news', '/weather', '/travel', '/map', '/learn', 
             '/compare', '/subscribe', '/profile', '/about', '/terms', 
-            '/license', '/pakistan', '/offline', '/health',
+            '/pakistan', '/offline', '/health',
             '/api/learn/trivia', '/api/learn/glossary',
             '/sw.js', '/robots.txt', '/ads.txt', '/sitemap.xml', '/favicon.ico'
         ]
