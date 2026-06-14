@@ -3,6 +3,277 @@
 
 {% block title %} Weather Forecast {% endblock title %}
 
+{% block head %}
+<style>
+  /* ================================================
+     WEATHER PAGE — Premium Redesign
+     ================================================ */
+
+  /* ── Hero ─────────────────────────────────────── */
+  .weather-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 100px 0 80px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2f2f2f 50%, #16213e 100%);
+  }
+
+  .weather-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(111, 174, 217, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(111, 174, 217, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .weather-hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .weather-hero-particles span {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    animation: floatParticle 8s linear infinite;
+  }
+
+  .weather-hero-particles span:nth-child(1)  { left: 10%; top: 30%; animation-delay: 0s;    animation-duration: 9s;  width: 3px; height: 3px; }
+  .weather-hero-particles span:nth-child(2)  { left: 25%; top: 70%; animation-delay: 1.5s;  animation-duration: 11s; }
+  .weather-hero-particles span:nth-child(3)  { left: 45%; top: 20%; animation-delay: 3s;    animation-duration: 8s;  width: 4px; height: 4px; background: rgba(111, 174, 217, 0.7); }
+  .weather-hero-particles span:nth-child(4)  { left: 65%; top: 60%; animation-delay: 0.7s;  animation-duration: 12s; }
+  .weather-hero-particles span:nth-child(5)  { left: 80%; top: 35%; animation-delay: 2s;    animation-duration: 10s; width: 3px; height: 3px; background: rgba(111, 174, 217, 0.7); }
+  .weather-hero-particles span:nth-child(6)  { left: 90%; top: 80%; animation-delay: 4s;    animation-duration: 9s;  }
+  .weather-hero-particles span:nth-child(7)  { left: 55%; top: 50%; animation-delay: 5s;    animation-duration: 13s; width: 2px; height: 2px; }
+  .weather-hero-particles span:nth-child(8)  { left: 5%;  top: 85%; animation-delay: 2.5s;  animation-duration: 10s; width: 3px; height: 3px; }
+
+  @keyframes floatParticle {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.8; }
+    100% { transform: translateY(-80px) scale(0.5); opacity: 0; }
+  }
+
+  .weather-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right,
+        rgba(10, 10, 20, 0.85) 0%,
+        rgba(10, 10, 20, 0.65) 50%,
+        rgba(10, 10, 20, 0.3) 100%);
+    z-index: 1;
+  }
+
+  .weather-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(111, 174, 217, 0.18);
+    border: 1px solid rgba(111, 174, 217, 0.45);
+    color: #6faed9;
+    border-radius: 100px;
+    padding: 6px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    backdrop-filter: blur(8px);
+    animation: fadeSlideDown 0.7s ease both;
+  }
+
+  .weather-hero h1 {
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 8px;
+    animation: fadeSlideDown 0.7s 0.1s ease both;
+  }
+
+  .weather-hero p.weather-subtitle {
+    font-size: 1.25rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0;
+    animation: fadeSlideDown 0.7s 0.2s ease both;
+  }
+
+  .weather-temp-display {
+    font-size: clamp(4rem, 8vw, 7rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: fadeSlideUp 0.7s 0.3s ease both;
+  }
+
+  .weather-hero-icon {
+    font-size: 5rem;
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.4));
+  }
+
+  /* ── Search Box ─────────────────────────────────── */
+  .weather-search-box {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 20px;
+    padding: 8px 8px 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+    transition: all 0.3s;
+  }
+
+  .weather-search-box:focus-within {
+    border-color: var(--accent-weather);
+    box-shadow: 0 15px 40px rgba(111,174,217,0.15), 0 0 0 3px rgba(111,174,217,0.1);
+  }
+
+  .weather-search-box i.search-icon {
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  #weather-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: inherit;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ── Structural Sections ────────────────────────── */
+  .weather-main-section {
+    padding: 40px 0 80px;
+    background: var(--bg-color);
+  }
+
+  .weather-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-weather);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .weather-section-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  /* ── Cards ────────────────────────────────────── */
+  .weather-card {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 24px;
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+
+  .weather-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    border-color: rgba(111, 174, 217, 0.3);
+  }
+
+  .weather-card-header {
+    padding: 24px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .weather-card-body {
+    padding: 0 24px 24px;
+  }
+
+  /* ── Specific Styles ───────────────────────────── */
+  .impact-card {
+    border-top: 4px solid transparent;
+  }
+  .bg-impact-traffic { border-top-color: var(--accent-weather); }
+  .bg-impact-aqi     { border-top-color: #27ae60; }
+  .bg-impact-pollen  { border-top-color: #f59e0b; }
+
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Forecast Tabs Style */
+  .forecast-header-controls {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 100px;
+    padding: 12px 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  }
+
+  .forecast-header-controls h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: 4px;
+    transition: all 0.2s;
+  }
+  
+  .unit-toggle-group .btn-unit {
+    border-radius: 100px;
+    font-weight: 600;
+    border: 1px solid var(--divider-color);
+    background: var(--surface-color);
+    color: var(--text-primary);
+  }
+  .unit-toggle-group .btn-unit.active {
+    background: var(--accent-weather);
+    color: white;
+    border-color: var(--accent-weather);
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+      .weather-hero { padding: 80px 0 60px; }
+      .weather-hero .container {
+          text-align: center;
+      }
+      .weather-hero .col-md-5 {
+          margin-top: 30px;
+          align-items: center !important;
+          text-align: center !important;
+      }
+      .weather-hero .col-md-5 .ms-auto {
+          margin-left: 0 !important;
+      }
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -13,88 +284,79 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
-<div class="container weather-page mt-5 mb-5">
+<section id="weather-hero-card" class="weather-hero weather-bg-transition" role="region" aria-label="Current Weather Summary">
+  <img id="weather-hero-img" src="/assets/images/banner-home.png" class="position-absolute w-100 h-100 object-fit-cover brightness-75" alt="" fetchpriority="high" style="z-index: 0; top: 0; left: 0;">
+  <div id="weather-bg-overlay" class="weather-hero-overlay"></div>
+  <div class="weather-hero-particles">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="container position-relative" style="z-index: 3;">
+    <div class="row align-items-center">
+      <div class="col-md-7 d-flex flex-column justify-content-center">
 
+        <div class="d-flex align-items-center gap-3">
+          <h1 id="weather-city" class="skeleton text-white mb-0">---</h1>
+          <button id="btn-favorite" class="btn btn-link text-white p-0 opacity-50 hover-opacity-100 transition-opacity initially-hidden" title="Add to Favorites">
+            <i class="far fa-heart fa-2x"></i>
+          </button>
+        </div>
+        <p id="weather-country" class="weather-subtitle skeleton w-50">---</p>
+        <div class="mt-4">
+           <span id="weather-hero-temp" class="weather-temp-display temp-pulse" data-celsius="" aria-live="polite">--°</span>
+        </div>
+      </div>
 
-  <div class="row align-items-center mb-4 g-3">
-    <div class="col-md-7 col-lg-8">
-      <h2 class="fw-bold mb-1" data-t="weather_forecast">Weather Forecast</h2>
-      <p id="weather-date-header" class="text-muted mb-0" data-timestamp="" data-time-type="full">Loading local time...
-      </p>
+      <div class="col-md-5 text-end text-white d-flex flex-column justify-content-center align-items-end">
+        <div class="mb-4">
+          <i id="weather-hero-icon" class="fas fa-sun weather-hero-icon text-warning mb-2 icon-glow" aria-hidden="true"></i>
+          <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto" aria-live="polite">Clear Sky</h3>
+        </div>
+        <div class="d-flex flex-column align-items-end gap-2 fs-6 fw-bold text-white-50">
+          <div class="d-flex align-items-center gap-3">
+            <span><i class="fas fa-temperature-high me-2"></i> High: <span id="weather-max-temp" class="text-white">--°</span></span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span><i class="fas fa-temperature-low me-2"></i> Low: <span id="weather-min-temp" class="text-white">--°</span></span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span><i class="fas fa-wind me-2"></i> Wind: <span id="weather-hero-wind" class="text-white">-- km/h</span></span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+            <span><i class="fas fa-tint me-2"></i> Humidity: <span id="weather-hero-humidity" class="text-white">--%</span></span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col-md-5 col-lg-4">
+  </div>
+</section>
+
+<div class="container weather-main-section pt-5">
+
+  <!-- Header & Search -->
+  <div class="row align-items-end mb-4 g-4">
+    <div class="col-lg-7">
+      <div class="weather-section-label"><i class="fas fa-satellite"></i> Live Conditions</div>
+      <h2 class="weather-section-title" data-t="weather_forecast">Weather Forecast</h2>
+      <p id="weather-date-header" class="text-muted mb-0" data-timestamp="" data-time-type="full">Loading local time...</p>
+    </div>
+    <div class="col-lg-5">
       <div class="position-relative search-container">
-        <div class="input-group search-pill overflow-hidden glass-pill shadow-soft">
-          <span class="input-group-text border-0 bg-transparent">
-            <i class="fas fa-search text-muted"></i>
-          </span>
-          <input type="text" id="weather-search-input" class="form-control border-0 py-2 pe-3 bg-transparent"
-            placeholder="Search city (e.g., New York)" autocomplete="off">
+        <div class="weather-search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="weather-search-input" placeholder="Search city (e.g., New York)" autocomplete="off">
         </div>
-        <div id="weather-search-results" class="position-absolute w-100 mt-2 d-none search-results-dropdown glass-card rounded-4 border-0 shadow-soft">
+        <div id="weather-search-results" class="position-absolute w-100 mt-2 d-none search-results-dropdown weather-card border-0 shadow-lg" style="z-index: 1000;">
         </div>
       </div>
     </div>
   </div>
 
-  <div id="weather-hero-card"
-    class="card border-0 rounded-5 text-white mb-5 overflow-hidden position-relative weather-hero-card weather-bg-transition shadow-soft weather-hero-min-h hover-lift"
-    role="region" aria-label="Current Weather Summary">
-    <div id="weather-bg-overlay" class="weather-bg-overlay"></div>
-    <img id="weather-hero-img" src="/assets/images/banner-home.png"
-      class="position-absolute w-100 h-100 object-fit-cover brightness-75" alt="" fetchpriority="high">
-    <div class="card-img-overlay p-4 p-md-5 d-flex flex-column justify-content-between">
-
-      <div class="row h-100">
-        <div class="col-md-6 d-flex flex-column justify-content-between">
-          <div>
-            <div class="d-flex align-items-center gap-3">
-              <h1 id="weather-city" class="display-4 fw-bold mb-0 skeleton">---</h1>
-              <!-- Favorite Heart Button -->
-              <button id="btn-favorite"
-                class="btn btn-link text-white p-0 opacity-50 hover-opacity-100 transition-opacity initially-hidden"
-                title="Add to Favorites">
-                <i class="far fa-heart fa-2x"></i>
-              </button>
-            </div>
-            <p id="weather-country" class="fs-5 fw-light skeleton w-50">---</p>
-          </div>
-          <div>
-            <span id="weather-hero-temp" class="display-1 fw-bold temp-display temp-pulse" data-celsius=""
-              aria-live="polite">--°</span>
-          </div>
-        </div>
-
-        <div class="col-md-6 d-flex flex-column justify-content-between text-end">
-          <div>
-            <i id="weather-hero-icon" class="fas fa-sun fa-4x mb-2 text-warning weather-icon-sun icon-glow"
-              aria-hidden="true"></i>
-            <h3 id="weather-hero-condition" class="fw-normal skeleton w-75 ms-auto" aria-live="polite">Clear Sky</h3>
-          </div>
-          <div class="d-flex flex-column align-items-end gap-2 fs-6 fw-light">
-            <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-temperature-high me-2"></i> High: <span id="weather-max-temp"
-                  class="temp-display">--°</span></span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-temperature-low me-2"></i> Low: <span id="weather-min-temp"
-                  class="temp-display">--°</span></span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-wind me-2"></i> Wind: <span id="weather-hero-wind">-- km/h</span></span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-              <span><i class="fas fa-tint me-2"></i> Humidity: <span id="weather-hero-humidity">--%</span></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Old Hero Container Removed -->
 
   <!-- Forecast Tabs -->
   <div class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 forecast-header-controls glass-pill px-4 py-2 shadow-soft">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 forecast-header-controls">
       <div class="d-flex gap-4 align-items-baseline" role="tablist">
         <h5 id="tab-today" class="fw-bold mb-0 text-primary cursor-pointer border-bottom border-2 border-primary pb-1"
           role="tab" aria-selected="true" aria-controls="forecast-today" tabindex="0">
@@ -111,8 +373,8 @@
           aria-selected="false" aria-controls="forecast-global" tabindex="0">Global Explorer</h5>
       </div>
       <div class="unit-toggle-group">
-        <button id="btn-celsius" class="btn btn-unit active glass-pill">°C</button>
-        <button id="btn-fahrenheit" class="btn btn-unit glass-pill">°F</button>
+        <button id="btn-celsius" class="btn btn-unit active glass-pill px-3 py-1">°C</button>
+        <button id="btn-fahrenheit" class="btn btn-unit glass-pill px-3 py-1">°F</button>
       </div>
     </div>
 
@@ -127,26 +389,38 @@
     <div id="forecast-analytics" class="d-none">
       <div class="row g-4">
         <div class="col-md-6">
-          <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-            <h5 class="fw-bold mb-3">Temperature Trend (5 Days)</h5>
-            <div class="chart-container chart-container-lg">
-              <canvas id="analyticsTempChart"></canvas>
+          <div class="weather-card">
+            <div class="weather-card-header">
+                <h5 class="fw-bold mb-0">Temperature Trend (5 Days)</h5>
+            </div>
+            <div class="weather-card-body">
+                <div class="chart-container chart-container-lg">
+                  <canvas id="analyticsTempChart"></canvas>
+                </div>
             </div>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-            <h5 class="fw-bold mb-3">Precipitation Probability</h5>
-            <div class="chart-container chart-container-lg">
-              <canvas id="analyticsPrecipChart"></canvas>
+          <div class="weather-card">
+            <div class="weather-card-header">
+                <h5 class="fw-bold mb-0">Precipitation Probability</h5>
+            </div>
+            <div class="weather-card-body">
+                <div class="chart-container chart-container-lg">
+                  <canvas id="analyticsPrecipChart"></canvas>
+                </div>
             </div>
           </div>
         </div>
         <div class="col-12">
-          <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4">
-            <h5 class="fw-bold mb-3">Expected Rainfall Volume (Total)</h5>
-            <div class="chart-container chart-container-sm">
-              <canvas id="analyticsRainChart"></canvas>
+          <div class="weather-card">
+            <div class="weather-card-header">
+                <h5 class="fw-bold mb-0">Expected Rainfall Volume (Total)</h5>
+            </div>
+            <div class="weather-card-body">
+                <div class="chart-container chart-container-sm">
+                  <canvas id="analyticsRainChart"></canvas>
+                </div>
             </div>
           </div>
         </div>
@@ -166,7 +440,6 @@
             </span>
           </div>
           <div id="extended-daily-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
-            <!-- Loading skeleton -->
             <div class="text-center py-5 w-100">
               <div class="spinner-border text-primary" role="status"></div>
               <p class="text-muted mt-2">Loading extended forecast...</p>
@@ -178,10 +451,8 @@
       <!-- 48-Hour Hourly Forecast -->
       <div class="row g-4 mb-5">
         <div class="col-12">
-          <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>Hourly Forecast (Next 48 Hours)
-          </h5>
+          <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2 text-primary"></i>Hourly Forecast (Next 48 Hours)</h5>
           <div id="extended-hourly-forecast" class="d-flex gap-3 overflow-auto pb-3 forecast-scroll">
-            <!-- Loading skeleton -->
             <div class="text-center py-5 w-100">
               <div class="spinner-border text-primary" role="status"></div>
             </div>
@@ -192,30 +463,36 @@
       <!-- Astronomy Section -->
       <div class="row g-4">
         <div class="col-md-6">
-          <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-            <h5 class="fw-bold mb-3">
-              <i class="fas fa-sun text-warning me-2"></i>Sunrise & Sunset
-            </h5>
-            <p class="small text-muted mb-3">Perfect timing for photographers 📸</p>
-            <div id="astronomy-sun-data">
-              <!-- Sunrise/Sunset with Golden Hours -->
-              <div class="text-center py-4">
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-              </div>
+          <div class="weather-card">
+            <div class="weather-card-header">
+                <h5 class="fw-bold mb-0">
+                  <i class="fas fa-sun text-warning me-2"></i>Sunrise & Sunset
+                </h5>
+            </div>
+            <div class="weather-card-body">
+                <p class="small text-muted mb-3">Perfect timing for photographers 📸</p>
+                <div id="astronomy-sun-data">
+                  <div class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-            <h5 class="fw-bold mb-3">
-              <i class="fas fa-moon text-primary me-2"></i>Moon Phases
-            </h5>
-            <p class="small text-muted mb-3">8-day lunar cycle calendar</p>
-            <div id="astronomy-moon-calendar">
-              <!-- 8-day moon phase calendar -->
-              <div class="text-center py-4">
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-              </div>
+          <div class="weather-card">
+            <div class="weather-card-header">
+                <h5 class="fw-bold mb-0">
+                  <i class="fas fa-moon text-primary me-2"></i>Moon Phases
+                </h5>
+            </div>
+            <div class="weather-card-body">
+                <p class="small text-muted mb-3">8-day lunar cycle calendar</p>
+                <div id="astronomy-moon-calendar">
+                  <div class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -231,35 +508,41 @@
         <h5 class="fw-bold mb-4"><i class="fas fa-chart-line text-primary me-2"></i>Weather Impact Predictions</h5>
         <div class="row g-4" id="impact-container">
           <div class="col-md-4">
-            <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100 impact-card bg-impact-traffic">
-              <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="weather-card impact-card bg-impact-traffic">
+              <div class="weather-card-header mb-3">
                 <h6 class="fw-bold mb-0">Traffic Impact</h6>
                 <i class="fas fa-car-side text-primary"></i>
               </div>
-              <div id="traffic-impact-content" class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              <div class="weather-card-body">
+                  <div id="traffic-impact-content" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </div>
               </div>
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100 impact-card bg-impact-aqi">
-              <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="weather-card impact-card bg-impact-aqi">
+              <div class="weather-card-header mb-3">
                 <h6 class="fw-bold mb-0">Air Quality Index</h6>
                 <i class="fas fa-wind text-success"></i>
               </div>
-              <div id="aqi-impact-content" class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+              <div class="weather-card-body">
+                  <div id="aqi-impact-content" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                  </div>
               </div>
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100 impact-card bg-impact-pollen">
-              <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="weather-card impact-card bg-impact-pollen">
+              <div class="weather-card-header mb-3">
                 <h6 class="fw-bold mb-0">Pollen Count</h6>
                 <i class="fas fa-seedling text-warning"></i>
               </div>
-              <div id="pollen-impact-content" class="text-center py-3">
-                <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+              <div class="weather-card-body">
+                  <div id="pollen-impact-content" class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                  </div>
               </div>
             </div>
           </div>
@@ -268,34 +551,38 @@
 
       <!-- Outfit Suggestions -->
       <div class="col-md-6">
-        <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="weather-card">
+          <div class="weather-card-header">
             <h5 class="fw-bold mb-0"><i class="fas fa-tshirt text-primary me-2"></i>Personalized Outfits</h5>
-            <select id="outfit-activity" class="form-select form-select-sm glass-pill w-auto border-0">
+            <select id="outfit-activity" class="form-select form-select-sm glass-pill w-auto border-0 bg-light">
               <option value="casual">Casual</option>
               <option value="work">Sleek/Work</option>
               <option value="outdoor">Adventure</option>
             </select>
           </div>
-          <div id="outfit-container">
-            <div class="text-center py-5">
-              <div class="spinner-border text-primary" role="status"></div>
-            </div>
+          <div class="weather-card-body">
+              <div id="outfit-container">
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+                </div>
+              </div>
           </div>
         </div>
       </div>
 
       <!-- Recipe Suggestions -->
       <div class="col-md-6">
-        <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4 h-100">
-          <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="weather-card">
+          <div class="weather-card-header">
             <h5 class="fw-bold mb-0"><i class="fas fa-utensils text-primary me-2"></i>Weather Recipes</h5>
             <span class="badge bg-light text-primary rounded-pill px-3">AI Selected</span>
           </div>
-          <div id="recipe-container" class="d-flex flex-column gap-3">
-            <div class="text-center py-5">
-              <div class="spinner-border text-primary" role="status"></div>
-            </div>
+          <div class="weather-card-body">
+              <div id="recipe-container" class="d-flex flex-column gap-3">
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status"></div>
+                </div>
+              </div>
           </div>
         </div>
       </div>
@@ -307,15 +594,14 @@
   <div id="forecast-global" class="d-none mb-5">
     <div class="row mb-4 justify-content-center">
       <div class="col-md-5 mb-3 mb-md-0">
-        <select id="ge-countrySelect" class="form-select form-select-lg" aria-label="Select Country">
+        <select id="ge-countrySelect" class="form-select form-select-lg border-0 shadow-sm" aria-label="Select Country">
           <option value="" selected disabled>Select a Country...</option>
         </select>
       </div>
       <div class="col-md-5">
-        <div class="input-group input-group-lg">
-          <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-          <input type="text" id="ge-citySearch" class="form-control border-start-0 ps-0" placeholder="Filter cities..."
-            disabled>
+        <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+          <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+          <input type="text" id="ge-citySearch" class="form-control border-0 ps-0" placeholder="Filter cities..." disabled>
         </div>
       </div>
     </div>
@@ -353,14 +639,11 @@
     </div>
   </div>
 
-
-
-
   <!-- Compare Section -->
   <div class="row mb-5">
     <div class="col-12">
-      <div class="card border-0 rounded-5 glass-card shadow-soft hover-lift p-4">
-        <div class="text-center mb-4">
+      <div class="weather-card p-4">
+        <div class="text-center mb-4 mt-3">
           <h4 class="fw-bold mb-1">City Comparison</h4>
           <p class="text-muted small">Compare weather conditions with another city in real-time.</p>
         </div>
@@ -376,20 +659,20 @@
           </div>
           <div class="col-md-1 text-center">
             <div class="d-none d-md-block">
-              <span class="text-muted">VS</span>
+              <span class="text-muted fw-bold">VS</span>
             </div>
           </div>
           <div class="col-md-5">
-            <div class="input-group">
-              <span class="input-group-text bg-light border-0"><i class="fas fa-search text-primary"></i></span>
-              <input type="text" id="comp-city2-input" class="form-control border-0 bg-light"
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="fas fa-search text-primary"></i></span>
+              <input type="text" id="comp-city2-input" class="form-control border-0 bg-white"
                 placeholder="Search City to Compare...">
               <ul id="comp-city2-results" class="dropdown-menu w-100 shadow-sm border-0 rounded-4"></ul>
             </div>
           </div>
         </div>
-        <div class="text-center mb-4">
-          <button class="btn btn-primary rounded-pill px-4" id="btn-compare-trigger">
+        <div class="text-center mb-5">
+          <button class="btn btn-primary rounded-pill px-4 shadow-sm" id="btn-compare-trigger">
             <i class="fas fa-balance-scale me-2"></i>Compare
           </button>
         </div>
@@ -399,7 +682,7 @@
           <div class="row g-4 mb-4">
             <!-- City 1 Card -->
             <div class="col-md-6">
-              <div class="card h-100 border-0 shadow-soft glass-card rounded-5 text-center p-3 border-top-primary-4">
+              <div class="weather-card text-center p-4 border-top-primary-4">
                 <h5 class="fw-bold mb-0" id="cmp-c1-name">--</h5>
                 <p class="text-muted small" id="cmp-c1-country">--</p>
 
@@ -408,7 +691,7 @@
                 <h3 class="fw-bold mb-0 text-primary" id="cmp-c1-temp">--°</h3>
                 <p class="small text-muted" id="cmp-c1-cond">--</p>
 
-                <div class="d-flex justify-content-center gap-3 mt-2 text-muted small">
+                <div class="d-flex justify-content-center gap-3 mt-3 text-muted small">
                   <div><i class="fas fa-wind me-1"></i> <span id="cmp-c1-wind">--</span></div>
                   <div><i class="fas fa-tint me-1"></i> <span id="cmp-c1-hum">--</span>%</div>
                 </div>
@@ -417,7 +700,7 @@
 
             <!-- City 2 Card -->
             <div class="col-md-6">
-              <div class="card h-100 border-0 shadow-soft glass-card rounded-5 text-center p-3 border-top-accent-4">
+              <div class="weather-card text-center p-4 border-top-accent-4" style="border-top: 4px solid var(--accent-weather);">
                 <h5 class="fw-bold mb-0" id="cmp-c2-name">--</h5>
                 <p class="text-muted small" id="cmp-c2-country">--</p>
 
@@ -426,7 +709,7 @@
                 <h3 class="fw-bold mb-0 text-danger" id="cmp-c2-temp">--°</h3>
                 <p class="small text-muted" id="cmp-c2-cond">--</p>
 
-                <div class="d-flex justify-content-center gap-3 mt-2 text-muted small">
+                <div class="d-flex justify-content-center gap-3 mt-3 text-muted small">
                   <div><i class="fas fa-wind me-1"></i> <span id="cmp-c2-wind">--</span></div>
                   <div><i class="fas fa-tint me-1"></i> <span id="cmp-c2-hum">--</span>%</div>
                 </div>
@@ -435,7 +718,7 @@
           </div>
 
           <!-- Summary -->
-          <div class="alert alert-light border-0 rounded-4 mb-0">
+          <div class="alert alert-light border border-light-subtle rounded-4 mb-0 shadow-sm">
             <div class="d-flex gap-2">
               <i class="fas fa-info-circle text-primary mt-1"></i>
               <p class="mb-0 small text-muted" id="cmp-summary-text">Loading analysis...</p>
@@ -449,12 +732,13 @@
 
   {{ ad_banner('7368246679', 'Sponsored Forecast') }}
 
-  <div class="row g-5 mb-5">
+  <div class="row g-5 mb-5 mt-3">
     <div class="col-lg-12">
-      <h4 class="fw-bold mb-4">Daily Statistics</h4>
+      <div class="weather-section-label"><i class="fas fa-chart-pie"></i> Detailed Metrics</div>
+      <h4 class="weather-section-title mb-4">Daily Statistics</h4>
       <div class="row g-4">
         <div class="col-md-4">
-          <div class="card border-0 rounded-5 p-4 shadow-soft hover-lift glass-card h-100 bg-stats-card">
+          <div class="weather-card bg-stats-card p-4">
             <p id="weather-highlight-date" class="fw-bold small text-muted mb-3">Today's Range</p>
             <div class="d-flex justify-content-between">
               <div class="text-center">
@@ -471,7 +755,7 @@
         </div>
 
         <div class="col-md-4">
-          <div class="card border-0 rounded-5 p-4 shadow-soft hover-lift glass-card h-100 bg-stats-card">
+          <div class="weather-card bg-stats-card p-4">
             <p class="fw-bold small text-muted mb-2">Variation</p>
             <h3 id="weather-highlight-variation" class="fw-bold mb-0">--°</h3>
             <small class="text-muted">Temperature delta today</small>
@@ -479,7 +763,7 @@
         </div>
 
         <div class="col-md-4">
-          <div class="card border-0 rounded-5 p-4 shadow-soft hover-lift glass-card h-100 border-left-primary-5">
+          <div class="weather-card p-4 border-left-primary-5" style="border-left: 5px solid var(--primary-color);">
             <div class="d-flex align-items-center mb-2">
               <i class="fas fa-wind text-primary me-2"></i>
               <p class="fw-bold small text-muted mb-0">Air Quality</p>
@@ -491,7 +775,7 @@
 
         <!-- Health Insights Section -->
         <div class="col-12 mt-4">
-          <div class="card border-0 rounded-5 p-4 shadow-soft hover-lift glass-card border-left-accent-5">
+          <div class="weather-card p-4 border-left-accent-5" style="border-left: 5px solid var(--accent-weather);">
             <div class="d-flex align-items-center mb-3">
               <i class="fas fa-hand-holding-medical text-warning me-2"></i>
               <p class="fw-bold small text-muted mb-0">Health & Wellness</p>
@@ -503,7 +787,7 @@
               </div>
             </div>
 
-            <div id="health-ai-advice" class="p-3 bg-white rounded-3 small border border-warning-subtle text-muted">
+            <div id="health-ai-advice" class="p-3 bg-light rounded-3 small border border-warning-subtle text-muted mt-3">
               <small class="text-muted">Loading AI insights...</small>
             </div>
           </div>
@@ -515,7 +799,10 @@
   <!-- News Section -->
   <div class="mt-5 pt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="fw-bold mb-0">Weather News</h4>
+      <div>
+         <div class="weather-section-label"><i class="fas fa-newspaper"></i> Latest Updates</div>
+         <h4 class="weather-section-title mb-0">Weather News</h4>
+      </div>
       <a href="/news" class="btn btn-link text-primary fw-bold text-decoration-none p-0">View all news</a>
     </div>
     <div class="row g-4">
@@ -524,8 +811,8 @@
       {{ weather_news_card(article) }}
       {% endfor %}
       {% else %}
-      <div class="col-12 py-5 text-center">
-        <p class="text-muted">No news updates at the moment.</p>
+      <div class="col-12 py-5 text-center weather-card">
+        <p class="text-muted mb-0">No news updates at the moment.</p>
       </div>
       {% endif %}
     </div>
@@ -534,6 +821,5 @@
 
 <script src="/assets/js/weather.js"></script>
 <script src="/assets/js/global_weather_tab.js"></script>
-
 
 {% endblock body %}
