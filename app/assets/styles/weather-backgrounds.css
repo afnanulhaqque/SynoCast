@@ -318,7 +318,7 @@
   filter: blur(0.5px);
 }
 
-/* Overlay for better text readability */
+/* Overlay for better text readability and premium glass effect */
 .weather-bg-overlay {
   position: absolute;
   top: 0;
@@ -327,10 +327,12 @@
   height: 100%;
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.4) 50%,
-    rgba(0, 0, 0, 0.7) 100%
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.6) 100%
   );
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 1;
 }
 

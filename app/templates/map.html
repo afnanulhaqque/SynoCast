@@ -7,45 +7,246 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
-    /* Full height map container */
+    /* ================================================
+       MAP PAGE — Premium Redesign
+       ================================================ */
+
+    body {
+        background: var(--bg-color, #0a0a14);
+    }
+
     #map-container {
         width: 100%;
-        height: 85vh;
-        /* Occupy significant screen space but allow scroll */
+        height: calc(100vh - 76px); /* Occupy viewport below navbar */
         position: relative;
         z-index: 1;
+        background: #0a0a14;
     }
 
-    .leaflet-control-layers {
-        border-radius: 8px !important;
-        border: none !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        padding: 10px !important;
-        font-family: 'Poppins', sans-serif !important;
+    /* ── Search Overlay ──────────────────────────────── */
+    .map-search-wrapper {
+        position: absolute;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1050;
+        width: 90%;
+        max-width: 560px;
+        pointer-events: none;
+        animation: fadeSlideDown 0.7s ease both;
     }
 
+    .travel-search-box {
+        background: rgba(20, 20, 30, 0.75);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 8px 8px 8px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        pointer-events: auto;
+    }
+
+    .travel-search-box:focus-within {
+        border-color: rgba(245, 158, 11, 0.6);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 3px rgba(245,158,11,0.15);
+    }
+
+    .travel-search-box i.search-icon {
+        color: rgba(255,255,255,0.5);
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    #map-search-input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        flex: 1;
+        min-width: 0;
+    }
+
+    #map-search-input::placeholder {
+        color: rgba(255,255,255,0.4);
+        font-weight: 400;
+    }
+
+    #map-search-btn {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border: none;
+        border-radius: 14px;
+        color: #1a1a1a;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    #map-search-btn i {
+        font-size: 16px;
+    }
+
+    #map-search-btn:hover {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Autocomplete dropdown */
+    #map-search-results {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: rgba(20, 20, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        z-index: 100;
+        max-height: 280px;
+        overflow-y: auto;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        pointer-events: auto;
+    }
+
+    #map-search-results .dropdown-item {
+        color: rgba(255,255,255,0.85);
+        padding: 12px 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: background 0.15s;
+        font-size: 0.9rem;
+    }
+
+    #map-search-results .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    #map-search-results .dropdown-item:hover {
+        background: rgba(245, 158, 11, 0.15);
+        color: #ffffff;
+    }
+
+    /* ── Info Panel ────────────────────────────────── */
     .map-overlay-info {
         position: absolute;
         bottom: 30px;
         left: 30px;
         z-index: 1000;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(5px);
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        max-width: 300px;
-        display: none;
-        /* Hidden by default */
+        background: rgba(20, 20, 30, 0.85);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 24px;
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        max-width: 340px;
+        display: none; /* Hidden by default */
+        color: #ffffff;
+        animation: fadeSlideUp 0.4s ease both;
     }
 
-    /* Custom Popups */
+    #close-map-info {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #fff;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    #close-map-info:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .info-metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .metric-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 12px 8px;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .metric-box:hover {
+        background: rgba(111, 174, 217, 0.1);
+        border-color: rgba(111, 174, 217, 0.3);
+    }
+
+    .metric-box i {
+        color: #6faed9;
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .metric-box .fw-bold {
+        font-size: 0.9rem;
+        color: #ffffff;
+    }
+
+    /* ── Leaflet Overrides ─────────────────────────── */
+    .leaflet-control-zoom {
+        border: none !important;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4) !important;
+        border-radius: 16px !important;
+        overflow: hidden;
+    }
+
+    .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+        background: rgba(20, 20, 30, 0.85) !important;
+        backdrop-filter: blur(12px);
+        color: #fff !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        width: 36px !important;
+        height: 36px !important;
+        line-height: 34px !important;
+    }
+    
+    .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
+        background: rgba(40, 40, 50, 0.9) !important;
+        color: #f59e0b !important;
+    }
+
+    /* Popup Styling */
     .leaflet-popup-content-wrapper {
-        border-radius: 16px;
+        background: rgba(20, 20, 30, 0.9);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
         padding: 0;
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
 
     .leaflet-popup-content {
@@ -55,47 +256,32 @@
     }
 
     .leaflet-popup-tip {
-        background: white;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        background: rgba(20, 20, 30, 0.9);
     }
 
     .weather-popup-card {
         text-align: center;
-        padding: 15px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        min-width: 180px;
+        padding: 24px;
+        color: #ffffff;
+    }
+    
+    /* Override bootstrap colors in popup */
+    .weather-popup-card .text-dark {
+        color: #ffffff !important;
+    }
+    .weather-popup-card .text-muted {
+        color: rgba(255,255,255,0.6) !important;
     }
 
-    .popup-header {
-        background: linear-gradient(135deg, #2f2f2f 0%, #2f2f2f 100%);
-        color: white;
-        padding: 12px 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    /* Animations */
+    @keyframes fadeSlideDown {
+        from { opacity: 0; transform: translate(-50%, -20px); }
+        to   { opacity: 1; transform: translate(-50%, 0); }
     }
 
-    .popup-body {
-        padding: 15px;
-        background: white;
-    }
-
-    .pointer-events-none {
-        pointer-events: none;
-    }
-
-    .pointer-events-auto {
-        pointer-events: auto;
-    }
-
-    /* Ensure search is above map controls */
-    .z-3 {
-        z-index: 1050 !important;
-    }
-
-    .focus-ring-none:focus {
-        box-shadow: none !important;
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 </style>
 {% endblock %}
@@ -103,57 +289,43 @@
 {% block body %}
 <div id="map-container">
     <!-- Map Search Overlay -->
-    <div class="position-absolute top-0 start-0 p-3 z-3 w-100 pointer-events-none" style="max-width: 320px;">
-        <div class="input-group shadow-sm rounded-pill bg-white pointer-events-auto">
-            <span class="input-group-text border-0 bg-transparent ps-3"><i
-                    class="fas fa-search text-primary"></i></span>
-            <input type="text" id="map-search-input" class="form-control border-0 bg-transparent focus-ring-none"
-                placeholder="Search location..." autocomplete="off">
-            <button class="btn border-0 bg-transparent pe-3" id="map-search-btn"><i
-                    class="fas fa-arrow-right text-muted"></i></button>
+    <div class="map-search-wrapper">
+        <div class="travel-search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="map-search-input" placeholder="Search a city or location..." autocomplete="off">
+            <button id="map-search-btn"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <ul id="map-search-results" class="dropdown-menu w-100 mt-2 shadow-sm border-0 rounded-4 pointer-events-auto"
-            style="display: none;">
-        </ul>
+        <ul id="map-search-results"></ul>
     </div>
 
     <div id="weather-map" style="height: 100%; width: 100%;"></div>
 
     <!-- Info Overlay for Clicks -->
     <div id="map-info-panel" class="map-overlay-info">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="mb-0 fw-bold" id="map-city">Unknown</h5>
-            <button type="button" class="btn-close btn-sm" id="close-map-info"></button>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="mb-0 fw-bold fs-5 text-truncate pe-2" id="map-city">Unknown</h5>
+            <button type="button" id="close-map-info"><i class="fas fa-times fs-6"></i></button>
         </div>
-        <div class="d-flex align-items-center mb-3">
-            <i id="map-icon" class="fas fa-cloud fa-2x text-muted"></i>
-            <div class="ms-2">
-                <div class="fs-4 fw-bold" id="map-temp">--°</div>
-                <div class="small text-muted" id="map-condition">--</div>
-            </div>
-        </div>
-        <div class="row g-2 text-center small">
-            <div class="col-4">
-                <div class="bg-light rounded p-2">
-                    <i class="fas fa-wind text-muted mb-1"></i>
-                    <div class="fw-bold" id="map-wind">--</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="bg-light rounded p-2">
-                    <i class="fas fa-tint text-muted mb-1"></i>
-                    <div class="fw-bold" id="map-humidity">--%</div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="bg-light rounded p-2">
-                    <i class="fas fa-compress-arrows-alt text-muted mb-1"></i>
-                    <div class="fw-bold" id="map-pressure">--</div>
-                </div>
+        <div class="d-flex align-items-center mb-1">
+            <i id="map-icon" class="fas fa-cloud fa-3x text-muted" style="width: 60px; text-align: center;"></i>
+            <div class="ms-3">
+                <div class="fs-1 fw-bold" id="map-temp" style="line-height: 1;">--°</div>
+                <div class="text-capitalize mt-2 fw-medium" id="map-condition" style="color: rgba(255,255,255,0.7); font-size: 0.95rem;">--</div>
             </div>
         </div>
-        <div class="mt-3 text-center">
-            <a href="#" id="view-details-btn" class="btn btn-sm btn-primary rounded-pill w-100">View Full Forecast</a>
+        <div class="info-metrics-grid">
+            <div class="metric-box">
+                <i class="fas fa-wind"></i>
+                <div class="fw-bold" id="map-wind">--</div>
+            </div>
+            <div class="metric-box">
+                <i class="fas fa-tint"></i>
+                <div class="fw-bold" id="map-humidity">--%</div>
+            </div>
+            <div class="metric-box">
+                <i class="fas fa-compress-arrows-alt"></i>
+                <div class="fw-bold" id="map-pressure">--</div>
+            </div>
         </div>
     </div>
 </div>
