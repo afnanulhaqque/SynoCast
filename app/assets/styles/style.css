@@ -1,7 +1,7 @@
 :root {
   /* Core Brand Colors */
   --primary-color: #2f2f2f; /* Soft Charcoal */
-  --secondary-highlight: #d97706; /* Accent News: Burnt Orange */
+  --secondary-highlight: #6faed9; /* Logo Blue */
 
   /* Base Layout */
   --bg-color: #fafaf8; /* Warm White */
@@ -23,9 +23,9 @@
   --btn-primary-default: #2f2f2f;
   --btn-primary-hover: #1a1a1a;
   --btn-primary-pressed: #000000;
-  --btn-secondary-default: #d97706;
-  --btn-secondary-hover: #b96505;
-  --btn-secondary-pressed: #995404;
+  --btn-secondary-default: #6faed9;
+  --btn-secondary-hover: #589bc2;
+  --btn-secondary-pressed: #3c789e;
   --focus-outline: #6faed9;
 
   /* Navigation */
@@ -57,8 +57,8 @@
   --wind-speed: #6b6b6b;
 
   /* Legacy/Refactored mappings */
-  --accent-weather: #6faed9; /* Muted Blue */
-  --accent-news: #d97706; /* Burnt Orange */
+  --accent-weather: #6faed9; /* Logo Blue */
+  --accent-news: #6faed9; /* Logo Blue */
   --weather-text: var(--text-primary);
   --weather-accent: var(--accent-weather);
   --weather-shadow: rgba(47, 47, 47, 0.1);
@@ -265,14 +265,16 @@ main {
   transition: all 0.3s ease;
 }
 
-.nav-link:hover,
-.nav-link.active {
+.nav-link:hover {
   font-weight: 600 !important;
   color: var(--secondary-highlight) !important;
   opacity: 1;
 }
 
 .nav-link.active {
+  font-weight: 600 !important;
+  color: #d97706 !important;
+  opacity: 1;
   background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
@@ -300,9 +302,11 @@ main {
 #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link {
   color: rgba(255, 255, 255, 0.9) !important;
 }
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link:hover,
-#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
+#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link:hover {
   color: var(--secondary-highlight) !important;
+}
+#main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
+  color: #d97706 !important;
 }
 #main-content:has(.dashboard-page-container, .travel-hero, .banner_image) .navbar:not(.scrolled) .nav-link.active {
   background-color: rgba(255, 255, 255, 0.15) !important;
@@ -357,7 +361,7 @@ main {
 }
 .navbar.scrolled .nav-link.active {
   background-color: rgba(255, 255, 255, 0.15) !important;
-  color: #ffffff !important;
+  color: #d97706 !important;
   opacity: 1;
 }
 

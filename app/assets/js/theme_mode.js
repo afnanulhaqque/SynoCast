@@ -8,7 +8,7 @@ const Theme = {
         primary: '#2F2F2F',      // Soft Charcoal
         background: '#FAFAF8',   // Warm White
         accentWeather: '#6FAED9',// Muted Blue
-        accentNews: '#D97706',   // Burnt Orange
+        accentNews: '#6FAED9',   // Logo Blue
         textPrimary: '#1A1A1A',  // Almost Black
         textSecondary: '#6B6B6B' // Stone Gray
     },
