@@ -6,7 +6,7 @@
 class CurrencyManager {
     constructor() {
         this.baseCurrency = 'USD';
-        this.userCurrency = localStorage.getItem('synocast_currency') || 'USD';
+        this.userCurrency = 'USD';
         this.rates = {};
     }
 
@@ -37,7 +37,7 @@ class CurrencyManager {
 
     setCurrency(curr) {
         this.userCurrency = curr;
-        localStorage.setItem('synocast_currency', curr);
+        // localStorage removed
         this.applyCurrencyFormatting();
         this.savePreferenceToBackend(curr);
         

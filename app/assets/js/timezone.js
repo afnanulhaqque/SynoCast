@@ -5,7 +5,7 @@
 
 class TimezoneManager {
     constructor() {
-        this.userTimezone = localStorage.getItem('synocast_timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        this.userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.utcOffset = 0;
     }
 
@@ -27,7 +27,7 @@ class TimezoneManager {
 
     setTimezone(tz) {
         this.userTimezone = tz;
-        localStorage.setItem('synocast_timezone', tz);
+        // localStorage removed
         this.updateTimeDisplays();
         this.savePreferenceToBackend(tz);
         

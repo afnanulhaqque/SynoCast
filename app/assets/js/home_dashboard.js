@@ -221,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Cache data
             data.cityName = translatedName;
-            localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
             
             currentData = data.current;
             forecastData = data.forecast;
@@ -648,19 +647,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize Page
-    const cache = JSON.parse(localStorage.getItem('synocast_weather_cache'));
-    if (cache) {
-        currentData = cache.current;
-        forecastData = cache.forecast;
-        pollutionData = cache.pollution;
-        locationTextEl.textContent = cache.cityName || currentData.name;
-        renderDashboard();
-        
-        // Refresh silently in background
-        if (currentData) {
-            fetchDashboardWeather(currentData.coord.lat, currentData.coord.lon, locationTextEl.textContent);
-        }
-    } else {
-        getUserLocation();
-    }
+    getUserLocation();
 });

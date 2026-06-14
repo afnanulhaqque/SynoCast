@@ -6,7 +6,7 @@
 class I18nManager {
     constructor() {
         this.translations = {};
-        this.currentLang = localStorage.getItem('synocast_lang') || this.detectBrowserLang();
+        this.currentLang = this.detectBrowserLang();
         this.isRTL = ['ar', 'ur', 'he', 'fa'].includes(this.currentLang);
     }
 
@@ -40,7 +40,7 @@ class I18nManager {
         if (this.translations[lang]) {
             this.currentLang = lang;
             this.isRTL = ['ar', 'ur', 'he', 'fa'].includes(lang);
-            localStorage.setItem('synocast_lang', lang);
+            // localStorage removed
             this.applyTranslations();
             this.updateRTLLayout();
             

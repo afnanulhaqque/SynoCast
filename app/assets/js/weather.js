@@ -238,9 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error('Weather API failed');
             const data = await response.json();
             
-            // Save to cache
-            localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
-
             currentData = data.current;
             forecastData = data.forecast;
 
@@ -855,29 +852,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Initialization ---
-    // Check for cached data first
-    const cachedData = JSON.parse(localStorage.getItem('synocast_weather_cache'));
-    if (cachedData) {
-        currentData = cachedData.current;
-        forecastData = cachedData.forecast;
-        
-        // Remove skeletons immediately
-        document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton', 'skeleton-text', 'w-50', 'w-75'));
-        document.querySelectorAll('.skeleton-icon').forEach(el => el.classList.remove('skeleton-icon'));
-        document.querySelectorAll('.skeleton-card').forEach(el => el.classList.remove('skeleton-card'));
-
-        updateCurrentWeather(cachedData.current, cachedData.forecast);
-        updateHourlyForecast(cachedData.forecast, cachedData.current.timezone);
-        updateDailyForecast(cachedData.forecast, cachedData.current.timezone);
-        updateAQI(cachedData.pollution);
-        updateDisplayUnits();
-
-        // Also fetch history for cached location
-        if (cachedData.current.coord) {
-            fetchHistory(cachedData.current.coord.lat, cachedData.current.coord.lon);
-        }
-    }
-
     // Listen for global location grant (faster and unified)
     window.addEventListener('synocast_location_granted', (e) => {
         const { lat, lon, isCached } = e.detail;

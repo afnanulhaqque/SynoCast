@@ -24,10 +24,7 @@ function applyTheme() {
     // Remote potential legacy dark mode markers
     document.body.classList.remove('dark-mode');
     
-    // Store preference
-    localStorage.setItem('theme', 'light');
-    
-
+    // Store preference removed
 }
 
 // Initialize

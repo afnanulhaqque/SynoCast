@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const forecastEl = document.getElementById('home-hourly-forecast');
 
     // Load favorites
-    let favorites = JSON.parse(localStorage.getItem('weatherFavorites')) || [];
+    let favorites = [];
 
     function renderFavorites() {
         favoritesList.innerHTML = '';
@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function removeFavorite(name) {
         favorites = favorites.filter(c => c.name !== name);
-        localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
         renderFavorites();
     }
 
@@ -64,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if already exists
             if (!favorites.some(f => f.name === city.name)) {
                 favorites.push(city);
-                localStorage.setItem('weatherFavorites', JSON.stringify(favorites));
                 renderFavorites();
                 newCityInput.value = '';
             } else {
@@ -86,9 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await res.json();
             
                 if (data.current) {
-                    // Save to cache
                     data.cityName = cityName;
-                    localStorage.setItem('synocast_weather_cache', JSON.stringify(data));
 
                     // Helper to remove skeleton
                     const removeSkeleton = (el) => {
@@ -233,12 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function handleLocationEvent(detail) {
         const { lat, lon, isCached } = detail;
-        
-        // Show cached weather if available
-        const cachedWeather = JSON.parse(localStorage.getItem('synocast_weather_cache'));
-        if (cachedWeather && isCached) {
-            renderWeatherData(cachedWeather);
-        }
 
         // Silent refresh in background
         const geoUrl = `/api/geocode/reverse?lat=${lat}&lon=${lon}`;
@@ -303,19 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     renderFavorites();
     
-    // Check for cached weather on load
-    const initialCache = JSON.parse(localStorage.getItem('synocast_weather_cache'));
-    if (initialCache) {
-        renderWeatherData(initialCache);
+    // Check top city on load
+    const timeDisplay = document.getElementById('dynamic_time_display');
+    const topCity = timeDisplay?.getAttribute('data-city');
+    
+    if (topCity && topCity !== 'Unknown') {
+        if(cityEl) cityEl.textContent = topCity;
+        showLocationPrompt(); 
     } else {
-        const timeDisplay = document.getElementById('dynamic_time_display');
-        const topCity = timeDisplay?.getAttribute('data-city');
-        
-        if (topCity && topCity !== 'Unknown') {
-            if(cityEl) cityEl.textContent = topCity;
-            showLocationPrompt(); 
-        } else {
-            showLocationPrompt();
-        }
+        showLocationPrompt();
     }
 });

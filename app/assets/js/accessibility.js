@@ -4,9 +4,9 @@
 
 class AccessibilityHandler {
     constructor() {
-        this.contrastMode = localStorage.getItem('synocast_contrast_mode') || 'default';
-        this.fontSize = localStorage.getItem('synocast_font_size') || 'medium';
-        this.reducedMotion = localStorage.getItem('synocast_reduced_motion') === 'true';
+        this.contrastMode = 'default';
+        this.fontSize = 'medium';
+        this.reducedMotion = false;
         
         this.init();
     }
@@ -105,14 +105,14 @@ class AccessibilityHandler {
 
         document.getElementById('high-contrast-toggle').addEventListener('change', (e) => {
             this.contrastMode = e.target.checked ? 'high' : 'default';
-            localStorage.setItem('synocast_contrast_mode', this.contrastMode);
+            // localStorage removed
             this.applyContrastMode();
             this.announce(this.contrastMode === 'high' ? 'High contrast mode enabled' : 'High contrast mode disabled');
         });
 
         document.getElementById('reduced-motion-toggle').addEventListener('change', (e) => {
             this.reducedMotion = e.target.checked;
-            localStorage.setItem('synocast_reduced_motion', this.reducedMotion);
+            // localStorage removed
             this.applyReducedMotion();
             this.announce(this.reducedMotion ? 'Animations reduced' : 'Animations enabled');
         });
@@ -120,7 +120,7 @@ class AccessibilityHandler {
         toolbar.querySelectorAll('.font-size-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.fontSize = btn.dataset.size;
-                localStorage.setItem('synocast_font_size', this.fontSize);
+                // localStorage removed
                 this.applyFontSize();
                 this.announce(`Font size set to ${this.fontSize}`);
             });
