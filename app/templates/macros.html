@@ -82,7 +82,7 @@
 {% endmacro %}
 
 {% macro ad_card(slot_id='default-sidebar', label='Advertisement') %}
-<div class="ad-container ad-card mb-4">
+<div class="ad-container ad-card mb-4" aria-live="polite">
     <div class="ad-placeholder">
         <span class="ad-label">{{ label }}</span>
         <div class="ad-content text-center">
@@ -99,7 +99,7 @@
 
 {% macro ad_banner(slot_id='default-banner', label='Advertisement') %}
 <div class="container mb-5">
-    <div class="ad-container ad-banner">
+    <div class="ad-container ad-banner" aria-live="polite">
         <div class="ad-placeholder">
             <span class="ad-label">{{ label }}</span>
             <div class="ad-content text-center">

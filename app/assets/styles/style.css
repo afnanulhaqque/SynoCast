@@ -1,7 +1,7 @@
 :root {
   /* Core Brand Colors */
   --primary-color: #2f2f2f; /* Soft Charcoal */
-  --secondary-highlight: #6faed9; /* Logo Blue */
+  --secondary-highlight: #2b74a3; /* Logo Blue (Darkened for AA) */
 
   /* Base Layout */
   --bg-color: #fafaf8; /* Warm White */
@@ -13,9 +13,9 @@
 
   /* Typography */
   --text-primary: #1a1a1a; /* Almost Black */
-  --text-secondary: #6b6b6b; /* Stone Gray */
-  --text-muted: #6b6b6b;
-  --text-disabled: #b0b0b0;
+  --text-secondary: #595959; /* Stone Gray (Darkened for AA) */
+  --text-muted: #595959;
+  --text-disabled: #757575; /* Darkened for AA */
   --text-on-primary: #ffffff;
   --text-on-secondary: #ffffff;
 
@@ -23,42 +23,42 @@
   --btn-primary-default: #2f2f2f;
   --btn-primary-hover: #1a1a1a;
   --btn-primary-pressed: #000000;
-  --btn-secondary-default: #6faed9;
-  --btn-secondary-hover: #589bc2;
-  --btn-secondary-pressed: #3c789e;
-  --focus-outline: #6faed9;
+  --btn-secondary-default: #2b74a3;
+  --btn-secondary-hover: #1a567d;
+  --btn-secondary-pressed: #0f3d5c;
+  --focus-outline: #2b74a3;
 
   /* Navigation */
   --nav-top-bg: #2f2f2f;
   --nav-top-text: #ffffff;
   --nav-bottom-bg: #ffffff;
   --nav-bottom-active: #2f2f2f;
-  --nav-bottom-inactive: #6b6b6b;
+  --nav-bottom-inactive: #595959;
 
   /* Weather Indicators */
-  --weather-sunny: #d97706;
-  --weather-cloudy: #6b6b6b;
-  --weather-rain: #6faed9;
+  --weather-sunny: #a65a05; /* Darkened for AA */
+  --weather-cloudy: #595959;
+  --weather-rain: #2b74a3;
   --weather-storm: #2f2f2f;
-  --weather-snow: #e0f2fe;
-  --weather-heat-alert: #d97706;
-  --weather-cold-alert: #6faed9;
+  --weather-snow: #0f5480; /* Darkened for visibility on white */
+  --weather-heat-alert: #a65a05;
+  --weather-cold-alert: #2b74a3;
 
   /* Status and Feedback */
-  --status-success: #27ae60;
-  --status-warning: #d97706;
-  --status-error: #eb5757;
-  --status-info: #6faed9;
+  --status-success: #1b7a43; /* Darkened for AA */
+  --status-warning: #a65a05;
+  --status-error: #c92a2a; /* Darkened for AA */
+  --status-info: #2b74a3;
 
   /* Charts and Data */
-  --temp-high: #d97706;
-  --temp-low: #6faed9;
-  --rain-prob: #6faed9;
-  --wind-speed: #6b6b6b;
+  --temp-high: #a65a05;
+  --temp-low: #2b74a3;
+  --rain-prob: #2b74a3;
+  --wind-speed: #595959;
 
   /* Legacy/Refactored mappings */
-  --accent-weather: #6faed9; /* Logo Blue */
-  --accent-news: #6faed9; /* Logo Blue */
+  --accent-weather: #2b74a3; /* Logo Blue */
+  --accent-news: #2b74a3; /* Logo Blue */
   --weather-text: var(--text-primary);
   --weather-accent: var(--accent-weather);
   --weather-shadow: rgba(47, 47, 47, 0.1);
@@ -91,6 +91,11 @@ a {
 
 a:hover {
   color: var(--accent-weather);
+  text-decoration: underline;
+}
+
+a.text-decoration-none:hover {
+  text-decoration: underline !important;
 }
 
 /* Bootstrap Overrides */
@@ -269,6 +274,8 @@ main {
   font-weight: 600 !important;
   color: var(--secondary-highlight) !important;
   opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .nav-link.active {
@@ -276,6 +283,8 @@ main {
   color: #d97706 !important;
   opacity: 1;
   background-color: rgba(255, 255, 255, 0.15) !important;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 /* ==========================================
@@ -316,13 +325,14 @@ main {
   background-color: #ffffff !important;
 }
 .navbar:not(.scrolled) .btn_subscribe {
-  border-color: #ffffff !important;
+  border-color: #007bff !important;
   color: #ffffff !important;
+  background-color: #007bff !important;
 }
 
 /* Adjust top padding of heroes to account for absolute overlay navbar */
 .dashboard-page-container {
-  padding-top: 8rem !important;
+  padding-top: 11rem !important;
 }
 .travel-hero {
   padding-top: 140px !important;
@@ -374,13 +384,13 @@ main {
 
 /* Scrolled Subscribe Button (solid white, dark #2f2f2f text) */
 .navbar.scrolled .btn_subscribe {
-  background-color: #ffffff !important;
-  color: #2f2f2f !important;
-  border-color: #ffffff !important;
+  background-color: #007bff !important;
+  color: #ffffff !important;
+  border-color: #007bff !important;
 }
 .navbar.scrolled .btn_subscribe:hover {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  color: #2f2f2f !important;
+  background-color: #0056b3 !important;
+  color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
@@ -713,18 +723,22 @@ a.footer-text-link:hover {
   font-size: 14px;
   margin-left: 8px;
   margin: 0px;
+  background-color: #007bff;
+  color: #ffffff !important;
+  border-color: #007bff;
 }
 
 .navbar .btn_subscribe {
-  border-color: var(--bg-color);
-  color: var(--bg-color);
+  border-color: #007bff;
+  color: #ffffff;
+  background-color: #007bff;
   transition: all 0.3s ease;
 }
 
 .navbar .btn_subscribe:hover {
-  background-color: var(--bg-color);
-  color: var(--primary-color) !important;
-  border-color: var(--bg-color) !important;
+  background-color: #0056b3;
+  color: #ffffff !important;
+  border-color: #0056b3 !important;
 }
 
 .navbar .nav-link i {
@@ -786,7 +800,13 @@ a.footer-text-link:hover {
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  padding: 0;
+  padding: 12px;
+}
+
+.floating-chat-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .floating-chat-btn:hover {
@@ -804,16 +824,26 @@ a.footer-text-link:hover {
 /* Chatbot Widget Styles */
 #chatbot_modal {
   pointer-events: none; /* Allow clicking outside */
+  position: fixed !important;
+  bottom: 110px !important;
+  right: 30px !important;
+  top: auto !important;
+  left: auto !important;
+  width: 380px !important;
+  height: auto !important;
+  max-width: 90vw !important;
+  z-index: 1060;
+  margin: 0 !important;
 }
 
 .chatbot-modal-dialog {
   pointer-events: auto; /* Re-enable clicking inside */
-  position: fixed !important;
-  bottom: 110px !important; /* Positioned at the same level as the button */
-  right: 30px !important; /* Align with button */
+  position: relative !important;
+  bottom: auto !important;
+  right: auto !important;
   margin: 0 !important;
-  width: 380px; /* Fixed width for widget feel */
-  max-width: 90vw;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Ensure floating button stays visible */
@@ -1721,7 +1751,7 @@ a.footer-text-link:hover {
   background: #f0f2f5;
   border-radius: 100px;
   font-size: 0.85rem;
-  color: #444;
+  color: #1a1a1a;
   cursor: pointer;
   margin: 4px;
   transition: all 0.2s ease;
@@ -2337,7 +2367,7 @@ a.footer-text-link:hover {
   border: 1px solid var(--divider-color);
   padding: 6px 12px;
   border-radius: 20px;
-  color: var(--text-primary);
+  color: #1a1a1a;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
@@ -3005,13 +3035,6 @@ a.footer-text-link:hover {
   .container {
     padding-left: 20px;
     padding-right: 20px;
-  }
-
-  .navbar-collapse {
-    background-color: var(--bg-color);
-    padding: 1rem;
-    z-index: 1000;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   /* News Sub Banner Layout */
@@ -4368,6 +4391,8 @@ body {
 .ad-placeholder {
   width: 100%;
   height: 100%;
+  min-width: 250px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4378,15 +4403,15 @@ body {
 
 .ad-label {
   font-size: 0.65rem;
-  color: var(--text-secondary);
+  color: #495057;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 5px;
-  opacity: 0.7;
 }
 
 .ad-content {
   font-weight: 500;
+  color: #495057;
   opacity: 0.5;
 }
 
@@ -4401,6 +4426,7 @@ body {
 .ad-placeholder {
   width: 100%;
   max-width: 100%;
+  min-width: 250px; /* Ensure minimum width for AdSense slot calculation */
   background-color: #f8f9fa;
   border: 1px dashed #ced4da;
   border-radius: 8px;
@@ -4420,7 +4446,7 @@ body {
 .ad-label {
   font-size: 0.75rem;
   letter-spacing: 1px;
-  color: #adb5bd;
+  color: #495057;
   margin-bottom: 0.5rem;
   display: block;
 }
@@ -4669,3 +4695,41 @@ body {
   color: #ffffff !important;
 }
 
+/* Fix navbar staying expanded over content on desktop views */
+@media (min-width: 992px) {
+  .navbar-collapse {
+    position: static !important;
+    height: auto !important;
+    transform: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+    width: auto !important;
+    padding-top: 0 !important;
+  }
+  body.navbar-active {
+    overflow: auto !important;
+  }
+}
+
+/* Ensure AI widget is constrained to a small corner of the screen */
+@media (min-width: 992px) {
+  #chatbot_modal {
+    width: 380px !important;
+    max-width: 90vw !important;
+    bottom: 110px !important;
+    right: 30px !important;
+  }
+  .chatbot-modal-dialog .modal-content {
+    max-height: 70vh;
+  }
+}
+
+/* Ensure AI widget scales properly on mobile */
+@media (max-width: 480px) {
+  #chatbot_modal {
+    width: 100% !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    max-width: 100% !important;
+  }
+}

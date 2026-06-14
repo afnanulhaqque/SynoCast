@@ -46,27 +46,42 @@ class TimezoneManager {
         }
     }
 
+    getShiftedDate(timestamp) {
+        const timeDisplay = document.getElementById('dynamic_time_display');
+        let offsetSeconds = 0;
+        if (timeDisplay) {
+            const offsetStr = timeDisplay.getAttribute('data-offset');
+            if (offsetStr) {
+                const sign = offsetStr.startsWith('-') ? -1 : 1;
+                const hours = parseInt(offsetStr.substring(1, 3)) * sign;
+                const minutes = parseInt(offsetStr.substring(3)) * sign;
+                offsetSeconds = (hours * 3600) + (minutes * 60);
+            }
+        }
+        return new Date((timestamp + offsetSeconds) * 1000);
+    }
+
     formatTime(timestamp, options = {}) {
         const defaultOptions = {
-            timeZone: this.userTimezone,
+            timeZone: 'UTC',
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
         };
         
-        const date = new Date(timestamp * 1000);
+        const date = this.getShiftedDate(timestamp);
         return new Intl.DateTimeFormat(document.documentElement.lang || 'en', { ...defaultOptions, ...options }).format(date);
     }
 
     formatDate(timestamp, options = {}) {
         const defaultOptions = {
-            timeZone: this.userTimezone,
+            timeZone: 'UTC',
             weekday: 'short',
             month: 'short',
             day: 'numeric'
         };
         
-        const date = new Date(timestamp * 1000);
+        const date = this.getShiftedDate(timestamp);
         return new Intl.DateTimeFormat(document.documentElement.lang || 'en', { ...defaultOptions, ...options }).format(date);
     }
 

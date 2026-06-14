@@ -102,13 +102,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Update time/date
                     const offsetSeconds = data.current.timezone; 
-                    const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+                    const localTime = new Date(new Date().getTime() + (offsetSeconds * 1000));
 
                     if(timeEl) { 
-                        timeEl.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                        timeEl.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
                         removeSkeleton(timeEl);
                     }
-                    if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                    if(dateEl) dateEl.textContent = localTime.toLocaleDateString('en-US', { day: 'numeric', month: 'short', timeZone: 'UTC' });
                     if(dayEl) dayEl.textContent = "Today"; 
                     
                     // City Name
@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const item = hourlyList[i];
             const temp = Math.round(item.main.temp);
             const date = new Date(item.dt * 1000);
-            const itemTime = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
-            const timeStr = itemTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            const itemTime = new Date(date.getTime() + (timezoneOffset * 1000));
+            const timeStr = itemTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
             const wCode = item.weather[0].id;
             const iconData = WeatherUtils.getIconClass(wCode, item.weather[0].icon);
             const div = document.createElement('div');

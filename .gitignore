@@ -47,3 +47,6 @@ status_output.txt
 
 # Secrets
 client_secret_*.json
+
+# Custom Scripts
+download_fonts.py

@@ -127,3 +127,56 @@ def format_astronomy_data(daily_item, timezone_offset=0):
     except Exception as e:
         logger.error(f"Astronomy data formatting error: {e}")
         return None
+
+def calculate_aqi(pm2_5, pm10):
+    """
+    Calculate US EPA AQI based on PM2.5 and PM10 values.
+    Returns a dictionary with AQI value, label, and standard.
+    """
+    def calc_index(cp, breakpoints):
+        for bp in breakpoints:
+            if bp[0] <= cp <= bp[1]:
+                return int(round(((bp[3] - bp[2]) / (bp[1] - bp[0])) * (cp - bp[0]) + bp[2]))
+        return 500
+
+    # Breakpoints: (C_low, C_high, I_low, I_high)
+    pm25_bp = [
+        (0.0, 12.0, 0, 50),
+        (12.1, 35.4, 51, 100),
+        (35.5, 55.4, 101, 150),
+        (55.5, 150.4, 151, 200),
+        (150.5, 250.4, 201, 300),
+        (250.5, 350.4, 301, 400),
+        (350.5, 500.4, 401, 500)
+    ]
+
+    pm10_bp = [
+        (0, 54, 0, 50),
+        (55, 154, 51, 100),
+        (155, 254, 101, 150),
+        (255, 354, 151, 200),
+        (355, 424, 201, 300),
+        (425, 504, 301, 400),
+        (505, 604, 401, 500)
+    ]
+
+    aqi_pm25 = calc_index(pm2_5, pm25_bp)
+    aqi_pm10 = calc_index(pm10, pm10_bp)
+
+    aqi = max(aqi_pm25, aqi_pm10)
+
+    if aqi <= 50:
+        label = "Good"
+    elif aqi <= 100:
+        label = "Moderate"
+    elif aqi <= 150:
+        label = "Unhealthy for Sensitive Groups"
+    elif aqi <= 200:
+        label = "Unhealthy"
+    elif aqi <= 300:
+        label = "Very Unhealthy"
+    else:
+        label = "Hazardous"
+
+    return {"value": aqi, "label": label, "standard": "US EPA"}
+

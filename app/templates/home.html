@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "macros.html" import news_card, weather_news_card, ad_banner %}
 
-{% block title %} Home {% endblock title %}
+{% block title %}Home{% endblock title %}
 
 {% block head %}
 <link rel="stylesheet" href="/assets/styles/home_dashboard.css">
@@ -31,7 +31,8 @@
                         <!-- Search Box inside Hero left section -->
                         <div class="elegant-search-bar mt-4 position-relative">
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <label for="dashboard-search-input" class="visually-hidden">Search city</label>
+                                <span class="input-group-text" aria-hidden="true"><i class="fas fa-search"></i></span>
                                 <input type="text" id="dashboard-search-input" class="form-control" placeholder="Search city (e.g. Islamabad)" autocomplete="off">
                             </div>
                             <div id="dashboard-search-results" class="position-absolute w-100 search-results-dropdown-glass d-none"></div>
@@ -66,7 +67,7 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: PAK AQI -->
+                        <!-- Card 2: Local AQI -->
                         <div class="glass-card">
                             <div class="metric-icon">
                                 <i class="fa-solid fa-mask-face"></i>
@@ -74,7 +75,7 @@
                             <div>
                                 <h3 class="metric-value" id="metric-aqi-val">--</h3>
                                 <p class="metric-subvalue mb-0" id="metric-aqi-sub">Moderate</p>
-                                <p class="metric-label mt-0">PAK AQI</p>
+                                <p class="metric-label mt-0" id="metric-aqi-label">AQI</p>
                             </div>
                         </div>
 

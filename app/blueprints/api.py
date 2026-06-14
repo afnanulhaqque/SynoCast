@@ -448,6 +448,15 @@ def api_weather():
                 pollution_res = future_pollution.result()
                 pollution_res.raise_for_status()
                 pollution_data = pollution_res.json()
+                
+                # Calculate local AQI
+                if pollution_data and "list" in pollution_data and len(pollution_data["list"]) > 0:
+                    components = pollution_data["list"][0].get("components", {})
+                    pm2_5 = components.get("pm2_5", 0)
+                    pm10 = components.get("pm10", 0)
+                    
+                    from app.utils.weather import calculate_aqi
+                    pollution_data["local_aqi"] = calculate_aqi(pm2_5, pm10)
             except Exception as e:
                 current_app.logger.warning(f"Failed to fetch air pollution (non-critical): {e}")
                 pollution_data = None 

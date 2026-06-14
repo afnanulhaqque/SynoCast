@@ -20,7 +20,7 @@ let autoUpdateEnabled = true; // Can be controlled by user preferences
 document.addEventListener('DOMContentLoaded', function () {
     const hasLocation = sessionStorage.getItem('synocast_location_fixed');
     const modalEl = document.getElementById('locationPermissionModal');
-    if (!modalEl) return;
+    if (!modalEl || typeof bootstrap === 'undefined') return;
 
     const modal = new bootstrap.Modal(modalEl);
 

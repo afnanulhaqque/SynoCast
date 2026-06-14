@@ -166,12 +166,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function useDefaultLocation() {
-        // Fallback: Islamabad, Pakistan
-        fetchDashboardWeather(33.6844, 73.0479, "Sector I-10, Islamabad, Pakistan");
+        // Fallback: New York, USA
+        fetchDashboardWeather(40.7128, -74.0060, "New York, USA");
     }
 
     function formatDetailedAddress(address) {
-        if (!address) return "Sector I-10, Islamabad, Pakistan";
+        if (!address) return "New York, USA";
         const parts = [];
         
         // Build address string similar to: "734 street 3 i 10/2 i 10 islamabad..."
@@ -248,14 +248,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function formatDateTime(localDate) {
-        const hours = localDate.getHours();
-        const minutes = localDate.getMinutes();
+        const hours = localDate.getUTCHours();
+        const minutes = localDate.getUTCMinutes();
         const ampm = hours >= 12 ? 'pm' : 'am';
         const displayHours = hours % 12 || 12;
         const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
         
-        const month = localDate.toLocaleDateString('en-US', { month: 'short' });
-        const day = localDate.getDate();
+        const month = localDate.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+        const day = localDate.getUTCDate();
         
         let suffix = 'th';
         if (day === 1 || day === 21 || day === 31) suffix = 'st';
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 1. Time display
         const offsetSeconds = currentData.timezone; 
-        const localDate = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+        const localDate = new Date(new Date().getTime() + (offsetSeconds * 1000));
         if (refreshTimeEl) refreshTimeEl.textContent = formatDateTime(localDate);
 
         // 2. Large Temperature
@@ -310,10 +310,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const windValEl = document.getElementById('metric-wind-val');
         if (windValEl) windValEl.textContent = `${speedKmH.toFixed(1)} Km/h`;
 
-        // 2. PAK AQI
+        // 2. AQI
         const aqiValEl = document.getElementById('metric-aqi-val');
         const aqiSubEl = document.getElementById('metric-aqi-sub');
-        if (pollutionData && pollutionData.list && pollutionData.list[0]) {
+        const aqiLabelEl = document.getElementById('metric-aqi-label');
+
+        if (pollutionData && pollutionData.local_aqi) {
+            if (aqiLabelEl) {
+                aqiLabelEl.textContent = `${pollutionData.local_aqi.standard} AQI`;
+            }
+            if (aqiValEl) aqiValEl.textContent = pollutionData.local_aqi.value;
+            if (aqiSubEl) aqiSubEl.textContent = pollutionData.local_aqi.label;
+        } else if (pollutionData && pollutionData.list && pollutionData.list[0]) {
+            if (aqiLabelEl) {
+                aqiLabelEl.textContent = 'AQI';
+            }
             const aqiLevel = pollutionData.list[0].main.aqi; // 1-5
             const aqiMap = {
                 1: { val: 24, label: "Good" },
@@ -326,6 +337,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (aqiValEl) aqiValEl.textContent = mapped.val;
             if (aqiSubEl) aqiSubEl.textContent = mapped.label;
         } else {
+            if (aqiLabelEl) {
+                aqiLabelEl.textContent = 'AQI';
+            }
             if (aqiValEl) aqiValEl.textContent = "103";
             if (aqiSubEl) aqiSubEl.textContent = "Moderate";
         }
@@ -346,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 5. UV Index
         const offsetSeconds = currentData.timezone; 
-        const localDate = new Date(new Date().getTime() + (offsetSeconds * 1000) + (new Date().getTimezoneOffset() * 60000));
+        const localDate = new Date(new Date().getTime() + (offsetSeconds * 1000));
         const uvIndex = estimateUV(currentData.clouds.all, currentData.sys.sunset, currentData.sys.sunrise, localDate);
         const uvValEl = document.getElementById('metric-uv-val');
         if (uvValEl) uvValEl.textContent = uvIndex;
@@ -377,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function estimateUV(cloudsPercent, sunsetTime, sunriseTime, localTime) {
-        const hour = localTime.getHours();
+        const hour = localTime.getUTCHours();
         if (hour < 5 || hour > 19) return 0;
         
         const distanceFromPeak = Math.abs(12.5 - hour);
@@ -495,8 +509,8 @@ document.addEventListener('DOMContentLoaded', function() {
         periodsConfig.forEach(config => {
             const periodItems = list.filter(item => {
                 const date = new Date(item.dt * 1000);
-                const localDate = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
-                const hour = localDate.getHours();
+                const localDate = new Date(date.getTime() + (timezoneOffset * 1000));
+                const hour = localDate.getUTCHours();
                 return hour >= config.startHour && hour < config.endHour;
             });
 
@@ -541,8 +555,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const configItems = list.slice(0, 16); // Look slightly ahead
                 const futurePeriodItems = configItems.filter(item => {
                     const date = new Date(item.dt * 1000);
-                    const localDate = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
-                    const hour = localDate.getHours();
+                    const localDate = new Date(date.getTime() + (timezoneOffset * 1000));
+                    const hour = localDate.getUTCHours();
                     return hour >= config.startHour && hour < config.endHour;
                 });
 
@@ -595,13 +609,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         list.forEach(item => {
             const date = new Date(item.dt * 1000);
-            const localDate = new Date(date.getTime() + (timezoneOffset * 1000) + (date.getTimezoneOffset() * 60000));
-            const dayKey = localDate.toDateString(); // e.g. "Sat Jun 13 2026"
+            const localDate = new Date(date.getTime() + (timezoneOffset * 1000));
+            const dayKey = localDate.toISOString().split('T')[0]; // e.g. "2026-06-13"
 
             if (!daysGroup[dayKey]) {
                 daysGroup[dayKey] = {
-                    dayName: localDate.toLocaleDateString('en-US', { weekday: 'long' }),
-                    dateString: localDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    dayName: localDate.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }),
+                    dateString: localDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
                     temps: [item.main.temp],
                     pois: [item.pop || 0],
                     weathers: [item.weather[0]]

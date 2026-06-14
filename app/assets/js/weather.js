@@ -421,8 +421,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // We need to account for local browser offset to get "UTC" then add OWM offset.
             // Simplified:
             const d = new Date(item.dt * 1000);
-            const localD = new Date(d.getTime() + (new Date().getTimezoneOffset() * 60000) + (timezoneOffset * 1000));
-            const timeStr = localD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            const localD = new Date(d.getTime() + (timezoneOffset * 1000));
+            const timeStr = localD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
             
             // Icon
             const iconData = WeatherUtils.getIconClass(item.weather[0].id, item.weather[0].icon);
@@ -466,8 +466,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         forecast.list.forEach(item => {
             const d = new Date(item.dt * 1000);
-            const localD = new Date(d.getTime() + (new Date().getTimezoneOffset() * 60000) + (timezoneOffset * 1000));
-            const dayKey = localD.toDateString(); // "Sat Sep 27 2024"
+            const localD = new Date(d.getTime() + (timezoneOffset * 1000));
+            const dayKey = localD.toISOString().split('T')[0]; // "2024-09-27"
             
             if (!daily[dayKey]) {
                 daily[dayKey] = {
@@ -487,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const distinctDays = Object.values(daily).slice(0, 7); // Show 7 days
 
         distinctDays.forEach(day => {
-            const dayName = day.dateObj.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
+            const dayName = day.dateObj.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
             const timeStr = "12:00"; // Generic for daily
             const temp = Math.round(day.max);
             const pop = Math.round(day.pop * 100);

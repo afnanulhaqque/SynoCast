@@ -128,13 +128,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Focus input when modal opens
     if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', function () {
+            // Prevent background freeze
+            setTimeout(() => {
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 0);
+        });
+
         modalEl.addEventListener('shown.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            
             input.focus();
             // Show greeting if empty (excluding typing indicator)
             const messages = messagesEl.querySelectorAll('.message');
             if (messages.length === 0) {
                 appendMessage('bot', "Hello! I'm SynoCast — ask me about weather, news, or the site.");
             }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         });
     }
 

@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Get current UTC time
             const now = new Date();
-            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const utcTime = now.getTime();
             
-            // Apply city offset
+            // Apply city offset to get the target local time, represented as UTC
             const cityTime = new Date(utcTime + (hours * 3600000) + (minutes * 60000));
             
             // Format: Saturday, September 27, 2024, 14:00
@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 year: 'numeric',
                 hour: '2-digit', 
                 minute: '2-digit',
-                hour12: false
+                hour12: false,
+                timeZone: 'UTC'
             };
             
             const formattedDate = cityTime.toLocaleTimeString('en-US', options).replace(/ at /i, ', ');

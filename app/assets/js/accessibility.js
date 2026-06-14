@@ -225,8 +225,12 @@ class AccessibilityHandler {
             document.body.appendChild(modal);
         }
         
-        const bsModal = new bootstrap.Modal(modal);
-        bsModal.show();
+        if (typeof bootstrap !== 'undefined') {
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        } else {
+            console.warn('Bootstrap is not defined; cannot show shortcuts modal.');
+        }
     }
 }
 
