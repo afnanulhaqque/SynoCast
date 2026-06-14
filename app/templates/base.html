@@ -66,6 +66,7 @@
     <link rel="stylesheet" href="/assets/styles/responsive.css">
     <link rel="stylesheet" href="/assets/styles/weather-animations.css">
     <link rel="stylesheet" href="/assets/styles/weather-backgrounds.css">
+    <link rel="stylesheet" href="/assets/styles/modals.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="_csrf_token" content="{{ csrf_token() }}">
@@ -198,97 +199,110 @@
     </main>
 
     <!-- Subscribe modal -->
-    <div class="modal fade" id="subscribe_modal" tabindex="-1" aria-labelledby="subscribe_modalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="subscribe_modalLabel">Subscribe</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal fade" id="subscribe_modal" tabindex="-1" aria-labelledby="subscribe_modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-subscribe-dialog">
+            <div class="modal-content glass-modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="step step-contact">
-                        <!-- Email Input -->
-                        <div class="mb-3 input-group-email">
-                            <label for="subscriber-email" class="col-form-label">Email
-                                address</label>
-                            <input type="email" class="form-control" id="subscriber-email"
-                                placeholder="you@example.com">
-                        </div>
+                <div class="modal-body text-center pt-0 px-4 pb-4">
+                    <div class="subscribe-icon-wrapper mb-3">
+                        <i class="fas fa-envelope-open-text subscribe-icon"></i>
                     </div>
-
-                    <div class="step step-otp d-none">
-                        <p class="text-muted" id="otp-instructions"></p>
-                        <div class="mb-3">
-                            <label for="subscriber-otp" class="col-form-label">One-Time
-                                Password</label>
-                            <input type="text" class="form-control" id="subscriber-otp" placeholder="6-digit code"
-                                maxlength="6" pattern="\d{6}" required>
+                    <h4 class="modal-title fw-bold mb-2 text-primary" id="subscribe_modalLabel">Stay Updated</h4>
+                    <p class="text-secondary mb-4">Get the latest hyper-local weather insights straight to your inbox.</p>
+                    
+                    <div class="subscribe-steps-container">
+                        <div class="step step-contact subscribe-step-animated">
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control premium-input" id="subscriber-email" placeholder="name@example.com">
+                                <label for="subscriber-email">Email address</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="step step-success d-none">
-                        <div class="alert alert-success mb-0">
-                            Subscription confirmed! You're now part of the SynoCast list.
+                        <div class="step step-otp d-none subscribe-step-animated">
+                            <p class="text-secondary small mb-2" id="otp-instructions"></p>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control premium-input text-center tracking-widest" id="subscriber-otp" placeholder="123456" maxlength="6" pattern="\d{6}" required>
+                                <label for="subscriber-otp">One-Time Password</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="alert alert-danger d-none mt-3" id="subscribe-error" role="alert"></div>
-                </div>
-                <div class="modal-footer justify-content-end">
-                    <button type="button" class="btn modal_primary_btn" id="subscribe-action-btn">Subscribe</button>
+                        <div class="step step-success d-none subscribe-step-animated">
+                            <div class="success-animation mb-3">
+                                <i class="fas fa-check-circle text-success fs-1"></i>
+                            </div>
+                            <h5 class="text-primary mb-1">You're Subscribed!</h5>
+                            <p class="text-secondary small mb-0">Welcome to the SynoCast community.</p>
+                        </div>
+
+                        <div class="alert custom-alert-danger d-none mt-3" id="subscribe-error" role="alert"></div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-premium-glow w-100 mt-3" id="subscribe-action-btn">
+                        <span>Subscribe Now</span>
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Chatbot modal -->
-    <div class="modal fade" id="chatbot_modal" tabindex="-1" aria-labelledby="chatbot_modalLabel" aria-hidden="true"
-        data-bs-backdrop="false">
+    <div class="modal fade" id="chatbot_modal" tabindex="-1" aria-labelledby="chatbot_modalLabel" aria-hidden="true" data-bs-backdrop="false">
         <div class="modal-dialog chatbot-modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="chatbot_modalLabel">Chat with SynoCast</h5>
+            <div class="modal-content premium-chat-content">
+                <div class="modal-header premium-chat-header align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="chat-avatar-wrapper me-3">
+                            <img src="/assets/logo/logo-small.svg" alt="SynoCast AI" class="chat-avatar">
+                            <span class="status-dot"></span>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0 text-primary" id="chatbot_modalLabel">SynoCast AI</h5>
+                            <small class="text-secondary">Always here to help</small>
+                        </div>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="chatbot_wrapper">
-                        <div class="chatbot_messages" id="chatbot_messages" aria-live="polite">
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div class="chatbot_wrapper flex-grow-1 d-flex flex-column">
+                        <div class="chatbot_messages px-3 pt-3 flex-grow-1" id="chatbot_messages" aria-live="polite">
                             <!-- Messages will appear here -->
                             <div class="typing-indicator initially-hidden" id="modal-typing-indicator">
                                 <span></span><span></span><span></span>
                             </div>
                         </div>
-                        <div class="example-questions" id="modal-example-questions">
-                            <div class="suggestion-chip" data-question="Are there any weather warnings?">
-                                Weather Warnings?
+                        <div class="chat-bottom-area px-3 pb-3 pt-2 mt-auto">
+                            <div class="example-questions custom-scrollbar mb-2" id="modal-example-questions">
+                                <div class="suggestion-chip premium-chip" data-question="Are there any weather warnings?">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Warnings?
+                                </div>
+                                <div class="suggestion-chip premium-chip" data-question="What can i wear today?">
+                                    <i class="fas fa-tshirt me-1"></i> What to wear?
+                                </div>
+                                <div class="suggestion-chip premium-chip" data-question="Is today good for traveling?">
+                                    <i class="fas fa-plane me-1"></i> Traveling?
+                                </div>
+                                <div class="suggestion-chip premium-chip" data-question="Is it a good day to go outside?">
+                                    <i class="fas fa-sun me-1"></i> Go outside?
+                                </div>
+                                <div class="suggestion-chip premium-chip" data-question="Should I carry an umbrella?">
+                                    <i class="fas fa-umbrella me-1"></i> Umbrella?
+                                </div>
                             </div>
-                            <div class="suggestion-chip" data-question="What can i wear today?">
-                                What to wear?
-                            </div>
-                            <div class="suggestion-chip" data-question="Is today good for traveling?">
-                                Good for traveling?
-                            </div>
-                            <div class="suggestion-chip" data-question="Is it a good day to go outside?">
-                                Go outside?
-                            </div>
-                            <div class="suggestion-chip" data-question="Can I plan an outdoor event today?">
-                                Outdoor event?
-                            </div>
-                            <div class="suggestion-chip" data-question="Should I carry an umbrella?">
-                                Carry umbrella?
-                            </div>
+                            <form id="chatbot_form" class="chatbot_form d-flex premium-chat-form position-relative m-0" role="search">
+                                <input type="text" class="form-control premium-chat-input" id="chatbot_input" placeholder="Message SynoCast AI..." aria-label="Chat message" autocomplete="off">
+                                <div class="chat-input-actions d-flex align-items-center">
+                                    <button class="btn chat-action-btn" id="chatbot_voice_btn" type="button" title="Voice Search">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button class="btn chat-send-btn" id="chatbot_send" type="submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <form id="chatbot_form" class="chatbot_form d-flex mt-3" role="search">
-                            <input type="text" class="form-control" id="chatbot_input" placeholder="Ask anything..."
-                                aria-label="Chat message" autocomplete="off">
-                            <button class="btn btn-light ms-2 mt-0 rounded-pill" id="chatbot_voice_btn" type="button"
-                                title="Voice Search">
-                                <i class="fas fa-microphone"></i>
-                            </button>
-                            <button class="btn modal_primary_btn ms-2 mt-0" id="chatbot_send"
-                                type="submit">Send</button>
-                        </form>
                     </div>
                 </div>
             </div>

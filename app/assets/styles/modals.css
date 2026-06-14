@@ -1,0 +1,345 @@
+/* ==========================================================================
+   Redesigned Modals (Chatbot & Subscribe) - SynoCast Theme
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Subscribe Modal
+   -------------------------------------------------------------------------- */
+.modal-subscribe-dialog {
+    max-width: 400px;
+}
+
+.glass-modal-content {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.subscribe-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    margin: -32px auto 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(47, 47, 47, 0.2);
+    border: 4px solid var(--surface-color);
+}
+
+.subscribe-icon {
+    font-size: 24px;
+    color: var(--surface-color);
+}
+
+.modal-title {
+    color: var(--text-primary) !important;
+}
+
+.text-white-50 {
+    color: var(--text-secondary) !important;
+}
+
+.premium-input {
+    background: var(--bg-color) !important;
+    border: 1px solid var(--divider-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.premium-input:focus {
+    background: var(--surface-color) !important;
+    border-color: var(--secondary-highlight) !important;
+    box-shadow: 0 0 0 4px rgba(111, 174, 217, 0.2) !important;
+}
+
+.form-floating label {
+    color: var(--text-secondary);
+}
+
+.premium-input:focus ~ label,
+.premium-input:not(:placeholder-shown) ~ label {
+    color: var(--text-primary);
+}
+
+.btn-premium-glow {
+    background: var(--primary-color);
+    color: var(--surface-color);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-premium-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(47, 47, 47, 0.2);
+    background: var(--btn-primary-hover);
+    color: var(--surface-color);
+}
+
+.btn-premium-glow i {
+    transition: transform 0.3s ease;
+}
+
+.btn-premium-glow:hover i {
+    transform: translateX(4px);
+}
+
+.subscribe-step-animated {
+    animation: slideUpFade 0.4s ease forwards;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-animation {
+    animation: scaleBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scaleBounce {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.tracking-widest {
+    letter-spacing: 0.25em;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* --------------------------------------------------------------------------
+   Chatbot Modal
+   -------------------------------------------------------------------------- */
+.premium-chat-content {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    height: 80vh;
+    max-height: 600px;
+}
+
+.premium-chat-header {
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--divider-color);
+    padding: 16px 20px;
+}
+
+.chat-avatar-wrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--divider-color);
+}
+
+.chat-avatar {
+    width: 24px;
+    height: 24px;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--status-success);
+    border-radius: 50%;
+    border: 2px solid var(--bg-color);
+}
+
+.chatbot_wrapper {
+    background-color: var(--surface-color);
+}
+
+.chatbot_messages {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.chatbot_messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot_messages::-webkit-scrollbar-thumb {
+    background: var(--divider-color);
+    border-radius: 10px;
+}
+
+.chatbot_messages .message {
+    animation: messageSlideIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+@keyframes messageSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chatbot_messages .message.bot .bubble {
+    background: var(--bg-color);
+    color: var(--text-primary);
+    border-radius: 18px 18px 18px 4px;
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 12px 16px;
+}
+
+.chatbot_messages .message.user .bubble {
+    background: var(--primary-color);
+    color: var(--surface-color);
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 8px rgba(47, 47, 47, 0.1);
+    padding: 12px 16px;
+}
+
+.premium-chip {
+    background: var(--surface-color);
+    border: 1px solid var(--divider-color);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.premium-chip:hover {
+    background: var(--bg-color);
+    border-color: var(--secondary-highlight);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.custom-scrollbar {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider-color) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--divider-color);
+    border-radius: 4px;
+}
+
+.premium-chat-form {
+    background: var(--surface-color);
+    border-radius: 24px;
+    padding: 6px;
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.premium-chat-input {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-primary) !important;
+    padding: 10px 16px;
+    box-shadow: none !important;
+}
+
+.premium-chat-input::placeholder {
+    color: var(--text-muted);
+}
+
+.chat-input-actions {
+    padding-right: 4px;
+}
+
+.chat-action-btn, .chat-send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.chat-action-btn {
+    background: transparent;
+    color: var(--text-muted);
+}
+
+.chat-action-btn:hover {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.chat-send-btn {
+    background: var(--primary-color);
+    color: var(--surface-color);
+    margin-left: 4px;
+}
+
+.chat-send-btn:not(:disabled):hover {
+    transform: scale(1.05);
+    background: var(--btn-primary-hover);
+}
+
+.chat-send-btn:disabled {
+    background: var(--bg-color);
+    color: var(--text-disabled);
+    border: 1px solid var(--divider-color);
+}
+
+/* Modals close buttons need to be dark again */
+.btn-close-white {
+    filter: none; /* remove the white filter if present */
+}
+
+/* Overriding old floating chat button to look more premium */
+.floating-chat-btn {
+    background: var(--primary-color) !important;
+    box-shadow: 0 10px 25px rgba(47, 47, 47, 0.4) !important;
+    border: none !important;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease !important;
+}
+
+.floating-chat-btn:hover {
+    transform: scale(1.1) translateY(-5px) !important;
+    box-shadow: 0 15px 30px rgba(47, 47, 47, 0.5) !important;
+}
+
+/* Modals z-index and backdrop override for glass effect */
+.modal-backdrop.show {
+    opacity: 0.5;
+    backdrop-filter: blur(2px);
+}
